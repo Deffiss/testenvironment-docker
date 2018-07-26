@@ -9,7 +9,7 @@ namespace TestEnvironment.Docker.Containers
     public sealed class MssqlContainer : Container
     {
         private const int AttemptsCount = 60;
-        private const int DelayTime = 500;
+        private const int DelayTime = 1000;
 
         private readonly string _saPassword;
 

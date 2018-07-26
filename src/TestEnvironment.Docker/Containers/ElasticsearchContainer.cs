@@ -11,6 +11,9 @@ namespace TestEnvironment.Docker.Containers
 {
     public class ElasticsearchContainer : Container
     {
+        private const int AttemptsCount = 60;
+        private const int DelayTime = 1000;
+
         public ElasticsearchContainer(DockerClient dockerClient, string name, Action<string> logger = null)
             : base(dockerClient, name, "docker.elastic.co/elasticsearch/elasticsearch-oss", "6.2.4",
                 new[] { ("discovery.type", "single-node") },
@@ -20,7 +23,7 @@ namespace TestEnvironment.Docker.Containers
 
         protected override async Task WaitForReadiness(CancellationToken token = default)
         {
-            var attempts = 60;
+            var attempts = AttemptsCount;
 
             var elastic = new ElasticClient(new Uri(GetUrl()));
             IClusterHealthResponse health;
@@ -33,7 +36,7 @@ namespace TestEnvironment.Docker.Containers
 
                 Console.WriteLine(health.DebugInformation);
 
-                if (!health.IsValid) await Task.Delay(500);
+                if (!health.IsValid) await Task.Delay(DelayTime);
 
                 var logs = await DockerClient.Containers.GetContainerLogsAsync(Id, new ContainerLogsParameters
                 {
