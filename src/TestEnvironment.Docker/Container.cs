@@ -10,12 +10,13 @@ namespace TestEnvironment.Docker
 {
     public class Container : IDependency
     {
-
         private readonly string _imageName;
         private readonly string _tag;
         private readonly IDictionary<string, string> _environmentVariables;
 
         protected Action<string> Logger { get; }
+
+        protected bool IsDockerInDocker { get; }
 
         protected DockerClient DockerClient { get; }
 
@@ -23,15 +24,16 @@ namespace TestEnvironment.Docker
 
         public string Id { get; private set; }
 
-        public string IpAddress { get; private set; }
+        public string IPAddress { get; private set; }
 
         public Dictionary<ushort, ushort> Ports { get; private set; }
 
-        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", (string Name, string Value)[] environmentVariables = null, Action<string> logger = null)
+        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", (string Name, string Value)[] environmentVariables = null, Action<string> logger = null, bool isDockerInDocker = false)
         {
             Name = name;
             DockerClient = dockerClient;
             Logger = logger;
+            IsDockerInDocker = isDockerInDocker;
             _imageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
             _tag = tag;
             _environmentVariables = environmentVariables?.ToDictionary(e => e.Name, e => e.Value) ?? new Dictionary<string, string>();
@@ -102,7 +104,7 @@ namespace TestEnvironment.Docker
                     HostConfig = new HostConfig
                     {
                         PublishAllPorts = true,
-                    }
+                    },
                 }, CancellationToken.None);
 
             // Run container
@@ -118,7 +120,7 @@ namespace TestEnvironment.Docker
             Logger?.Invoke($"Container IPAddress: {startedContainer?.NetworkSettings.Networks.FirstOrDefault().Key} - {startedContainer?.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress}");
 
             Id = container.ID;
-            IpAddress = startedContainer?.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
+            IPAddress = startedContainer?.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
             Ports = startedContainer?.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
         }
 
@@ -129,5 +131,7 @@ namespace TestEnvironment.Docker
                 DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
             }
         }
+
+        public Task Cleanup(CancellationToken token = default) => throw new NotImplementedException();
     }
 }

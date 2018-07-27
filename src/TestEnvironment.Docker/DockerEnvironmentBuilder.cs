@@ -14,6 +14,10 @@ namespace TestEnvironment.Docker
 
         public DockerClient DockerClient { get; }
 
+        public Action<string> Logger { get; private set; }
+
+        public bool IsDockerInDocker { get; private set; } = false;
+
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
         {
@@ -60,16 +64,25 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, name, imageName, tag, environmentVariables);
+            var container = new Container(DockerClient, name, imageName, tag, environmentVariables, Logger, IsDockerInDocker);
             AddDependency(container);
 
             return this;
         }
 
-
         public IDockerEnvironmentBuilder UseDefaultNetwork() => throw new NotImplementedException();
 
-        public IDockerEnvironmentBuilder WithLogger(Action<string> logger) => throw new NotImplementedException();
+        public IDockerEnvironmentBuilder DockerInDocker()
+        {
+            IsDockerInDocker = true;
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder WithLogger(Action<string> logger)
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            return this;
+        }
 
         public IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream) => throw new NotImplementedException();
 

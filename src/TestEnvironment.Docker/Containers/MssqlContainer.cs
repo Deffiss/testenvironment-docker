@@ -13,8 +13,8 @@ namespace TestEnvironment.Docker.Containers
 
         private readonly string _saPassword;
 
-        public MssqlContainer(DockerClient dockerClient, string name, string saPassword, Action<string> logger = null)
-            : base(dockerClient, name, "microsoft/mssql-server-linux",
+        public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", Action<string> logger = null)
+            : base(dockerClient, name, imageName, tag,
                 environmentVariables: new[] { ("ACCEPT_EULA", "Y"), ("SA_PASSWORD", saPassword), ("MSSQL_PID", "Express") },
                 logger: logger)
         {
@@ -57,7 +57,7 @@ namespace TestEnvironment.Docker.Containers
             }
         }
 
-        public string GetConnectionString(bool isInternal = false) =>
-            $"Data Source={(isInternal ? IpAddress : "localhost")}, {(isInternal ? 1433 : Ports[1433])}; UID=SA; pwd={_saPassword};";
+        public string GetConnectionString() =>
+            $"Data Source={(IsDockerInDocker ? IPAddress : "localhost")}, {(IsDockerInDocker ? 1433 : Ports[1433])}; UID=SA; pwd={_saPassword};";
     }
 }

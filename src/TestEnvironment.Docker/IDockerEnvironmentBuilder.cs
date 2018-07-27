@@ -9,6 +9,8 @@ namespace TestEnvironment.Docker
     {
         DockerClient DockerClient { get; }
 
+        IDockerEnvironmentBuilder DockerInDocker();
+
         IDockerEnvironmentBuilder UseDefaultNetwork();
 
         IDockerEnvironmentBuilder WithLogger(Action<string> logger);

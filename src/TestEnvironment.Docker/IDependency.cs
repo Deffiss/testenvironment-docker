@@ -26,5 +26,11 @@ namespace TestEnvironment.Docker
         /// </summary>
         /// <param name="token">Cancellation token.</param>
         Task Stop(CancellationToken token = default);
+
+        /// <summary>
+        /// Cleanup the dependency by removing all the data.
+        /// </summary>
+        /// <param name="token">Cancellation token.</param>
+        Task Cleanup(CancellationToken token = default);
     }
 }

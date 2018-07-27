@@ -14,8 +14,8 @@ namespace TestEnvironment.Docker.Containers
         private const int AttemptsCount = 60;
         private const int DelayTime = 1000;
 
-        public ElasticsearchContainer(DockerClient dockerClient, string name, Action<string> logger = null)
-            : base(dockerClient, name, "docker.elastic.co/elasticsearch/elasticsearch-oss", "6.2.4",
+        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", Action<string> logger = null)
+            : base(dockerClient, name, imageName, tag,
                 new[] { ("discovery.type", "single-node") },
                 logger)
         {
@@ -58,6 +58,6 @@ namespace TestEnvironment.Docker.Containers
             if (attempts == 0) throw new TimeoutException("Elastic didn't start");
         }
 
-        public string GetUrl(bool isInternal = false) => isInternal ? $"http://{IpAddress}:9200" : $"http://localhost:{Ports[9200]}";
+        public string GetUrl() => IsDockerInDocker ? $"http://{IPAddress}:9200" : $"http://localhost:{Ports[9200]}";
     }
 }
