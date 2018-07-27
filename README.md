@@ -1,5 +1,4 @@
-# testenvironment-docker
-
+# Test environment with Docker containers
             // Create the environment using builder pattern
             var environment = new DockerEnvironmentBuilder()
                 .AddContainer("my-nginx", "nginx")
