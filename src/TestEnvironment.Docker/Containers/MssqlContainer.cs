@@ -13,10 +13,10 @@ namespace TestEnvironment.Docker.Containers
 
         private readonly string _saPassword;
 
-        public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", Action<string> logger = null)
+        public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", Action<string> logger = null, bool isDockerInDocker = false)
             : base(dockerClient, name, imageName, tag,
                 environmentVariables: new[] { ("ACCEPT_EULA", "Y"), ("SA_PASSWORD", saPassword), ("MSSQL_PID", "Express") },
-                logger: logger)
+                logger, isDockerInDocker)
         {
             _saPassword = saPassword;
         }

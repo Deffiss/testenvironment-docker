@@ -14,10 +14,10 @@ namespace TestEnvironment.Docker.Containers
         private const int AttemptsCount = 60;
         private const int DelayTime = 1000;
 
-        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", Action<string> logger = null)
+        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", Action<string> logger = null, bool isDockerInDocker = false)
             : base(dockerClient, name, imageName, tag,
                 new[] { ("discovery.type", "single-node") },
-                logger)
+                logger, isDockerInDocker)
         {
         }
 
