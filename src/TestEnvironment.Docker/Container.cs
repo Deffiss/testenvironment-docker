@@ -46,7 +46,7 @@ namespace TestEnvironment.Docker
             var mergedVariables = _environmentVariables.Concat(environmentVariables.ToDictionary(e => e.Name, e => e.Value));
             var stringifiedVariables = mergedVariables.Select(p => $"{p.Key}={p.Value}").ToArray();
 
-            await RunContainerSafely(stringifiedVariables);
+            await RunContainerSafely(stringifiedVariables, token);
 
             await WaitForReadiness(token);
         }
@@ -56,27 +56,27 @@ namespace TestEnvironment.Docker
 
         protected virtual Task WaitForReadiness(CancellationToken token = default) => Task.CompletedTask;
 
-        private async Task RunContainerSafely(string[] environmentVariables)
+        private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token)
         {
             // Create container name
             Logger?.Invoke($"Container name: {Name}");
 
             // Try to find container in docker session
-            var containers = await DockerClient.Containers.ListContainersAsync(new ContainersListParameters { All = true });
+            var containers = await DockerClient.Containers.ListContainersAsync(new ContainersListParameters { All = true }, token);
 
             var startedContainer = containers.FirstOrDefault(c => c.Names.Contains($"/{Name}"));
 
             // If container already exist - remove that
             if (startedContainer != null)
             {
-                await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true });
+                await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true }, token);
             }
 
             var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters
             {
                 All = true,
                 MatchName = $"{_imageName}:{_tag}"
-            });
+            }, token);
 
             // If image not pulled yet - pull this.
             if (!images.Any())
@@ -88,7 +88,8 @@ namespace TestEnvironment.Docker
                         Tag = _tag
                     },
                     null,
-                    new Progress<JSONMessage>(m => Logger?.Invoke($"Pulling image {_imageName}:{_tag}:\n{m.ProgressMessage}")));
+                    new Progress<JSONMessage>(m => Logger?.Invoke($"Pulling image {_imageName}:{_tag}:\n{m.ProgressMessage}")),
+                    token);
             }
 
             // Create new container
@@ -105,13 +106,13 @@ namespace TestEnvironment.Docker
                     {
                         PublishAllPorts = true,
                     },
-                }, CancellationToken.None);
+                }, token);
 
             // Run container
-            await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters());
+            await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), token);
 
             // Try to find container in docker session
-            containers = await DockerClient.Containers.ListContainersAsync(new ContainersListParameters { All = true });
+            containers = await DockerClient.Containers.ListContainersAsync(new ContainersListParameters { All = true }, token);
 
             startedContainer = containers.FirstOrDefault(c => c.Names.Contains($"/{Name}"));
 
