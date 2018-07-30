@@ -1,20 +1,23 @@
 # Test environment with Docker containers
-            // Create the environment using builder pattern
-            var environment = new DockerEnvironmentBuilder()
-                .AddContainer("my-nginx", "nginx")
-                .AddElasticsearchContainer("my-elastic")
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0")
-                .Build();
 
-            // Up it.
-            await environment.Up();
+```csharp
+// Create the environment using builder pattern
+var environment = new DockerEnvironmentBuilder()
+    .AddContainer("my-nginx", "nginx")
+    .AddElasticsearchContainer("my-elastic")
+    .AddMssqlContainer("my-mssql", "HelloK11tt_0")
+    .Build();
 
-            // Play with containers.
-            var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
-            var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
+// Up it.
+await environment.Up();
 
-            // Down it.
-            await environment.Down();
+// Play with containers.
+var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
+var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
 
-            // Dispose (remove).
-            environment.Dispose();
+// Down it.
+await environment.Down();
+
+// Dispose (remove).
+environment.Dispose();
+```
