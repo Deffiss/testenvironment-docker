@@ -1,8 +1,10 @@
 ﻿using Docker.DotNet;
+using SharpYaml.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using TestEnvironment.Docker.Compose;
 
 namespace TestEnvironment.Docker
 {
@@ -84,7 +86,20 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream) => throw new NotImplementedException();
+        public IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream, IDictionary<string, Type> containerTypeMapping = default)
+        {
+            var serializer = new Serializer(new SerializerSettings { ObjectSerializerBackend = new SkipIfMissedBackend() });
+
+            var compose = serializer.Deserialize<DockerComposeFile>(composeFileStream);
+
+            foreach (var service in compose.Services)
+            {
+                
+            }
+
+
+            return this;
+        }
 
         public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
 

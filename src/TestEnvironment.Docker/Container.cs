@@ -54,6 +54,16 @@ namespace TestEnvironment.Docker
         public Task Stop(CancellationToken token = default) =>
             DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { });
 
+        public Task Cleanup(CancellationToken token = default) => throw new NotImplementedException();
+
+        public void Dispose()
+        {
+            if (!string.IsNullOrEmpty(Id))
+            {
+                DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
+            }
+        }
+
         protected virtual Task WaitForReadiness(CancellationToken token = default) => Task.CompletedTask;
 
         private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token)
@@ -124,15 +134,5 @@ namespace TestEnvironment.Docker
             IPAddress = startedContainer?.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
             Ports = startedContainer?.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
         }
-
-        public void Dispose()
-        {
-            if (!string.IsNullOrEmpty(Id))
-            {
-                DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
-            }
-        }
-
-        public Task Cleanup(CancellationToken token = default) => throw new NotImplementedException();
     }
 }
