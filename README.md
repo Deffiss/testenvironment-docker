@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/1xh2d15gkmij0mp8/branch/master?svg=true)](https://ci.appveyor.com/project/Deffiss/testenvironment-docker/branch/master)
+
 # Test environment with Docker containers
 
 ```csharp
