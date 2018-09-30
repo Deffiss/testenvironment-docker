@@ -9,6 +9,6 @@ build_script:
   - dotnet build ./src/TestEnvironment.Docker/TestEnvironment.Docker.csproj
 test_script:
   - docker pull nginx:latest
-  - docker pull docker.elastic.co/elasticsearch/elasticsearch-oss:.2.4
+  - docker pull docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.4
   - docker pull microsoft/mssql-server-linux:latest
   - dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj
