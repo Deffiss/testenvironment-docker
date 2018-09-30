@@ -88,7 +88,7 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
 
-        public DockerEnvironment Build() => new DockerEnvironment(_envitronmentName, _variables, _dependencies.ToArray(), DockerClient);
+        public DockerEnvironment Build() => new DockerEnvironment(_envitronmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
 
         private static DockerClient CreateDefaultDockerClient()
         {

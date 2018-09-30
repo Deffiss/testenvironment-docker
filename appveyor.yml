@@ -7,9 +7,5 @@ environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 build_script:
   - dotnet build ./src/TestEnvironment.Docker/TestEnvironment.Docker.csproj
-before_test:
-  - docker pull nginx:latest
-  - docker pull docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.4
-  - docker pull microsoft/mssql-server-linux:latest
 test_script:
   - dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj

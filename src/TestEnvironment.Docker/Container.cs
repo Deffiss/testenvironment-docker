@@ -10,10 +10,6 @@ namespace TestEnvironment.Docker
 {
     public class Container : IDependency
     {
-        private readonly string _imageName;
-        private readonly string _tag;
-        private readonly IDictionary<string, string> _environmentVariables;
-
         protected Action<string> Logger { get; }
 
         protected bool IsDockerInDocker { get; }
@@ -28,22 +24,28 @@ namespace TestEnvironment.Docker
 
         public Dictionary<ushort, ushort> Ports { get; private set; }
 
+        public string ImageName { get; }
+
+        public string Tag { get; }
+
+        public IDictionary<string, string> EnvironmentVariables { get; }
+
         public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", (string Name, string Value)[] environmentVariables = null, Action<string> logger = null, bool isDockerInDocker = false)
         {
             Name = name;
             DockerClient = dockerClient;
             Logger = logger;
             IsDockerInDocker = isDockerInDocker;
-            _imageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
-            _tag = tag;
-            _environmentVariables = environmentVariables?.ToDictionary(e => e.Name, e => e.Value) ?? new Dictionary<string, string>();
+            ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
+            Tag = tag;
+            EnvironmentVariables = environmentVariables?.ToDictionary(e => e.Name, e => e.Value) ?? new Dictionary<string, string>();
         }
 
         public async Task Run((string Name, string Value)[] environmentVariables, CancellationToken token = default)
         {
             if (environmentVariables == null) throw new ArgumentNullException(nameof(environmentVariables));
 
-            var mergedVariables = _environmentVariables.Concat(environmentVariables.ToDictionary(e => e.Name, e => e.Value));
+            var mergedVariables = EnvironmentVariables.Concat(environmentVariables.ToDictionary(e => e.Name, e => e.Value));
             var stringifiedVariables = mergedVariables.Select(p => $"{p.Key}={p.Value}").ToArray();
 
             await RunContainerSafely(stringifiedVariables, token);
@@ -75,7 +77,7 @@ namespace TestEnvironment.Docker
             var images = await DockerClient.Images.ListImagesAsync(new ImagesListParameters
             {
                 All = true,
-                MatchName = $"{_imageName}:{_tag}"
+                MatchName = $"{ImageName}:{Tag}"
             }, token);
 
             // If image not pulled yet - pull this.
@@ -84,11 +86,11 @@ namespace TestEnvironment.Docker
                 await DockerClient.Images.CreateImageAsync(
                     new ImagesCreateParameters
                     {
-                        FromImage = _imageName,
-                        Tag = _tag
+                        FromImage = ImageName,
+                        Tag = Tag
                     },
                     null,
-                    new Progress<JSONMessage>(m => Logger?.Invoke($"Pulling image {_imageName}:{_tag}:\n{m.ProgressMessage}")),
+                    new Progress<JSONMessage>(m => Logger?.Invoke($"Pulling image {ImageName}:{Tag}:\n{m.ProgressMessage}")),
                     token);
             }
 
@@ -97,7 +99,7 @@ namespace TestEnvironment.Docker
                 new CreateContainerParameters
                 {
                     Name = Name,
-                    Image = $"{_imageName}:{_tag}",
+                    Image = $"{ImageName}:{Tag}",
                     AttachStdout = true,
                     Env = environmentVariables,
                     Hostname = Name,

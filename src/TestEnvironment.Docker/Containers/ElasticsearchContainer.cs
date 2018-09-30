@@ -34,7 +34,7 @@ namespace TestEnvironment.Docker.Containers
                     .Level(Level.Cluster)
                     .ErrorTrace(true));
 
-                Console.WriteLine(health.DebugInformation);
+                Logger?.Invoke(health.DebugInformation);
 
                 if (!health.IsValid) await Task.Delay(DelayTime);
 
@@ -47,12 +47,12 @@ namespace TestEnvironment.Docker.Containers
 
                 using (var sr = new StreamReader(logs))
                 {
-                    Console.WriteLine($"Container {Id} logs:\n{await sr.ReadToEndAsync()}");
+                    Logger?.Invoke($"Container {Id} logs:\n{await sr.ReadToEndAsync()}");
                 }
 
                 attempts--;
 
-                Console.WriteLine($"Attemtps {attempts}");
+                Logger?.Invoke($"Attemtps {attempts}");
             } while (!health.IsValid && attempts != 0);
 
             if (attempts == 0) throw new TimeoutException("Elastic didn't start");
