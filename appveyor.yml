@@ -1,6 +1,11 @@
-version: 1.0.{build}
+version: '0.0.1.{build}'
 image: Visual Studio 2017
+services:
+  - docker
 configuration: Release
-build:
-  verbosity: minimal
-test: off
+environment:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+build_script:
+  - dotnet build .\src\TestEnvironment.Docker\TestEnvironment.Docker.csproj
+test_script:
+  - dotnet test .\test\TestEnvironment.Docker.Tests\TestEnvironment.Docker.Tests.csproj
