@@ -1,4 +1,5 @@
 ﻿using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Data.SqlClient;
 using System.Threading;
@@ -13,7 +14,7 @@ namespace TestEnvironment.Docker.Containers
 
         private readonly string _saPassword;
 
-        public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", Action<string> logger = null, bool isDockerInDocker = false)
+        public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", ILogger logger = null, bool isDockerInDocker = false)
             : base(dockerClient, name, imageName, tag,
                 environmentVariables: new[] { ("ACCEPT_EULA", "Y"), ("SA_PASSWORD", saPassword), ("MSSQL_PID", "Express") },
                 logger, isDockerInDocker)
@@ -40,7 +41,7 @@ namespace TestEnvironment.Docker.Containers
                 }
                 catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException || ex is SqlException)
                 {
-                    Logger?.Invoke(ex.Message);
+                    Logger.LogDebug(ex.Message);
                 }
 
                 if (!isAlive)
@@ -53,7 +54,8 @@ namespace TestEnvironment.Docker.Containers
 
             if (attempts == 0)
             {
-                throw new TimeoutException("MSSQL didn't start");
+                Logger.LogError("MSSQL didn't start.");
+                throw new TimeoutException("MSSQL didn't start.");
             }
         }
 

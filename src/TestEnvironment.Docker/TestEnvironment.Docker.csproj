@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <PackageReference Include="Docker.DotNet" Version="3.125.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.1" />
     <PackageReference Include="NEST" Version="6.2.0" />
     <PackageReference Include="SharpYaml" Version="1.6.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />

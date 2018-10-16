@@ -1,6 +1,5 @@
 ﻿using Docker.DotNet;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using System.IO;
 
 namespace TestEnvironment.Docker
@@ -9,7 +8,7 @@ namespace TestEnvironment.Docker
     {
         DockerClient DockerClient { get; }
 
-        Action<string> Logger { get; }
+        ILogger Logger { get; }
 
         bool IsDockerInDocker { get; }
 
@@ -17,7 +16,7 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder UseDefaultNetwork();
 
-        IDockerEnvironmentBuilder WithLogger(Action<string> logger);
+        IDockerEnvironmentBuilder WithLogger(ILogger logger);
 
         IDockerEnvironmentBuilder SetName(string environmentName);
 
