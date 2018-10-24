@@ -1,4 +1,4 @@
-version: '0.0.1.{build}'
+version: '1.0.0.{build}'
 image: Ubuntu
 services:
   - docker
@@ -9,3 +9,5 @@ build_script:
   - dotnet build ./src/TestEnvironment.Docker/TestEnvironment.Docker.csproj
 test_script:
   - dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj
+artifacts:
+  - path: '**\*.nupkg'
