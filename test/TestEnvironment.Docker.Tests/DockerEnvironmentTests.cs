@@ -15,6 +15,8 @@ namespace TestEnvironment.Docker.Tests
         {
             // Create the environment using builder pattern
             var environment = new DockerEnvironmentBuilder()
+                .UseDefaultNetwork()
+                .SetName("my-test-env")
                 .AddContainer("my-nginx", "nginx")
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")

@@ -1,5 +1,5 @@
 ﻿using Docker.DotNet;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,7 +9,7 @@ namespace TestEnvironment.Docker
     {
         DockerClient DockerClient { get; }
 
-        Action<string> Logger { get; }
+        ILogger Logger { get; }
 
         bool IsDockerInDocker { get; }
 
@@ -17,15 +17,15 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder UseDefaultNetwork();
 
-        IDockerEnvironmentBuilder WithLogger(Action<string> logger);
+        IDockerEnvironmentBuilder WithLogger(ILogger logger);
 
         IDockerEnvironmentBuilder SetName(string environmentName);
 
-        IDockerEnvironmentBuilder SetVariable(params (string Name, string Value)[] variables);
+        IDockerEnvironmentBuilder SetVariable(IDictionary<string, string> variables);
 
         IDockerEnvironmentBuilder AddDependency(IDependency dependency);
 
-        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", (string Name, string Value)[] environmentVariables = null);
+        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null);
 
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 

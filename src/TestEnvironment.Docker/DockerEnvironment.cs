@@ -1,5 +1,6 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace TestEnvironment.Docker
     public class DockerEnvironment : ITestEnvironment
     {
         private readonly DockerClient _dockerClient;
-        private readonly Action<string> _logger;
+        private readonly ILogger _logger;
 
         public string Name { get; }
 
@@ -19,7 +20,7 @@ namespace TestEnvironment.Docker
 
         public IDependency[] Dependencies { get; }
 
-        public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, Action<string> logger = null)
+        public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, ILogger logger = null)
         {
             Name = name;
             Variables = variables;
@@ -32,8 +33,7 @@ namespace TestEnvironment.Docker
         {
             await PullRequiredImages(token);
 
-            var environmentVariables = Variables.Select(p => (p.Key, p.Value)).ToArray();
-            await Task.WhenAll(Dependencies.Select(d => d.Run(environmentVariables, token)));
+            await Task.WhenAll(Dependencies.Select(d => d.Run(Variables, token)));
         }
 
         public Task Down(CancellationToken token = default) =>
@@ -42,8 +42,7 @@ namespace TestEnvironment.Docker
         public Container GetContainer(string name) =>
             Dependencies.FirstOrDefault(d => d is Container c && c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) as Container;
 
-        public TContainer GetContainer<TContainer>(string name) where TContainer : Container =>
-            (TContainer)GetContainer(name);
+        public TContainer GetContainer<TContainer>(string name) where TContainer : Container => GetContainer(name) as TContainer;
 
         public void Dispose()
         {
@@ -61,11 +60,11 @@ namespace TestEnvironment.Docker
                 {
                     All = true,
                     MatchName = $"{contianer.ImageName}:{contianer.Tag}"
-                });
+                }, token);
 
                 if (!images.Any())
                 {
-                    _logger?.Invoke($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
+                    _logger.LogInformation($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
 
                     // Pull the image.
                     await _dockerClient.Images.CreateImageAsync(
@@ -73,7 +72,7 @@ namespace TestEnvironment.Docker
                         {
                             FromImage = contianer.ImageName,
                             Tag = contianer.Tag
-                        }, null, new Progress<JSONMessage>(m => _logger?.Invoke($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")));
+                        }, null, new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")), token);
                 }
             }
         }

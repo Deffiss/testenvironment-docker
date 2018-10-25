@@ -1,8 +1,10 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
 using Elasticsearch.Net;
+using Microsoft.Extensions.Logging;
 using Nest;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,10 +16,10 @@ namespace TestEnvironment.Docker.Containers
         private const int AttemptsCount = 60;
         private const int DelayTime = 1000;
 
-        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", Action<string> logger = null, bool isDockerInDocker = false)
+        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", ILogger logger = null, bool isDockerInDocker = false)
             : base(dockerClient, name, imageName, tag,
-                new[] { ("discovery.type", "single-node") },
-                logger, isDockerInDocker)
+                new Dictionary<string, string> { ["discovery.type"] = "single-node" },
+                isDockerInDocker, logger)
         {
         }
 
@@ -34,7 +36,7 @@ namespace TestEnvironment.Docker.Containers
                     .Level(Level.Cluster)
                     .ErrorTrace(true));
 
-                Logger?.Invoke(health.DebugInformation);
+                Logger.LogDebug(health.DebugInformation);
 
                 if (!health.IsValid) await Task.Delay(DelayTime);
 
@@ -47,15 +49,19 @@ namespace TestEnvironment.Docker.Containers
 
                 using (var sr = new StreamReader(logs))
                 {
-                    Logger?.Invoke($"Container {Id} logs:\n{await sr.ReadToEndAsync()}");
+                    Logger.LogDebug($"Container {Id} logs:\n{await sr.ReadToEndAsync()}");
                 }
 
                 attempts--;
 
-                Logger?.Invoke($"Attemtps {attempts}");
+                Logger.LogDebug($"Attemtps {attempts}");
             } while (!health.IsValid && attempts != 0);
 
-            if (attempts == 0) throw new TimeoutException("Elastic didn't start");
+            if (attempts == 0)
+            {
+                Logger.LogError("Elastic didn't start.");
+                throw new TimeoutException("Elastic didn't start.");
+            }
         }
 
         public string GetUrl() => IsDockerInDocker ? $"http://{IPAddress}:9200" : $"http://localhost:{Ports[9200]}";

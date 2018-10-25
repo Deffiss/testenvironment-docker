@@ -1,4 +1,5 @@
 ﻿using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,14 +10,16 @@ namespace TestEnvironment.Docker
     public class DockerEnvironmentBuilder : IDockerEnvironmentBuilder
     {
         private readonly List<IDependency> _dependencies = new List<IDependency>();
-        private readonly IDictionary<string, string> _variables = new Dictionary<string, string>();
-        private string _envitronmentName = Guid.NewGuid().ToString();
+        private IDictionary<string, string> _variables = new Dictionary<string, string>();
+        private string _envitronmentName = Guid.NewGuid().ToString().Substring(0, 10);
 
         public DockerClient DockerClient { get; }
 
-        public Action<string> Logger { get; private set; }
+        public ILogger Logger { get; private set; } = new LoggerFactory().AddConsole().AddDebug().CreateLogger<DockerEnvironment>();
 
         public bool IsDockerInDocker { get; private set; } = false;
+
+        public bool DefaultNetwork { get; private set; } = false;
 
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
@@ -46,31 +49,31 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public IDockerEnvironmentBuilder SetVariable(params (string Name, string Value)[] variables)
+        public IDockerEnvironmentBuilder SetVariable(IDictionary<string, string> variables)
         {
-            if (variables == null) throw new ArgumentNullException(nameof(variables));
-
-            foreach (var (Name, Value) in variables)
-            {
-                _variables.Add(Name, Value);
-            }
+            _variables = variables ?? throw new ArgumentNullException(nameof(variables));
 
             return this;
         }
 
-        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", (string Name, string Value)[] environmentVariables = null)
+        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, name, imageName, tag, environmentVariables, Logger, IsDockerInDocker);
+            var container = new Container(DockerClient, $"{_envitronmentName}-{name}", imageName, tag, environmentVariables, IsDockerInDocker, Logger);
             AddDependency(container);
 
             return this;
         }
 
-        public IDockerEnvironmentBuilder UseDefaultNetwork() => throw new NotImplementedException();
+        public IDockerEnvironmentBuilder UseDefaultNetwork()
+        {
+            DefaultNetwork = true;
+            return this;
+        }
+
 
         public IDockerEnvironmentBuilder DockerInDocker()
         {
@@ -78,7 +81,7 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public IDockerEnvironmentBuilder WithLogger(Action<string> logger)
+        public IDockerEnvironmentBuilder WithLogger(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             return this;
