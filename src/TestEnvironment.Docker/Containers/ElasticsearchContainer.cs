@@ -4,6 +4,7 @@ using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Nest;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,8 +18,8 @@ namespace TestEnvironment.Docker.Containers
 
         public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", ILogger logger = null, bool isDockerInDocker = false)
             : base(dockerClient, name, imageName, tag,
-                new[] { ("discovery.type", "single-node") },
-                logger, isDockerInDocker)
+                new Dictionary<string, string> { ["discovery.type"] = "single-node" },
+                isDockerInDocker, logger)
         {
         }
 

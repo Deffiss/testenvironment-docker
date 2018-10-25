@@ -33,8 +33,7 @@ namespace TestEnvironment.Docker
         {
             await PullRequiredImages(token);
 
-            var environmentVariables = Variables.Select(p => (p.Key, p.Value)).ToArray();
-            await Task.WhenAll(Dependencies.Select(d => d.Run(environmentVariables, token)));
+            await Task.WhenAll(Dependencies.Select(d => d.Run(Variables, token)));
         }
 
         public Task Down(CancellationToken token = default) =>
@@ -43,8 +42,7 @@ namespace TestEnvironment.Docker
         public Container GetContainer(string name) =>
             Dependencies.FirstOrDefault(d => d is Container c && c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) as Container;
 
-        public TContainer GetContainer<TContainer>(string name) where TContainer : Container =>
-            (TContainer)GetContainer(name);
+        public TContainer GetContainer<TContainer>(string name) where TContainer : Container => GetContainer(name) as TContainer;
 
         public void Dispose()
         {

@@ -1,6 +1,7 @@
 ﻿using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,8 +17,8 @@ namespace TestEnvironment.Docker.Containers
 
         public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", ILogger logger = null, bool isDockerInDocker = false)
             : base(dockerClient, name, imageName, tag,
-                environmentVariables: new[] { ("ACCEPT_EULA", "Y"), ("SA_PASSWORD", saPassword), ("MSSQL_PID", "Express") },
-                logger, isDockerInDocker)
+                environmentVariables: new Dictionary<string, string> { ["ACCEPT_EULA"] = "Y", ["SA_PASSWORD"] = saPassword, ["MSSQL_PID"] = "Express" },
+                isDockerInDocker: isDockerInDocker, logger: logger)
         {
             _saPassword = saPassword;
         }
