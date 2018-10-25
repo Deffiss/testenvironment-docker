@@ -60,7 +60,7 @@ namespace TestEnvironment.Docker
                 {
                     All = true,
                     MatchName = $"{contianer.ImageName}:{contianer.Tag}"
-                });
+                }, token);
 
                 if (!images.Any())
                 {
@@ -72,7 +72,7 @@ namespace TestEnvironment.Docker
                         {
                             FromImage = contianer.ImageName,
                             Tag = contianer.Tag
-                        }, null, new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")));
+                        }, null, new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")), token);
                 }
             }
         }
