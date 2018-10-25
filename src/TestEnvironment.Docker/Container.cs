@@ -46,7 +46,10 @@ namespace TestEnvironment.Docker
         {
             if (environmentVariables == null) throw new ArgumentNullException(nameof(environmentVariables));
 
-            var mergedVariables = EnvironmentVariables.Concat(environmentVariables);
+            // Make sure that we don't try to add the same var twice.
+            var nonExistentEnvironmentVariables = environmentVariables.Where(e => !EnvironmentVariables.ContainsKey(e.Key));
+
+            var mergedVariables = EnvironmentVariables.Concat(nonExistentEnvironmentVariables);
             var stringifiedVariables = mergedVariables.Select(p => $"{p.Key}={p.Value}").ToArray();
 
             await RunContainerSafely(stringifiedVariables, token);
