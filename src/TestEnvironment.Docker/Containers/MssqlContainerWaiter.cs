@@ -18,8 +18,8 @@ namespace TestEnvironment.Docker.Containers
                 using (var connection = new SqlConnection(container.GetConnectionString()))
                 using (var command = new SqlCommand("SELECT @@VERSION", connection))
                 {
-                    command.Connection.Open();
-                    command.ExecuteNonQuery();
+                    await command.Connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
                 }
 
                 isAlive = true;
