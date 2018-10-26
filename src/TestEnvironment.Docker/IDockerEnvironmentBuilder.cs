@@ -33,6 +33,8 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream);
 
+        string GetContainerName(string name);
+
         DockerEnvironment Build();
     }
 }

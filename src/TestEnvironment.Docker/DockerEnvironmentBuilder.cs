@@ -63,7 +63,7 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, $"{_envitronmentName}-{name}", imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
+            var container = new Container(DockerClient, GetContainerName(name), imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
             AddDependency(container);
 
             return this;
@@ -93,6 +93,8 @@ namespace TestEnvironment.Docker
         public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
 
         public DockerEnvironment Build() => new DockerEnvironment(_envitronmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
+
+        public string GetContainerName(string name) => $"{_envitronmentName}_{name}";
 
         private static DockerClient CreateDefaultDockerClient()
         {
