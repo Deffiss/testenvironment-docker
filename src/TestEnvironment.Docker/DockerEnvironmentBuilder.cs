@@ -12,7 +12,6 @@ namespace TestEnvironment.Docker
     {
         private readonly List<IDependency> _dependencies = new List<IDependency>();
         private IDictionary<string, string> _variables = new Dictionary<string, string>();
-        private string _envitronmentName = Guid.NewGuid().ToString().Substring(0, 10);
 
         public DockerClient DockerClient { get; }
 
@@ -21,6 +20,8 @@ namespace TestEnvironment.Docker
         public bool IsDockerInDocker { get; private set; } = false;
 
         public bool DefaultNetwork { get; private set; } = false;
+
+        public string EnvitronmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
 
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
@@ -45,7 +46,7 @@ namespace TestEnvironment.Docker
         {
             if (string.IsNullOrEmpty(environmentName)) throw new ArgumentNullException(nameof(environmentName));
 
-            _envitronmentName = environmentName;
+            EnvitronmentName = environmentName;
 
             return this;
         }
@@ -63,7 +64,7 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, GetContainerName(name), imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
+            var container = new Container(DockerClient, name.GetContainerName(EnvitronmentName), imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
             AddDependency(container);
 
             return this;
@@ -92,9 +93,7 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
 
-        public DockerEnvironment Build() => new DockerEnvironment(_envitronmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
-
-        public string GetContainerName(string name) => $"{_envitronmentName}_{name}";
+        public DockerEnvironment Build() => new DockerEnvironment(EnvitronmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
 
         private static DockerClient CreateDefaultDockerClient()
         {

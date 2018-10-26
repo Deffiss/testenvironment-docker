@@ -40,7 +40,7 @@ namespace TestEnvironment.Docker
             Task.WhenAll(Dependencies.Select(d => d.Stop(token)));
 
         public Container GetContainer(string name) =>
-            Dependencies.FirstOrDefault(d => d is Container c && c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) as Container;
+            Dependencies.FirstOrDefault(d => d is Container c && c.Name.Equals(name.GetContainerName(Name), StringComparison.OrdinalIgnoreCase)) as Container;
 
         public TContainer GetContainer<TContainer>(string name) where TContainer : Container => GetContainer(name) as TContainer;
 

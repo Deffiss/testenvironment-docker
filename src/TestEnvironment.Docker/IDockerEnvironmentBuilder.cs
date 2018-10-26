@@ -15,6 +15,8 @@ namespace TestEnvironment.Docker
 
         bool IsDockerInDocker { get; }
 
+        string EnvitronmentName { get; }
+
         IDockerEnvironmentBuilder DockerInDocker();
 
         IDockerEnvironmentBuilder UseDefaultNetwork();
@@ -32,8 +34,6 @@ namespace TestEnvironment.Docker
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 
         IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream);
-
-        string GetContainerName(string name);
 
         DockerEnvironment Build();
     }
