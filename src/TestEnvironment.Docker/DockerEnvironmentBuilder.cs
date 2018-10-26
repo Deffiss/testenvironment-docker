@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker
 {
@@ -56,13 +57,13 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null)
+        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, Func<Container, Task<bool>> waitFunc = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, $"{_envitronmentName}-{name}", imageName, tag, environmentVariables, IsDockerInDocker, Logger);
+            var container = new Container(DockerClient, $"{_envitronmentName}-{name}", imageName, tag, environmentVariables, IsDockerInDocker, new FuncContainerWaiter(waitFunc), Logger);
             AddDependency(container);
 
             return this;

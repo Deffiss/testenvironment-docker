@@ -1,7 +1,9 @@
 ﻿using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker
 {
@@ -25,7 +27,7 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddDependency(IDependency dependency);
 
-        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null);
+        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, Func<Container, Task<bool>> waitFunc = null);
 
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 

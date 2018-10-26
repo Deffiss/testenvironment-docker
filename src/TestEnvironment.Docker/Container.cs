@@ -11,11 +11,16 @@ namespace TestEnvironment.Docker
 {
     public class Container : IDependency
     {
+        private const int AttemptsCount = 60;
+        private const int DelayTime = 1000;
+
+        private readonly IContainerWaiter _containerWaiter;
+
         protected ILogger Logger { get; }
 
-        protected bool IsDockerInDocker { get; }
-
         protected DockerClient DockerClient { get; }
+
+        public bool IsDockerInDocker { get; }
 
         public string Name { get; }
 
@@ -31,7 +36,7 @@ namespace TestEnvironment.Docker
 
         public IDictionary<string, string> EnvironmentVariables { get; }
 
-        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false, ILogger logger = null)
+        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false, IContainerWaiter containerWaiter = null, ILogger logger = null)
         {
             Name = name;
             DockerClient = dockerClient;
@@ -40,6 +45,7 @@ namespace TestEnvironment.Docker
             ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
             Tag = tag;
             EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
+            _containerWaiter = containerWaiter;
         }
 
         public async Task Run(IDictionary<string, string> environmentVariables, CancellationToken token = default)
@@ -54,13 +60,37 @@ namespace TestEnvironment.Docker
 
             await RunContainerSafely(stringifiedVariables, token);
 
-            await WaitForReadiness(token);
+            if (_containerWaiter != null) await WaitForReadiness(token);
         }
 
-        public Task Stop(CancellationToken token = default) =>
-            DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { });
+        public Task Stop(CancellationToken token = default) => DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
 
-        protected virtual Task WaitForReadiness(CancellationToken token = default) => Task.CompletedTask;
+        private async Task WaitForReadiness(CancellationToken token = default)
+        {
+            var attempts = AttemptsCount;
+            var isAlive = false;
+            do
+            {
+                var (isReady, debugMessage) = await _containerWaiter.Wait(this, token);
+
+                if (!isReady)
+                {
+                    Logger.LogDebug(debugMessage);
+
+                    attempts--;
+                    await Task.Delay(DelayTime);
+                }
+
+                isAlive = isReady;
+            }
+            while (!isAlive && attempts != 0);
+
+            if (attempts == 0)
+            {
+                Logger.LogError($"Container {Name} didn't start.");
+                throw new TimeoutException($"Container {Name} didn't start.");
+            }
+        }
 
         private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token)
         {
