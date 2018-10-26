@@ -3,6 +3,6 @@
     public static class StringExtensions
     {
         public static string GetContainerName(this string containerName, string environmentName) =>
-            $"{environmentName}_{containerName}";
+            $"{environmentName}-{containerName}";
     }
 }
