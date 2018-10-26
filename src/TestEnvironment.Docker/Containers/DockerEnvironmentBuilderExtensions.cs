@@ -2,10 +2,10 @@
 {
     public static class DockerEnvironmentBuilderExtensions
     {
-        public static IDockerEnvironmentBuilder AddMssqlContainer(this IDockerEnvironmentBuilder builder, string name, string saPassword) =>
-            builder.AddDependency(new MssqlContainer(builder.DockerClient, name, saPassword, logger: builder.Logger, isDockerInDocker: builder.IsDockerInDocker));
+        public static IDockerEnvironmentBuilder AddMssqlContainer(this IDockerEnvironmentBuilder builder, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest") =>
+            builder.AddDependency(new MssqlContainer(builder.DockerClient, name, saPassword, imageName, tag, builder.Logger, builder.IsDockerInDocker));
 
-        public static IDockerEnvironmentBuilder AddElasticsearchContainer(this IDockerEnvironmentBuilder builder, string name) =>
-            builder.AddDependency(new ElasticsearchContainer(builder.DockerClient, name, logger: builder.Logger, isDockerInDocker: builder.IsDockerInDocker));
+        public static IDockerEnvironmentBuilder AddElasticsearchContainer(this IDockerEnvironmentBuilder builder, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4") =>
+            builder.AddDependency(new ElasticsearchContainer(builder.DockerClient, name, imageName, tag, builder.Logger, builder.IsDockerInDocker));
     }
 }
