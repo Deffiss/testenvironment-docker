@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker</AssemblyName>
     <RootNamespace>TestEnvironment.Docker</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <PackageId>TestEnvironment.Docker</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Testing framework for setting up real dependencies as Docker containers.</Description>
