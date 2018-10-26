@@ -63,7 +63,7 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, $"{_envitronmentName}-{name}", imageName, tag, environmentVariables, IsDockerInDocker, new FuncContainerWaiter(waitFunc), Logger);
+            var container = new Container(DockerClient, $"{_envitronmentName}-{name}", imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
             AddDependency(container);
 
             return this;
