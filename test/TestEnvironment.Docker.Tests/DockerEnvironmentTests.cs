@@ -15,6 +15,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Create the environment using builder pattern
             var environment = new DockerEnvironmentBuilder()
+                .UseCreatedContainers()
                 .UseDefaultNetwork()
                 .SetName("test-env")
                 .AddContainer("my-nginx", "nginx")
@@ -32,11 +33,11 @@ namespace TestEnvironment.Docker.Tests
             var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
             await PrintElasticsearchVersion(elastic);
 
-            // Down it.
-            await environment.Down();
+            //// Down it.
+            //await environment.Down();
 
-            // Dispose (remove).
-            environment.Dispose();
+            //// Dispose (remove).
+            //environment.Dispose();
         }
 
         private static async Task PrintMssqlVersion(MssqlContainer mssql)

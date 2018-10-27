@@ -19,6 +19,8 @@ namespace TestEnvironment.Docker
 
         public bool IsDockerInDocker { get; private set; } = false;
 
+        public bool ReuseContainers { get; private set; } = false;
+
         public bool DefaultNetwork { get; private set; } = false;
 
         public string EnvitronmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
@@ -64,7 +66,7 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, name.GetContainerName(EnvitronmentName), imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
+            var container = new Container(DockerClient, name.GetContainerName(EnvitronmentName), imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, ReuseContainers, Logger);
             AddDependency(container);
 
             return this;
@@ -77,9 +79,9 @@ namespace TestEnvironment.Docker
         }
 
 
-        public IDockerEnvironmentBuilder DockerInDocker()
+        public IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true)
         {
-            IsDockerInDocker = true;
+            IsDockerInDocker = dockerInDocker;
             return this;
         }
 
@@ -105,6 +107,13 @@ namespace TestEnvironment.Docker
                     : "npipe://./pipe/docker_engine";
 
             return new DockerClientConfiguration(new Uri(defaultDockerUrl)).CreateClient();
+        }
+
+        public IDockerEnvironmentBuilder UseCreatedContainers(bool reuseContainers = true)
+        {
+            ReuseContainers = reuseContainers;
+
+            return this;
         }
     }
 }

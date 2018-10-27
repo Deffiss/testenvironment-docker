@@ -15,9 +15,13 @@ namespace TestEnvironment.Docker
 
         bool IsDockerInDocker { get; }
 
+        bool ReuseContainers { get; }
+
         string EnvitronmentName { get; }
 
-        IDockerEnvironmentBuilder DockerInDocker();
+        IDockerEnvironmentBuilder UseCreatedContainers(bool reuseContainers = true);
+
+        IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true);
 
         IDockerEnvironmentBuilder UseDefaultNetwork();
 
