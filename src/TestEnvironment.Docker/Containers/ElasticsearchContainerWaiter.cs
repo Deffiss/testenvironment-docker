@@ -1,4 +1,5 @@
 ﻿using Elasticsearch.Net;
+using Microsoft.Extensions.Logging;
 using Nest;
 using System;
 using System.Threading;
@@ -8,7 +9,14 @@ namespace TestEnvironment.Docker.Containers
 {
     public class ElasticsearchContainerWaiter : IContainerWaiter<ElasticsearchContainer>
     {
-        public async Task<(bool IsReady, string DebugMessage)> Wait(ElasticsearchContainer container, CancellationToken cancellationToken = default)
+        private readonly ILogger _logger;
+
+        public ElasticsearchContainerWaiter(ILogger logger = null)
+        {
+            _logger = logger;
+        }
+
+        public async Task<bool> Wait(ElasticsearchContainer container, CancellationToken cancellationToken = default)
         {
             if (container == null) new ArgumentNullException(nameof(container));
 
@@ -18,9 +26,11 @@ namespace TestEnvironment.Docker.Containers
                 .Level(Level.Cluster)
                 .ErrorTrace(true));
 
-            return (health.IsValid, health.DebugInformation);
+            _logger?.LogDebug(health.DebugInformation);
+
+            return health.IsValid;
         }
 
-        public Task<(bool IsReady, string DebugMessage)> Wait(Container container, CancellationToken cancellationToken) => Wait((ElasticsearchContainer)container, cancellationToken);
+        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((ElasticsearchContainer)container, cancellationToken);
     }
 }

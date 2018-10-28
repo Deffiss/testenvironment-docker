@@ -18,8 +18,13 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
                 .AddContainer("my-nginx", "nginx")
+#if DEBUG
+                .AddElasticsearchContainer("my-elastic", reuseContainer: true)
+                .AddMssqlContainer("my-mssql", "HelloK11tt_0", reuseContainer: true)
+#else
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
+#endif
                 .Build();
 
             // Up it.
@@ -32,11 +37,13 @@ namespace TestEnvironment.Docker.Tests
             var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
             await PrintElasticsearchVersion(elastic);
 
+#if !DEBUG
             // Down it.
             await environment.Down();
 
             // Dispose (remove).
             environment.Dispose();
+#endif
         }
 
         private static async Task PrintMssqlVersion(MssqlContainer mssql)

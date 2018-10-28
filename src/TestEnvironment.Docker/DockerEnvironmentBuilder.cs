@@ -58,13 +58,13 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, Func<Container, Task<bool>> waitFunc = null)
+        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, name.GetContainerName(EnvitronmentName), imageName, tag, environmentVariables, IsDockerInDocker, waitFunc != null ? new FuncContainerWaiter(waitFunc) : null, Logger);
+            var container = new Container(DockerClient, name.GetContainerName(EnvitronmentName), imageName, tag, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
             AddDependency(container);
 
             return this;
@@ -77,9 +77,9 @@ namespace TestEnvironment.Docker
         }
 
 
-        public IDockerEnvironmentBuilder DockerInDocker()
+        public IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true)
         {
-            IsDockerInDocker = true;
+            IsDockerInDocker = dockerInDocker;
             return this;
         }
 

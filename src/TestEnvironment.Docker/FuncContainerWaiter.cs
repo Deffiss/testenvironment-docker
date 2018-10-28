@@ -13,6 +13,6 @@ namespace TestEnvironment.Docker
             _waitFunc = waitFunc;
         }
 
-        public async Task<(bool IsReady, string DebugMessage)> Wait(Container container, CancellationToken cancellationToken = default) => (await _waitFunc(container), (string)null);
+        public Task<bool> Wait(Container container, CancellationToken cancellationToken = default) => _waitFunc(container);
     }
 }

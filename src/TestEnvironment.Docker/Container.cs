@@ -15,6 +15,8 @@ namespace TestEnvironment.Docker
         private const int DelayTime = 1000;
 
         private readonly IContainerWaiter _containerWaiter;
+        private readonly IContainerCleaner _containerCleaner;
+        private readonly bool _reuseContainer;
 
         protected ILogger Logger { get; }
 
@@ -36,7 +38,9 @@ namespace TestEnvironment.Docker
 
         public IDictionary<string, string> EnvironmentVariables { get; }
 
-        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false, IContainerWaiter containerWaiter = null, ILogger logger = null)
+        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest",
+            IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false,
+            bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null, ILogger logger = null)
         {
             Name = name;
             DockerClient = dockerClient;
@@ -46,6 +50,8 @@ namespace TestEnvironment.Docker
             Tag = tag;
             EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
             _containerWaiter = containerWaiter;
+            _containerCleaner = containerCleaner;
+            _reuseContainer = reuseContainer;
         }
 
         public async Task Run(IDictionary<string, string> environmentVariables, CancellationToken token = default)
@@ -61,6 +67,7 @@ namespace TestEnvironment.Docker
             await RunContainerSafely(stringifiedVariables, token);
 
             if (_containerWaiter != null) await WaitForReadiness(token);
+            if (_reuseContainer && _containerCleaner != null) await _containerCleaner.Cleanup(this, token);
         }
 
         public Task Stop(CancellationToken token = default) => DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
@@ -71,17 +78,13 @@ namespace TestEnvironment.Docker
             var isAlive = false;
             do
             {
-                var (isReady, debugMessage) = await _containerWaiter.Wait(this, token);
+                isAlive = await _containerWaiter.Wait(this, token);
 
-                if (!isReady)
+                if (!isAlive)
                 {
-                    Logger.LogDebug(debugMessage);
-
                     attempts--;
                     await Task.Delay(DelayTime);
                 }
-
-                isAlive = isReady;
             }
             while (!isAlive && attempts != 0);
 
@@ -92,7 +95,7 @@ namespace TestEnvironment.Docker
             }
         }
 
-        private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token)
+        private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token = default)
         {
             // Try to find container in docker session
             var containers = await DockerClient.Containers.ListContainersAsync(
@@ -107,46 +110,57 @@ namespace TestEnvironment.Docker
             // If container already exist - remove that
             if (startedContainer != null)
             {
-                await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true }, token);
+                if (!_reuseContainer) // TODO: check status and network
+                {
+                    await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true }, token);
+                    startedContainer = await CreateContainer();
+                }
             }
-
-            // Create new container
-            var container = await DockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters
-                {
-                    Name = Name,
-                    Image = $"{ImageName}:{Tag}",
-                    AttachStdout = true,
-                    Env = environmentVariables,
-                    Hostname = Name,
-                    Domainname = Name,
-                    HostConfig = new HostConfig
-                    {
-                        PublishAllPorts = true,
-                    },
-                }, token);
-
-            // Run container
-            await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), token);
-
-            // Try to find container in docker session
-            containers = await DockerClient.Containers.ListContainersAsync(
-                new ContainersListParameters
-                {
-                    All = true,
-                    Filters = new Dictionary<string, IDictionary<string, bool>> { ["name"] = new Dictionary<string, bool> { [$"/{Name}"] = true } }
-                }, token);
-
-            startedContainer = containers.First();
+            else
+            {
+                startedContainer = await CreateContainer();
+            }
 
             Logger.LogInformation($"Container '{Name}' has been run.");
             Logger.LogDebug($"Container state: {startedContainer.State}");
             Logger.LogDebug($"Container status: {startedContainer.Status}");
             Logger.LogDebug($"Container IPAddress: {startedContainer.NetworkSettings.Networks.FirstOrDefault().Key} - {startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress}");
 
-            Id = container.ID;
+            Id = startedContainer.ID;
             IPAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
             Ports = startedContainer.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
+
+            async Task<ContainerListResponse> CreateContainer()
+            {
+                // Create new container
+                var container = await DockerClient.Containers.CreateContainerAsync(
+                    new CreateContainerParameters
+                    {
+                        Name = Name,
+                        Image = $"{ImageName}:{Tag}",
+                        AttachStdout = true,
+                        Env = environmentVariables,
+                        Hostname = Name,
+                        Domainname = Name,
+                        HostConfig = new HostConfig
+                        {
+                            PublishAllPorts = true,
+                        },
+                    }, token);
+
+                // Run container
+                await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), token);
+
+                // Try to find container in docker session
+                containers = await DockerClient.Containers.ListContainersAsync(
+                    new ContainersListParameters
+                    {
+                        All = true,
+                        Filters = new Dictionary<string, IDictionary<string, bool>> { ["name"] = new Dictionary<string, bool> { [$"/{Name}"] = true } }
+                    }, token);
+
+                return containers.First();
+            }
         }
 
         public void Dispose()
