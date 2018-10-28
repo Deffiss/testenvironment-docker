@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker
 {
@@ -15,11 +14,7 @@ namespace TestEnvironment.Docker
 
         bool IsDockerInDocker { get; }
 
-        bool ReuseContainers { get; }
-
         string EnvitronmentName { get; }
-
-        IDockerEnvironmentBuilder UseCreatedContainers(bool reuseContainers = true);
 
         IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true);
 
@@ -33,7 +28,7 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddDependency(IDependency dependency);
 
-        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, Func<Container, Task<bool>> waitFunc = null);
+        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 

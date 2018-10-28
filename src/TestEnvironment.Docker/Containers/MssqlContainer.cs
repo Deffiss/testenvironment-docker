@@ -7,40 +7,16 @@ using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker.Containers
 {
-    public sealed class MssqlContainer : Container, ICleanable
+    public sealed class MssqlContainer : Container
     {
-        private const string CleanupCommand = "EXEC sp_MSforeachdb " +
-            @"'IF DB_ID(''?'') > 4 BEGIN
-                ALTER DATABASE [?] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
-                DROP DATABASE [?]
-            END'";
-
         private readonly string _saPassword;
 
         public MssqlContainer(DockerClient dockerClient, string name, string saPassword, string imageName = "microsoft/mssql-server-linux", string tag = "latest", bool isDockerInDocker = false, bool reuseContainer = false, ILogger logger = null)
             : base(dockerClient, name, imageName, tag,
                 new Dictionary<string, string> { ["ACCEPT_EULA"] = "Y", ["SA_PASSWORD"] = saPassword, ["MSSQL_PID"] = "Express" },
-                isDockerInDocker, new MssqlContainerWaiter(), reuseContainer, logger)
+                isDockerInDocker, reuseContainer, new MssqlContainerWaiter(logger), new MssqlContainerCleaner(logger), logger)
         {
             _saPassword = saPassword;
-        }
-
-        public async Task Cleanup(CancellationToken token = default)
-        {
-            using (var connection = new SqlConnection(GetConnectionString()))
-            using (var command = new SqlCommand(CleanupCommand, connection))
-            {
-                await command.Connection.OpenAsync();
-
-                try
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-                catch (SqlException e)
-                {
-                    Logger.LogInformation($"Cleanup issue: {e.Message}");
-                }
-            }
         }
 
         public string GetConnectionString() =>

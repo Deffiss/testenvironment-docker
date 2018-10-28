@@ -15,6 +15,7 @@ namespace TestEnvironment.Docker
         private const int DelayTime = 1000;
 
         private readonly IContainerWaiter _containerWaiter;
+        private readonly IContainerCleaner _containerCleaner;
         private readonly bool _reuseContainer;
 
         protected ILogger Logger { get; }
@@ -37,7 +38,9 @@ namespace TestEnvironment.Docker
 
         public IDictionary<string, string> EnvironmentVariables { get; }
 
-        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false, IContainerWaiter containerWaiter = null, bool reuseContainer = false, ILogger logger = null)
+        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest",
+            IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false,
+            bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null, ILogger logger = null)
         {
             Name = name;
             DockerClient = dockerClient;
@@ -47,6 +50,7 @@ namespace TestEnvironment.Docker
             Tag = tag;
             EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
             _containerWaiter = containerWaiter;
+            _containerCleaner = containerCleaner;
             _reuseContainer = reuseContainer;
         }
 
@@ -63,6 +67,7 @@ namespace TestEnvironment.Docker
             await RunContainerSafely(stringifiedVariables, token);
 
             if (_containerWaiter != null) await WaitForReadiness(token);
+            if (_reuseContainer && _containerCleaner != null) await _containerCleaner.Cleanup(this, token);
         }
 
         public Task Stop(CancellationToken token = default) => DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
@@ -73,17 +78,13 @@ namespace TestEnvironment.Docker
             var isAlive = false;
             do
             {
-                var (isReady, debugMessage) = await _containerWaiter.Wait(this, token);
+                isAlive = await _containerWaiter.Wait(this, token);
 
-                if (!isReady)
+                if (!isAlive)
                 {
-                    Logger.LogDebug(debugMessage);
-
                     attempts--;
                     await Task.Delay(DelayTime);
                 }
-
-                isAlive = isReady;
             }
             while (!isAlive && attempts != 0);
 
@@ -91,11 +92,6 @@ namespace TestEnvironment.Docker
             {
                 Logger.LogError($"Container {Name} didn't start.");
                 throw new TimeoutException($"Container {Name} didn't start.");
-            }
-
-            if (_reuseContainer && this is ICleanable cleanable)
-            {
-                await cleanable.Cleanup(token);
             }
         }
 
@@ -114,7 +110,7 @@ namespace TestEnvironment.Docker
             // If container already exist - remove that
             if (startedContainer != null)
             {
-                if (!_reuseContainer || !(this is ICleanable)) // TODO: check status and network
+                if (!_reuseContainer) // TODO: check status and network
                 {
                     await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true }, token);
                     startedContainer = await CreateContainer();
