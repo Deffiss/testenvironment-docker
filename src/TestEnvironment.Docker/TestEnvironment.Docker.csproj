@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker</AssemblyName>
     <RootNamespace>TestEnvironment.Docker</RootNamespace>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <PackageId>TestEnvironment.Docker</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Testing framework for setting up real dependencies as Docker containers.</Description>
@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Add feature to reuse already created containers instead of reacreation.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
