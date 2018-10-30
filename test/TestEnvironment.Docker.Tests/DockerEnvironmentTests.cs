@@ -1,5 +1,6 @@
 using Nest;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace TestEnvironment.Docker.Tests
                 .AddContainer("my-nginx", "nginx")
 #if DEBUG
                 .AddElasticsearchContainer("my-elastic", reuseContainer: true)
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0", reuseContainer: true)
+                .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
