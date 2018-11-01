@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using TestEnvironment.Docker.Containers;
+using TestEnvironment.Docker.Containers.Elasticsearch;
+using TestEnvironment.Docker.Containers.Mssql;
 using Xunit;
 
 namespace TestEnvironment.Docker.Tests
