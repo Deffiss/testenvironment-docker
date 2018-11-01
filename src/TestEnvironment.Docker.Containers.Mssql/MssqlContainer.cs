@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
-namespace TestEnvironment.Docker.Containers
+namespace TestEnvironment.Docker.Containers.Mssql
 {
     public sealed class MssqlContainer : Container
     {

@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker.Containers
+namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
     public class ElasticsearchContainerWaiter : IContainerWaiter<ElasticsearchContainer>
     {

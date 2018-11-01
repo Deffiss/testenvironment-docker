@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker.Containers
+namespace TestEnvironment.Docker.Containers.Mssql
 {
     public class MssqlContainerWaiter : IContainerWaiter<MssqlContainer>
     {
