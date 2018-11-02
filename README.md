@@ -2,6 +2,22 @@
 
 # Test environment with Docker containers
 
+### Installation
+
+Run this in your package manager console:
+
+```
+ Install-Package TestEnvironment.Docker
+```
+
+To add container specific functionality for MSSQL and Elasticsearch:
+
+```
+ Install-Package TestEnvironment.Docker.Containers.Elasticsearch
+ Install-Package TestEnvironment.Docker.Containers.Mssql
+```
+### Example
+
 ```csharp
 // Create the environment using builder pattern
 var environment = new DockerEnvironmentBuilder()
