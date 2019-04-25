@@ -1,3 +1,4 @@
+using MongoDB.Driver;
 using Nest;
 using System;
 using System.Collections.Generic;
@@ -5,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using TestEnvironment.Docker.Containers.Elasticsearch;
+using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
 using Xunit;
 
@@ -23,9 +25,11 @@ namespace TestEnvironment.Docker.Tests
 #if DEBUG
                 .AddElasticsearchContainer("my-elastic", reuseContainer: true)
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
+                .AddMongoContainer("my-mongo", reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
+                .AddMongoContainer("my-mongo")
 #endif
                 .Build();
 
@@ -38,6 +42,9 @@ namespace TestEnvironment.Docker.Tests
 
             var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
             await PrintElasticsearchVersion(elastic);
+
+            var mongo = environment.GetContainer<MongoContainer>("my-mongo");
+            PrintMongoVersion(mongo);
 
 #if !DEBUG
             // Down it.
@@ -66,6 +73,13 @@ namespace TestEnvironment.Docker.Tests
             var elasticClient = new ElasticClient(new Uri(elastic.GetUrl()));
             var clusterInfo = await elasticClient.NodesInfoAsync();
             Console.WriteLine($"Elasticsearch version: {clusterInfo.Nodes.Values.First().Version}");
+        }
+
+        private static void PrintMongoVersion(MongoContainer mongo)
+        {
+            var mongoClient = new MongoClient(mongo.GetConnectionString());
+            var clusterDescription = mongoClient.Cluster.Description;
+            Console.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
         }
     }
 }
