@@ -13,7 +13,7 @@ namespace TestEnvironment.Docker
 
         bool IsDockerInDocker { get; }
 
-        string EnvitronmentName { get; }
+        string EnvironmentName { get; }
 
         IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true);
 

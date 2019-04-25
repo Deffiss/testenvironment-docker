@@ -17,7 +17,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
             return builder.AddDependency(
                 new MongoContainer(
                     builder.DockerClient,
-                    name.GetContainerName(builder.EnvitronmentName),
+                    name.GetContainerName(builder.EnvironmentName),
                     userName,
                     userPassword,
                     imageName,
