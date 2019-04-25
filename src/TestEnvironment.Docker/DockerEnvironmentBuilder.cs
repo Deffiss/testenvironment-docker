@@ -20,7 +20,7 @@ namespace TestEnvironment.Docker
 
         public bool DefaultNetwork { get; private set; } = false;
 
-        public string EnvitronmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
+        public string EnvironmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
 
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
@@ -45,7 +45,7 @@ namespace TestEnvironment.Docker
         {
             if (string.IsNullOrEmpty(environmentName)) throw new ArgumentNullException(nameof(environmentName));
 
-            EnvitronmentName = environmentName;
+            EnvironmentName = environmentName;
 
             return this;
         }
@@ -63,7 +63,7 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, name.GetContainerName(EnvitronmentName), imageName, tag, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
+            var container = new Container(DockerClient, name.GetContainerName(EnvironmentName), imageName, tag, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
             AddDependency(container);
 
             return this;
@@ -92,7 +92,7 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
 
-        public DockerEnvironment Build() => new DockerEnvironment(EnvitronmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
+        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
 
         private static DockerClient CreateDefaultDockerClient()
         {
