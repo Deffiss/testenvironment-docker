@@ -14,11 +14,12 @@ Run this in your package manager console:
  Install-Package TestEnvironment.Docker
 ```
 
-To add container specific functionality for MSSQL and Elasticsearch:
+To add container specific functionality for MSSQL, Elasticsearch or MongoDB:
 
 ```
  Install-Package TestEnvironment.Docker.Containers.Elasticsearch
  Install-Package TestEnvironment.Docker.Containers.Mssql
+ Install-Package TestEnvironment.Docker.Containers.Mongo
 ```
 ### Example
 
