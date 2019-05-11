@@ -6,9 +6,9 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
     public class ElasticsearchContainer : Container
     {
-        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false, bool reuseContainer = false, ILogger logger = null)
+        public ElasticsearchContainer(DockerClient dockerClient, string name, string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss", string tag = "6.2.4", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool isDockerInDocker = false, bool reuseContainer = false, ILogger logger = null)
             : base(dockerClient, name, imageName, tag,
-                new Dictionary<string, string> { ["discovery.type"] = "single-node" }.MergeDictionaries(environmentVariables),
+                new Dictionary<string, string> { ["discovery.type"] = "single-node" }.MergeDictionaries(environmentVariables), ports,
                 isDockerInDocker, reuseContainer, new ElasticsearchContainerWaiter(logger), new ElasticsearchContainerCleaner(), logger)
         {
         }
