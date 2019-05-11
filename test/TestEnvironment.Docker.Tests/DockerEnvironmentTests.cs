@@ -31,6 +31,7 @@ namespace TestEnvironment.Docker.Tests
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
                 .AddMongoContainer("my-mongo")
 #endif
+                .AddFromDockerfile("from-file-c", "Dockerfile")
                 .Build();
 
             // Up it.

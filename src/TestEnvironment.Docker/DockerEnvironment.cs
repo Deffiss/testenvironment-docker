@@ -1,8 +1,11 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using ICSharpCode.SharpZipLib.GZip;
+using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +34,8 @@ namespace TestEnvironment.Docker
 
         public async Task Up(CancellationToken token = default)
         {
+            await BuildRequiredImages(token);
+
             await PullRequiredImages(token);
 
             await Task.WhenAll(Dependencies.Select(d => d.Run(Variables, token)));
@@ -49,6 +54,68 @@ namespace TestEnvironment.Docker
             foreach (var dependency in Dependencies)
             {
                 dependency.Dispose();
+            }
+        }
+
+        private async Task BuildRequiredImages(CancellationToken token)
+        {
+            foreach (var container in Dependencies.OfType<FromDockerfileContainer>())
+            {
+                var tempFileName = Guid.NewGuid().ToString();
+                using (var fileStream = new FileStream(tempFileName, FileMode.CreateNew))
+                {
+                    var tarArchive = TarArchive.CreateOutputTarArchive(fileStream);
+                    var contextDirectory = container.Context.Equals(".") ? Directory.GetCurrentDirectory() : container.Context;
+
+                    tarArchive.RootPath = contextDirectory.Replace('\\', '/');
+                    if (tarArchive.RootPath.EndsWith("/"))
+                    {
+                        tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
+                    }
+
+
+                    AddDirectoryFilesToTar(tarArchive, contextDirectory, true);
+
+                    tarArchive.Close();
+
+                    //_dockerClient.Images.CreateImageAsync(new ImagesCreateParameters { })
+                }
+
+                var imageStream = await _dockerClient.Images.BuildImageFromDockerfileAsync(new FileStream(tempFileName, FileMode.Open), new ImageBuildParameters
+                {
+                    Dockerfile = container.Dockerfile,
+                    BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
+                    Tags = new[] { $"{container.ImageName}:{container.Tag}" },
+                    PullParent = true,
+                }, token);
+
+
+                void AddDirectoryFilesToTar(TarArchive tarArchive, string sourceDirectory, bool recurse)
+                {
+                    // Optionally, write an entry for the directory itself.
+                    // Specify false for recursion here if we will add the directory's files individually.
+                    var tarEntry = TarEntry.CreateEntryFromFile(sourceDirectory);
+                    tarArchive.WriteEntry(tarEntry, false);
+
+                    // Write each file to the tar.
+                    var filenames = Directory.GetFiles(sourceDirectory);
+                    foreach (string filename in filenames)
+                    {
+                        if (Path.GetFileName(filename).Equals(tempFileName)) continue;
+
+                        tarEntry = TarEntry.CreateEntryFromFile(filename);
+                        tarArchive.WriteEntry(tarEntry, true);
+                    }
+
+                    if (recurse)
+                    {
+                        var directories = Directory.GetDirectories(sourceDirectory);
+                        foreach (var directory in directories)
+                        {
+                            AddDirectoryFilesToTar(tarArchive, directory, recurse);
+                        }
+                    }
+                }
             }
         }
 

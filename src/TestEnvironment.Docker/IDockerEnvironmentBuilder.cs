@@ -31,7 +31,7 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 
-        IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream);
+        IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
         DockerEnvironment Build();
     }

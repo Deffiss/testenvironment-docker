@@ -90,7 +90,17 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream) => throw new NotImplementedException();
 
-        public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
+        public IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+
+            if (string.IsNullOrEmpty(dockerfile)) throw new ArgumentNullException(nameof(dockerfile));
+
+            var container = new FromDockerfileContainer(DockerClient, name.GetContainerName(EnvironmentName), dockerfile, buildArgs, context, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
+            AddDependency(container);
+
+            return this;
+        }
 
         public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
 
