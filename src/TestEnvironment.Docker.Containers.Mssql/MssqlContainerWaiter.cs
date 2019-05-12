@@ -24,7 +24,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
                 using (var connection = new SqlConnection(container.GetConnectionString()))
                 using (var command = new SqlCommand("SELECT @@VERSION", connection))
                 {
-                    await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
                 }
 

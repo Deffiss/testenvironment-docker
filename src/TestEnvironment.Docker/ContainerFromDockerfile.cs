@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker
 {
-    public class FromDockerfileContainer : Container
+    public class ContainerFromDockerfile : Container
     {
         public string Dockerfile { get; }
 
@@ -12,7 +12,7 @@ namespace TestEnvironment.Docker
 
         public string Context { get; }
 
-        public FromDockerfileContainer(DockerClient dockerClient,
+        public ContainerFromDockerfile(DockerClient dockerClient,
             string name,
             string dockerfile,
             IDictionary<string, string> buildArgs = null,

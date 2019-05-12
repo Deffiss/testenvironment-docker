@@ -58,41 +58,52 @@ namespace TestEnvironment.Docker
 
         private async Task BuildRequiredImages(CancellationToken token)
         {
-            foreach (var container in Dependencies.OfType<FromDockerfileContainer>())
+            foreach (var container in Dependencies.OfType<ContainerFromDockerfile>())
             {
-                // In order to pass the context we have to create tar file and use it as an argument.
                 var tempFileName = Guid.NewGuid().ToString();
-                using (var fileStream = new FileStream(tempFileName, FileMode.CreateNew))
+
+                try
                 {
-                    var tarArchive = TarArchive.CreateOutputTarArchive(fileStream);
-                    var contextDirectory = container.Context.Equals(".") ? Directory.GetCurrentDirectory() : container.Context;
-
-                    tarArchive.RootPath = contextDirectory.Replace('\\', '/');
-                    if (tarArchive.RootPath.EndsWith("/"))
-                    {
-                        tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
-                    }
-
-
-                    AddDirectoryFilesToTar(tarArchive, contextDirectory, true);
-
-                    tarArchive.Close();
+                    // In order to pass the context we have to create tar file and use it as an argument.
+                    CreateTarArchive();
+                
+                    // Now call docker api.
+                    await CreateImage();
                 }
-
-                // Now call docker api.
-                using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
+                catch (Exception exc)
                 {
-                    var imageStream = await _dockerClient.Images.BuildImageFromDockerfileAsync(tarContextStream, new ImageBuildParameters
-                    {
-                        Dockerfile = container.Dockerfile,
-                        BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
-                        Tags = new[] { $"{container.ImageName}:{container.Tag}" },
-                        PullParent = true,
-                    }, token);
+                    _logger?.LogError(exc, $"Unable to create the image from dockerfile.");
+                    throw;
                 }
 
                 // And don't forget to remove created tar.
-                File.Delete(tempFileName);
+                try
+                {
+                    File.Delete(tempFileName);
+                }
+                catch (Exception exc)
+                {
+                    _logger?.LogError(exc, $"Unable to delete tar file {tempFileName} with context. Please, cleanup manually.");
+                }
+
+                void CreateTarArchive()
+                {
+                    using (var fileStream = new FileStream(tempFileName, FileMode.CreateNew))
+                    {
+                        var tarArchive = TarArchive.CreateOutputTarArchive(fileStream);
+                        var contextDirectory = container.Context.Equals(".") ? Directory.GetCurrentDirectory() : container.Context;
+
+                        tarArchive.RootPath = contextDirectory.Replace('\\', '/');
+                        if (tarArchive.RootPath.EndsWith("/"))
+                        {
+                            tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
+                        }
+
+                        AddDirectoryFilesToTar(tarArchive, contextDirectory, true);
+
+                        tarArchive.Close();
+                    }
+                }
 
                 // Adds recuresively files to tar archive.
                 void AddDirectoryFilesToTar(TarArchive tarArchive, string sourceDirectory, bool recurse)
@@ -121,6 +132,21 @@ namespace TestEnvironment.Docker
                         }
                     }
                 }
+
+                async Task CreateImage()
+                {
+                    using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
+                    {
+                        await _dockerClient.Images.BuildImageFromDockerfileAsync(tarContextStream, new ImageBuildParameters
+                        {
+                            Dockerfile = container.Dockerfile,
+                            BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
+                            Tags = new[] { $"{container.ImageName}:{container.Tag}" },
+                            PullParent = true,
+                        }, token);
+
+                    }
+                }
             }
         }
 
@@ -139,12 +165,22 @@ namespace TestEnvironment.Docker
                     _logger.LogInformation($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
 
                     // Pull the image.
-                    await _dockerClient.Images.CreateImageAsync(
-                        new ImagesCreateParameters
-                        {
-                            FromImage = contianer.ImageName,
-                            Tag = contianer.Tag
-                        }, null, new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")), token);
+                    try
+                    {
+
+                        await _dockerClient.Images.CreateImageAsync(
+                            new ImagesCreateParameters
+                            {
+                                FromImage = contianer.ImageName,
+                                Tag = contianer.Tag
+                            }, null, new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")), token);
+                    }
+                    catch (Exception exc)
+                    {
+                        _logger?.LogError(exc, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
+                        throw;
+                    }
+
                 }
             }
         }

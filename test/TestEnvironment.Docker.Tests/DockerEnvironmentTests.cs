@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Mongo;
@@ -26,12 +27,13 @@ namespace TestEnvironment.Docker.Tests
                 .AddElasticsearchContainer("my-elastic", reuseContainer: true)
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
                 .AddMongoContainer("my-mongo", reuseContainer: true)
+                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
                 .AddMongoContainer("my-mongo")
-#endif
                 .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
+#endif
                 .Build();
 
             // Up it.
@@ -47,6 +49,9 @@ namespace TestEnvironment.Docker.Tests
             var mongo = environment.GetContainer<MongoContainer>("my-mongo");
             PrintMongoVersion(mongo);
 
+            var staticFilesContainer = environment.GetContainer("from-file");
+            await PrintReturnedHtml(staticFilesContainer);
+
 #if !DEBUG
             // Down it.
             await environment.Down();
@@ -58,9 +63,10 @@ namespace TestEnvironment.Docker.Tests
 
         private static async Task PrintMssqlVersion(MssqlContainer mssql)
         {
-            using (var command = new SqlCommand("SELECT @@VERSION", new SqlConnection(mssql.GetConnectionString())))
+            using (var connection = new SqlConnection(mssql.GetConnectionString()))
+            using (var command = new SqlCommand("SELECT @@VERSION", connection))
             {
-                command.Connection.Open();
+                await connection.OpenAsync();
 
                 var reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
@@ -81,6 +87,18 @@ namespace TestEnvironment.Docker.Tests
             var mongoClient = new MongoClient(mongo.GetConnectionString());
             var clusterDescription = mongoClient.Cluster.Description;
             Console.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
+        }
+
+        private static async Task PrintReturnedHtml(Container staticFilesContainer)
+        {
+            var uri = new Uri($"http://{(staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : "localhost")}:" +
+                $"{(staticFilesContainer.IsDockerInDocker ? 8080 : staticFilesContainer.Ports[8080])}");
+
+            using (var client = new HttpClient { BaseAddress = uri })
+            {
+                var response = await client.GetStringAsync("/");
+                Console.WriteLine($"Response from static server: {response}");
+            }
         }
     }
 }

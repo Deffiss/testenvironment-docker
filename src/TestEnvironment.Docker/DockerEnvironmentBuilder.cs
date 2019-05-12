@@ -96,7 +96,7 @@ namespace TestEnvironment.Docker
 
             if (string.IsNullOrEmpty(dockerfile)) throw new ArgumentNullException(nameof(dockerfile));
 
-            var container = new FromDockerfileContainer(DockerClient, name.GetContainerName(EnvironmentName), dockerfile, buildArgs, context, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
+            var container = new ContainerFromDockerfile(DockerClient, name.GetContainerName(EnvironmentName), dockerfile, buildArgs, context, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
             AddDependency(container);
 
             return this;
