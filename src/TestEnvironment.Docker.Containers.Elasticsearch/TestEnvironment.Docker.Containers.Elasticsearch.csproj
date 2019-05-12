@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Elasticsearch</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add Elasticsearch container specific functionality.</Description>
@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Update to the lastes docker image. Update to the latest nugets.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

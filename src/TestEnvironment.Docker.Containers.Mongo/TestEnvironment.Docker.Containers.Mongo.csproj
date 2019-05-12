@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Mongo</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
     <Authors>Uladzimir Lashkevich, Aliaksei Harshkalep</Authors>
     <Description>Add MongoDB container specific functionality.</Description>
@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
