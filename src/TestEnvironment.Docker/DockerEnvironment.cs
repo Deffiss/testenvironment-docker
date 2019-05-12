@@ -108,6 +108,11 @@ namespace TestEnvironment.Docker
                 // Adds recuresively files to tar archive.
                 void AddDirectoryFilesToTar(TarArchive tarArchive, string sourceDirectory, bool recurse)
                 {
+                    if (new[] { ".vs", ".vscode", "obj", "bin", ".git" }.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))))
+                    {
+                        return;
+                    }
+
                     // Optionally, write an entry for the directory itself.
                     // Specify false for recursion here if we will add the directory's files individually.
                     var tarEntry = TarEntry.CreateEntryFromFile(sourceDirectory);
@@ -118,9 +123,27 @@ namespace TestEnvironment.Docker
                     foreach (string filename in filenames)
                     {
                         if (Path.GetFileName(filename).Equals(tempFileName)) continue;
+                        if (new FileInfo(filename).Attributes.HasFlag(FileAttributes.Hidden)) continue;
 
-                        tarEntry = TarEntry.CreateEntryFromFile(filename);
-                        tarArchive.WriteEntry(tarEntry, true);
+                        // Make sure that we can read the file
+                        try
+                        {
+                            File.OpenRead(filename);
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            tarEntry = TarEntry.CreateEntryFromFile(filename);
+                            tarArchive.WriteEntry(tarEntry, true);
+                        }
+                        catch (Exception exc)
+                        {
+                            _logger?.LogWarning($"Can not add file {filename} to the context: {exc.Message}.");
+                        }
                     }
 
                     if (recurse)
@@ -137,14 +160,16 @@ namespace TestEnvironment.Docker
                 {
                     using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
                     {
-                        await _dockerClient.Images.BuildImageFromDockerfileAsync(tarContextStream, new ImageBuildParameters
+                        var image = await _dockerClient.Images.BuildImageFromDockerfileAsync(tarContextStream, new ImageBuildParameters
                         {
                             Dockerfile = container.Dockerfile,
                             BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
                             Tags = new[] { $"{container.ImageName}:{container.Tag}" },
                             PullParent = true,
+                            Remove = true,
                         }, token);
 
+                        _logger?.LogTrace(await new StreamReader(image).ReadToEndAsync());
                     }
                 }
             }
