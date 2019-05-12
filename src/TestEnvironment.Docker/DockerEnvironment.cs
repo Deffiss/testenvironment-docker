@@ -1,6 +1,5 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
-using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
 using System;
@@ -61,6 +60,7 @@ namespace TestEnvironment.Docker
         {
             foreach (var container in Dependencies.OfType<FromDockerfileContainer>())
             {
+                // In order to pass the context we have to create tar file and use it as an argument.
                 var tempFileName = Guid.NewGuid().ToString();
                 using (var fileStream = new FileStream(tempFileName, FileMode.CreateNew))
                 {
@@ -77,19 +77,24 @@ namespace TestEnvironment.Docker
                     AddDirectoryFilesToTar(tarArchive, contextDirectory, true);
 
                     tarArchive.Close();
-
-                    //_dockerClient.Images.CreateImageAsync(new ImagesCreateParameters { })
                 }
 
-                var imageStream = await _dockerClient.Images.BuildImageFromDockerfileAsync(new FileStream(tempFileName, FileMode.Open), new ImageBuildParameters
+                // Now call docker api.
+                using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
                 {
-                    Dockerfile = container.Dockerfile,
-                    BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
-                    Tags = new[] { $"{container.ImageName}:{container.Tag}" },
-                    PullParent = true,
-                }, token);
+                    var imageStream = await _dockerClient.Images.BuildImageFromDockerfileAsync(tarContextStream, new ImageBuildParameters
+                    {
+                        Dockerfile = container.Dockerfile,
+                        BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
+                        Tags = new[] { $"{container.ImageName}:{container.Tag}" },
+                        PullParent = true,
+                    }, token);
+                }
 
+                // And don't forget to remove created tar.
+                File.Delete(tempFileName);
 
+                // Adds recuresively files to tar archive.
                 void AddDirectoryFilesToTar(TarArchive tarArchive, string sourceDirectory, bool recurse)
                 {
                     // Optionally, write an entry for the directory itself.
