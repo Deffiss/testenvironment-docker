@@ -167,9 +167,10 @@ namespace TestEnvironment.Docker
                             Tags = new[] { $"{container.ImageName}:{container.Tag}" },
                             PullParent = true,
                             Remove = true,
+                            ForceRemove = true,
                         }, token);
 
-                        _logger?.LogTrace(await new StreamReader(image).ReadToEndAsync());
+                        await new StreamReader(image).ReadToEndAsync();
                     }
                 }
             }

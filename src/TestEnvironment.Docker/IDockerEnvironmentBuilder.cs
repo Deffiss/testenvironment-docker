@@ -27,11 +27,11 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddDependency(IDependency dependency);
 
-        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
+        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 
-        IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
+        IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
         DockerEnvironment Build();
     }

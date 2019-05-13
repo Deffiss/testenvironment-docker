@@ -18,12 +18,13 @@ namespace TestEnvironment.Docker
             IDictionary<string, string> buildArgs = null,
             string context = ".",
             IDictionary<string, string> environmentVariables = null,
+            IDictionary<ushort, ushort> ports = null,
             bool isDockerInDocker = false,
             bool reuseContainer = false,
             IContainerWaiter containerWaiter = null,
             IContainerCleaner containerCleaner = null,
             ILogger logger = null)
-            : base(dockerClient, name, name, "dev", environmentVariables, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger)
+            : base(dockerClient, name, name, "dev", environmentVariables, ports, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger)
         {
             Dockerfile = dockerfile;
             BuildArgs = buildArgs;

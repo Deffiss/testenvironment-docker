@@ -24,7 +24,7 @@ namespace TestEnvironment.Docker.Tests
                 .SetName("test-env")
                 .AddContainer("my-nginx", "nginx")
 #if DEBUG
-                .AddElasticsearchContainer("my-elastic", reuseContainer: true)
+                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
                 .AddMongoContainer("my-mongo", reuseContainer: true)
                 .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)

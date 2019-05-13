@@ -17,12 +17,13 @@ namespace TestEnvironment.Docker.Containers.Mongo
             string imageName,
             string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
+            IDictionary<ushort, ushort> ports = null,
             bool isDockerInDocker = false,
             bool reuseContainer = false,
             IContainerWaiter containerWaiter = null,
             IContainerCleaner containerCleaner = null,
             ILogger logger = null)
-            : base(dockerClient, name, imageName, tag, environmentVariables, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger)
+            : base(dockerClient, name, imageName, tag, environmentVariables, ports, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger)
         {
             _userName = userName;
             _userPassword = userPassword;

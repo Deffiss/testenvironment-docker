@@ -31,7 +31,7 @@ namespace TestEnvironment.Docker
 
         public string IPAddress { get; private set; }
 
-        public Dictionary<ushort, ushort> Ports { get; private set; }
+        public IDictionary<ushort, ushort> Ports { get; private set; }
 
         public string ImageName { get; }
 
@@ -40,7 +40,7 @@ namespace TestEnvironment.Docker
         public IDictionary<string, string> EnvironmentVariables { get; }
 
         public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest",
-            IDictionary<string, string> environmentVariables = null, bool isDockerInDocker = false,
+            IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool isDockerInDocker = false,
             bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null, ILogger logger = null)
         {
             Name = name;
@@ -50,6 +50,7 @@ namespace TestEnvironment.Docker
             ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
             Tag = tag;
             EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
+            Ports = ports;
             _containerWaiter = containerWaiter;
             _containerCleaner = containerCleaner;
             _reuseContainer = reuseContainer;
@@ -131,20 +132,27 @@ namespace TestEnvironment.Docker
             async Task<ContainerListResponse> CreateContainer()
             {
                 // Create new container
-                var container = await DockerClient.Containers.CreateContainerAsync(
-                    new CreateContainerParameters
+                var createParams = new CreateContainerParameters
+                {
+                    Name = Name,
+                    Image = $"{ImageName}:{Tag}",
+                    AttachStdout = true,
+                    Env = environmentVariables,
+                    Hostname = Name,
+                    Domainname = Name,
+                    HostConfig = new HostConfig
                     {
-                        Name = Name,
-                        Image = $"{ImageName}:{Tag}",
-                        AttachStdout = true,
-                        Env = environmentVariables,
-                        Hostname = Name,
-                        Domainname = Name,
-                        HostConfig = new HostConfig
-                        {
-                            PublishAllPorts = true,
-                        },
-                    }, token);
+                        PublishAllPorts = Ports == null,
+                    },
+                };
+
+                if (Ports != null)
+                {
+                    createParams.HostConfig.PortBindings = Ports
+                        .ToDictionary(p => $"{p.Key}/tcp", p => (IList<PortBinding>)new List<PortBinding> { new PortBinding { HostPort = p.Value.ToString() } });
+                }
+
+                var container = await DockerClient.Containers.CreateContainerAsync(createParams, token);
 
                 // Run container
                 await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), token);
