@@ -28,10 +28,9 @@ namespace TestEnvironment.Docker.Containers.Mssql
             using (var connection = new SqlConnection(container.GetConnectionString()))
             using (var command = new SqlCommand(CleanupCommand, connection))
             {
-                await command.Connection.OpenAsync();
-
                 try
                 {
+                    await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
                 }
                 catch (SqlException e)

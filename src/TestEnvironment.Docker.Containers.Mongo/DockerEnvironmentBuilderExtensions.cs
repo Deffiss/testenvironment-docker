@@ -12,6 +12,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
             string imageName = "mongo",
             string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
+            IDictionary<ushort, ushort> ports = null,
             bool reuseContainer = false)
         {
             return builder.AddDependency(
@@ -27,6 +28,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                         { "MONGO_INITDB_ROOT_USERNAME", userName },
                         { "MONGO_INITDB_ROOT_PASSWORD", userPassword }
                     }.MergeDictionaries(environmentVariables),
+                    ports,
                     builder.IsDockerInDocker,
                     reuseContainer,
                     new MongoContainerWaiter(builder.Logger),

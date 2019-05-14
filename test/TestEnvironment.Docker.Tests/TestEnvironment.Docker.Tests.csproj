@@ -1,23 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Elasticsearch\TestEnvironment.Docker.Containers.Elasticsearch.csproj" />
+    <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Ftp\TestEnvironment.Docker.Containers.Ftp.csproj" />
+    <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mail\TestEnvironment.Docker.Containers.Mail.csproj" />
+    <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.MariaDB\TestEnvironment.Docker.Containers.MariaDB.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mongo\TestEnvironment.Docker.Containers.Mongo.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mssql\TestEnvironment.Docker.Containers.Mssql.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

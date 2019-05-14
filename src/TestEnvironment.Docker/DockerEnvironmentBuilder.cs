@@ -22,6 +22,8 @@ namespace TestEnvironment.Docker
 
         public string EnvironmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
 
+        public string[] IgnoredFolders { get; private set; } = new[] { ".vs", ".vscode", "obj", "bin", ".git" };
+
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
         {
@@ -57,13 +59,13 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
+        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             if (string.IsNullOrEmpty(imageName)) throw new ArgumentNullException(nameof(imageName));
 
-            var container = new Container(DockerClient, name.GetContainerName(EnvironmentName), imageName, tag, environmentVariables, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
+            var container = new Container(DockerClient, name.GetContainerName(EnvironmentName), imageName, tag, environmentVariables, ports, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
             AddDependency(container);
 
             return this;
@@ -90,9 +92,28 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream) => throw new NotImplementedException();
 
-        public IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream) => throw new NotImplementedException();
+        public IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
+            if (string.IsNullOrEmpty(dockerfile)) throw new ArgumentNullException(nameof(dockerfile));
+
+            var container = new ContainerFromDockerfile(DockerClient, name.GetContainerName(EnvironmentName), dockerfile, buildArgs, context, environmentVariables, ports, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
+            AddDependency(container);
+
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder IgnoreFolders(params string[] ignoredFolders)
+        {
+            if (ignoredFolders is null) throw new ArgumentNullException(nameof(ignoredFolders));
+
+            IgnoredFolders = ignoredFolders;
+
+            return this;
+        }
+
+        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, IgnoredFolders, Logger);
 
         private static DockerClient CreateDefaultDockerClient()
         {

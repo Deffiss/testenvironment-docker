@@ -21,17 +21,19 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder WithLogger(ILogger logger);
 
+        IDockerEnvironmentBuilder IgnoreFolders(params string[] ignoredFolders);
+
         IDockerEnvironmentBuilder SetName(string environmentName);
 
         IDockerEnvironmentBuilder SetVariable(IDictionary<string, string> variables);
 
         IDockerEnvironmentBuilder AddDependency(IDependency dependency);
 
-        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
+        IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
         IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream);
 
-        IDockerEnvironmentBuilder AddFromDockerfile(Stream dockerfileStream);
+        IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
         DockerEnvironment Build();
     }

@@ -5,7 +5,7 @@ namespace TestEnvironment.Docker
 {
     public static class DictionaryExtensions
     {
-        public static IDictionary<string, string> MergeDictionaries(this IDictionary<string, string> dictionary, IDictionary<string, string> other)
+        public static IDictionary<T1, T2> MergeDictionaries<T1, T2>(this IDictionary<T1, T2> dictionary, IDictionary<T1, T2> other)
         {
             if (other is null) return dictionary;
 
