@@ -22,6 +22,8 @@ namespace TestEnvironment.Docker
 
         public string EnvironmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
 
+        public string[] IgnoredFolders { get; private set; } = new[] { ".vs", ".vscode", "obj", "bin", ".git" };
+
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
         {
@@ -102,7 +104,16 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, Logger);
+        public IDockerEnvironmentBuilder IgnoreFolders(params string[] ignoredFolders)
+        {
+            if (ignoredFolders is null) throw new ArgumentNullException(nameof(ignoredFolders));
+
+            IgnoredFolders = ignoredFolders;
+
+            return this;
+        }
+
+        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, IgnoredFolders, Logger);
 
         private static DockerClient CreateDefaultDockerClient()
         {

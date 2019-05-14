@@ -21,6 +21,8 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder WithLogger(ILogger logger);
 
+        IDockerEnvironmentBuilder IgnoreFolders(params string[] ignoredFolders);
+
         IDockerEnvironmentBuilder SetName(string environmentName);
 
         IDockerEnvironmentBuilder SetVariable(IDictionary<string, string> variables);

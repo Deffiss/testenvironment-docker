@@ -14,6 +14,7 @@ namespace TestEnvironment.Docker
     public class DockerEnvironment : ITestEnvironment
     {
         private readonly DockerClient _dockerClient;
+        private readonly string[] _ignoredFiles;
         private readonly ILogger _logger;
 
         public string Name { get; }
@@ -22,12 +23,13 @@ namespace TestEnvironment.Docker
 
         public IDependency[] Dependencies { get; }
 
-        public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, ILogger logger = null)
+        public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, string[] ignoredFiles = null, ILogger logger = null)
         {
             Name = name;
             Variables = variables;
             Dependencies = dependencies;
             _dockerClient = dockerClient;
+            _ignoredFiles = ignoredFiles;
             _logger = logger;
         }
 
@@ -108,7 +110,7 @@ namespace TestEnvironment.Docker
                 // Adds recuresively files to tar archive.
                 void AddDirectoryFilesToTar(TarArchive tarArchive, string sourceDirectory, bool recurse)
                 {
-                    if (new[] { ".vs", ".vscode", "obj", "bin", ".git" }.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))))
+                    if (_ignoredFiles?.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))) == true)
                     {
                         return;
                     }
