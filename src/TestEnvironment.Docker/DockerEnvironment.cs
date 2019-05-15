@@ -1,5 +1,6 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
 using SharpCompress.Common;
 using SharpCompress.Writers;
