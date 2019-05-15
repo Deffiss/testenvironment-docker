@@ -1,7 +1,8 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
-using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
+using SharpCompress.Common;
+using SharpCompress.Writers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,6 +64,7 @@ namespace TestEnvironment.Docker
             foreach (var container in Dependencies.OfType<ContainerFromDockerfile>())
             {
                 var tempFileName = Guid.NewGuid().ToString();
+                var contextDirectory = container.Context.Equals(".") ? Directory.GetCurrentDirectory() : container.Context;
 
                 try
                 {
@@ -88,37 +90,23 @@ namespace TestEnvironment.Docker
                     _logger?.LogError(exc, $"Unable to delete tar file {tempFileName} with context. Please, cleanup manually.");
                 }
 
+
                 void CreateTarArchive()
                 {
-                    using (var fileStream = new FileStream(tempFileName, FileMode.CreateNew))
+                    using (var stream = File.OpenWrite(tempFileName))
+                    using (var writer = WriterFactory.Open(stream, ArchiveType.Tar, CompressionType.None))
                     {
-                        var tarArchive = TarArchive.CreateOutputTarArchive(fileStream);
-                        var contextDirectory = container.Context.Equals(".") ? Directory.GetCurrentDirectory() : container.Context;
-
-                        tarArchive.RootPath = contextDirectory.Replace('\\', '/');
-                        if (tarArchive.RootPath.EndsWith("/"))
-                        {
-                            tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
-                        }
-
-                        AddDirectoryFilesToTar(tarArchive, contextDirectory, true);
-
-                        tarArchive.Close();
+                        AddDirectoryFilesToTar(writer, contextDirectory, true);
                     }
                 }
 
                 // Adds recuresively files to tar archive.
-                void AddDirectoryFilesToTar(TarArchive tarArchive, string sourceDirectory, bool recurse)
+                void AddDirectoryFilesToTar(IWriter writer, string sourceDirectory, bool recurse)
                 {
                     if (_ignoredFiles?.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))) == true)
                     {
                         return;
                     }
-
-                    // Optionally, write an entry for the directory itself.
-                    // Specify false for recursion here if we will add the directory's files individually.
-                    var tarEntry = TarEntry.CreateEntryFromFile(sourceDirectory);
-                    tarArchive.WriteEntry(tarEntry, false);
 
                     // Write each file to the tar.
                     var filenames = Directory.GetFiles(sourceDirectory);
@@ -139,8 +127,12 @@ namespace TestEnvironment.Docker
 
                         try
                         {
-                            tarEntry = TarEntry.CreateEntryFromFile(filename);
-                            tarArchive.WriteEntry(tarEntry, true);
+                            var contextDirectoryIndex = filename.IndexOf(contextDirectory);
+                            var cleanPath = (contextDirectoryIndex < 0)
+                                ? filename
+                                : filename.Remove(contextDirectoryIndex, contextDirectory.Length);
+
+                            writer.Write(cleanPath, filename);
                         }
                         catch (Exception exc)
                         {
@@ -153,7 +145,7 @@ namespace TestEnvironment.Docker
                         var directories = Directory.GetDirectories(sourceDirectory);
                         foreach (var directory in directories)
                         {
-                            AddDirectoryFilesToTar(tarArchive, directory, recurse);
+                            AddDirectoryFilesToTar(writer, directory, recurse);
                         }
                     }
                 }
