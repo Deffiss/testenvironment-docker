@@ -56,3 +56,9 @@ In case of unpredictable behaviour try to remove the containers manually via com
 ```
  docker rm -f (docker ps -a -q)
 ```
+
+If you use **AddFromDockerfile()** then it is recommended to prune images time to time:
+
+```
+ docker image prune -f
+```
