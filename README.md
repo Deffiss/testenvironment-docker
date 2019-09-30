@@ -23,6 +23,7 @@ To add container specific functionality for MSSQL, Elasticsearch or MongoDB:
  Install-Package TestEnvironment.Docker.Containers.Mail
  Install-Package TestEnvironment.Docker.Containers.Ftp
  Install-Package TestEnvironment.Docker.Containers.MariaDB
+ Install-Package TestEnvironment.Docker.Containers.Postgres
 ```
 ### Example
 
@@ -32,6 +33,7 @@ var environment = new DockerEnvironmentBuilder()
     .AddContainer("my-nginx", "nginx")
     .AddElasticsearchContainer("my-elastic")
     .AddMssqlContainer("my-mssql", "HelloK11tt_0")
+    .AddPostgresContainer("my-postgres")
     .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
     .Build();
 
@@ -41,6 +43,7 @@ await environment.Up();
 // Play with containers.
 var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
 var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
+var postgres = environment.GetContainer<PostgresContainer>("my-postgres");
 
 // Down it.
 await environment.Down();
