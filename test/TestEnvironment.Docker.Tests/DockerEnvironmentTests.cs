@@ -35,7 +35,7 @@ namespace TestEnvironment.Docker.Tests
                 .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
                 .AddMariaDBContainer("my-maria", "my-secret-pw", reuseContainer: true)
-                .AddMongoContainer("my-mongo", reuseContainer: true)                
+                .AddMongoContainer("my-mongo", reuseContainer: true)
                 .AddMailContainer("my-mail", reuseContainer: true)
                 .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }), reuseContainer: true)
                 .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
