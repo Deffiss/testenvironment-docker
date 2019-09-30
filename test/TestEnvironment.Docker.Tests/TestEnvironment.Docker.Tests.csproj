@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mongo\TestEnvironment.Docker.Containers.Mongo.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mssql\TestEnvironment.Docker.Containers.Mssql.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+    <ProjectReference Include="..\..\TestEnvironment.Docker.Containers.Postgres\TestEnvironment.Docker.Containers.Postgres.csproj" />
   </ItemGroup>
 
   <ItemGroup>
