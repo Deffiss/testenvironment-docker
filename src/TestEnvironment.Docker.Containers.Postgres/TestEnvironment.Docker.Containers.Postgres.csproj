@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
   </ItemGroup>
 
 </Project>

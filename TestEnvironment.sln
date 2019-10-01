@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker.Cont
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker.Containers.Mail", "src\TestEnvironment.Docker.Containers.Mail\TestEnvironment.Docker.Containers.Mail.csproj", "{5F1E7192-A8D9-49B9-8F24-A29CB06B43DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEnvironment.Docker.Containers.Postgres", "TestEnvironment.Docker.Containers.Postgres\TestEnvironment.Docker.Containers.Postgres.csproj", "{8542AE96-7EC5-4965-98B1-95B63F7DFE6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEnvironment.Docker.Containers.Postgres", "src\TestEnvironment.Docker.Containers.Postgres\TestEnvironment.Docker.Containers.Postgres.csproj", "{8542AE96-7EC5-4965-98B1-95B63F7DFE6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
