@@ -12,10 +12,12 @@ using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mail;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
+using TestEnvironment.Docker.Containers.Postgres;
 using Xunit;
 using MySql.Data.MySqlClient;
 using FluentFTP;
 using MailKit.Net.Smtp;
+using Npgsql;
 
 namespace TestEnvironment.Docker.Tests
 {
@@ -37,6 +39,7 @@ namespace TestEnvironment.Docker.Tests
                 .AddMailContainer("my-mail", reuseContainer: true)
                 .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }), reuseContainer: true)
                 .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
+                .AddPostgresContainer("my-postgres", reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
@@ -45,6 +48,7 @@ namespace TestEnvironment.Docker.Tests
                 .AddMailContainer("my-mail")
                 .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
                 .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }))
+                .AddPostgresContainer("my-postgres")
 
 #endif
                 .Build();
@@ -73,6 +77,9 @@ namespace TestEnvironment.Docker.Tests
 
             var mail = environment.GetContainer<MailContainer>("my-mail");
             await PrintSmtpCapabilities(mail);
+
+            var postgres = environment.GetContainer<PostgresContainer>("my-postgres");
+            await PrintPostgresDbVersion(postgres);
 
 #if !DEBUG
             // Down it.
@@ -154,6 +161,20 @@ namespace TestEnvironment.Docker.Tests
             {
                 var response = await client.GetStringAsync("/");
                 Console.WriteLine($"Response from static server: {response}");
+            }
+        }
+
+        private static async Task PrintPostgresDbVersion(PostgresContainer postgres)
+        {
+            using (var connection = new NpgsqlConnection(postgres.GetConnectionString()))
+            using (var command = new NpgsqlCommand("select version();", connection))
+            {
+                await connection.OpenAsync();
+
+                var reader = await command.ExecuteReaderAsync();
+                await reader.ReadAsync();
+
+                Console.WriteLine($"Postgres Version: {reader.GetString(0)}");
             }
         }
     }
