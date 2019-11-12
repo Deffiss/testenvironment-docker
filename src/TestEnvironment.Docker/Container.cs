@@ -3,7 +3,6 @@ using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,7 +81,7 @@ namespace TestEnvironment.Docker
                 if (!isAlive)
                 {
                     attempts--;
-                    await Task.Delay(DelayTime);
+                    await Task.Delay(DelayTime, token);
                 }
             }
             while (!isAlive && attempts != 0);

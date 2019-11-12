@@ -17,7 +17,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
 
         public async Task<bool> Wait(MssqlContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) new ArgumentNullException(nameof(container));
+            if (container == null) throw new ArgumentNullException(nameof(container));
 
             try
             {
