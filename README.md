@@ -65,3 +65,9 @@ If you use **AddFromDockerfile()** then it is recommended to prune images time t
 ```
  docker image prune -f
 ```
+
+Ideally, use the [`--filter`](https://docs.docker.com/engine/reference/commandline/image_prune/#filtering) option on the `docker image prune` commandline task.  Simply add `LABEL "CI_BUILD=True"` in your Dockerfile, and force delete all images with that LABEL:
+
+```
+ docker image prune -f --filter "CI_BUILD=True"
+```
