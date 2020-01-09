@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Mongo</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
     <Authors>Uladzimir Lashkevich, Aliaksei Harshkalep</Authors>
     <Description>Add MongoDB container specific functionality.</Description>
@@ -18,7 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.8.0" />
   </ItemGroup>
 

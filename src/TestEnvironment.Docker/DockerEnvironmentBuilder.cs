@@ -14,7 +14,7 @@ namespace TestEnvironment.Docker
 
         public DockerClient DockerClient { get; }
 
-        public ILogger Logger { get; private set; } = new LoggerFactory().AddConsole().AddDebug().CreateLogger<DockerEnvironment>();
+        public ILogger Logger { get; private set; } = LoggerFactory.Create(lb => lb.AddConsole().AddDebug()).CreateLogger<DockerEnvironment>();
 
         public bool IsDockerInDocker { get; private set; } = false;
 

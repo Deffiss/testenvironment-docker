@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker</AssemblyName>
     <RootNamespace>TestEnvironment.Docker</RootNamespace>
-    <Version>1.2.2</Version>
+    <Version>1.2.3</Version>
     <PackageId>TestEnvironment.Docker</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Testing framework for setting up real dependencies as Docker containers.</Description>
@@ -19,9 +19,9 @@
 
   <ItemGroup>
     <PackageReference Include="Docker.DotNet" Version="3.125.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
-    <PackageReference Include="SharpCompress" Version="0.23.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
+    <PackageReference Include="SharpCompress" Version="0.24.0" />
   </ItemGroup>
 
 </Project>
