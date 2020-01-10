@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Mongo</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
-    <Version>1.0.3</Version>
+    <Version>1.1.3</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
     <Authors>Uladzimir Lashkevich, Aliaksei Harshkalep</Authors>
     <Description>Add MongoDB container specific functionality.</Description>
@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-    <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
+    <PackageReleaseNotes>Upgrage to netstandard2.1.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

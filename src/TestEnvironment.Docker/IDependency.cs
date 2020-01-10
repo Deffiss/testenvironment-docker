@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker
     /// <summary>
     /// Represents test environment dependency.
     /// </summary>
-    public interface IDependency : IDisposable
+    public interface IDependency : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Gets the dependency name.

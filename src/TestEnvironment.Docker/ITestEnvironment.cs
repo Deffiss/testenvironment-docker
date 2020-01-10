@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker
     /// <summary>
     /// Represents interface for test environment.
     /// </summary>
-    public interface ITestEnvironment : IDisposable
+    public interface ITestEnvironment : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Gets the environment name.

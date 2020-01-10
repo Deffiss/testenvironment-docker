@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.MariaDB</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.MariaDB</RootNamespace>
-    <Version>1.0.2</Version>
+    <Version>1.1.2</Version>
     <PackageId>TestEnvironment.Docker.Containers.MariaDB</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add MariaDB container specific functionality.</Description>
@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Upgrage to netstandard2.1.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
