@@ -28,7 +28,7 @@ To add container specific functionality for MSSQL, Elasticsearch or MongoDB:
 ### Example
 
 ```csharp
-// Create the environment using builder pattern
+// Create the environment using builder pattern.
 var environment = new DockerEnvironmentBuilder()
     .AddContainer("my-nginx", "nginx")
     .AddElasticsearchContainer("my-elastic")
