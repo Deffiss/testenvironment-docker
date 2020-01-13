@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-    <PackageReleaseNotes>Upgrage to netstandard2.1.</PackageReleaseNotes>
+    <PackageReleaseNotes>Upgrade to netstandard2.1.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
