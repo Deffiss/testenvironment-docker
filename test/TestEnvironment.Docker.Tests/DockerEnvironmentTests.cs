@@ -86,7 +86,7 @@ namespace TestEnvironment.Docker.Tests
             await environment.Down();
 
             // Dispose (remove).
-            environment.Dispose();
+            await environment.DisposeAsync();
 #endif
         }
 

@@ -71,3 +71,7 @@ Ideally, use the [`--filter`](https://docs.docker.com/engine/reference/commandli
 ```
  docker image prune -f --filter "CI_BUILD=True"
 ```
+
+### Release Notes
+
+* Implement `IAsyncDisposable` interface.

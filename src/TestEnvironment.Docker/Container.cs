@@ -171,9 +171,35 @@ namespace TestEnvironment.Docker
 
         public void Dispose()
         {
-            if (!string.IsNullOrEmpty(Id))
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
+                }
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsync(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected async virtual ValueTask DisposeAsync(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    await DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true });
+                }
             }
         }
     }

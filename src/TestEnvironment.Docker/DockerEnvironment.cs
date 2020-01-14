@@ -51,14 +51,6 @@ namespace TestEnvironment.Docker
 
         public TContainer GetContainer<TContainer>(string name) where TContainer : Container => GetContainer(name) as TContainer;
 
-        public void Dispose()
-        {
-            foreach (var dependency in Dependencies)
-            {
-                dependency.Dispose();
-            }
-        }
-
         private async Task BuildRequiredImages(CancellationToken token)
         {
             foreach (var container in Dependencies.OfType<ContainerFromDockerfile>())
@@ -201,6 +193,41 @@ namespace TestEnvironment.Docker
                         throw;
                     }
 
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                foreach (var dependency in Dependencies)
+                {
+                    dependency.Dispose();
+                }
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsync(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual async ValueTask DisposeAsync(bool disposing)
+        {
+            if (disposing)
+            {
+                var disposeTasks = Dependencies.Select(d => d.DisposeAsync()).ToArray();
+                foreach (var dt in disposeTasks)
+                {
+                    await dt;
                 }
             }
         }
