@@ -20,4 +20,4 @@ Please make sure that you run Docker. If you don't have MongoDB image locally it
 
 ### Debug/Release
 
-Although, MongoDB startup shouldn't take too much time you'll still might notice some extra time spending on containers creation and disposing. That's why `EnvironmentFixture` class contains the conditionally compiled code so each time when you run your tests using `Debug` configuration it will try to cleanup and reuse existing containers and not dispose them at the end. This allows to improve local testing expirience significanlty. You should still prefer to use `Release` configuration when you run your tests inside CI/CD.
+Although, MongoDB startup shouldn't take too much time you'll still might notice some extra time spending on containers creation and disposing. That's why `EnvironmentFixture` class contains the conditionally compiled code so each time when you run your tests using `Debug` configuration it will try to cleanup and reuse existing containers and not dispose them at the end. This allows to improve local testing experience significantly. You should still prefer to use `Release` configuration when you run your tests inside CI/CD.
