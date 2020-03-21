@@ -5,9 +5,10 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Mssql</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mssql</RootNamespace>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mssql</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Add MSSQL container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>docker tests mssql container</PackageTags>

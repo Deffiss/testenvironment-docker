@@ -5,8 +5,9 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Mail</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mail</RootNamespace>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mail</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add SMTP container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

@@ -5,8 +5,9 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Postgres</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Postgres</RootNamespace>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageId>TestEnvironment.Docker.Containers.Postgres</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Kiryl Kiryanchykau</Authors>
     <Description>Add Postgres container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
