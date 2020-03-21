@@ -5,8 +5,9 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Elasticsearch</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add Elasticsearch container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

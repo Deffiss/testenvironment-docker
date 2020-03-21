@@ -5,8 +5,9 @@
     <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Ftp</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Ftp</RootNamespace>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <PackageId>TestEnvironment.Docker.Containers.Ftp</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add FTP container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
