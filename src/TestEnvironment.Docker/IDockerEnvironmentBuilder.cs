@@ -35,6 +35,8 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null);
 
+        IDockerEnvironmentBuilder AddContainerDependency(string fromContainerName, string toContainerName);
+
         DockerEnvironment Build();
     }
 }

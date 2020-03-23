@@ -17,6 +17,7 @@ namespace TestEnvironment.Docker
         private readonly DockerClient _dockerClient;
         private readonly string[] _ignoredFiles;
         private readonly ILogger _logger;
+        private readonly Dictionary<string, string> _dependenciesGraph;
 
         public string Name { get; }
 
@@ -24,12 +25,20 @@ namespace TestEnvironment.Docker
 
         public IDependency[] Dependencies { get; }
 
-        public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, string[] ignoredFiles = null, ILogger logger = null)
+        public DockerEnvironment(
+            string name,
+            IDictionary<string, string> variables,
+            IDependency[] dependencies,
+            DockerClient dockerClient,
+            Dictionary<string, string> dependenciesGraph,
+            string[] ignoredFiles = null,
+            ILogger logger = null)
         {
             Name = name;
             Variables = variables;
             Dependencies = dependencies;
             _dockerClient = dockerClient;
+            _dependenciesGraph = dependenciesGraph;
             _ignoredFiles = ignoredFiles;
             _logger = logger;
         }
@@ -40,7 +49,31 @@ namespace TestEnvironment.Docker
 
             await PullRequiredImages(token);
 
-            await Task.WhenAll(Dependencies.Select(d => d.Run(Variables, token)));
+            var containerNames = Dependencies.Select(x => x.Name).ToList();
+
+            while (containerNames.Count > 0)
+            {
+                // Find all containers that are not using other containers as dependency
+                var independentContainerNames = containerNames.Where(name => !_dependenciesGraph.ContainsKey(name)).ToList();
+                if (independentContainerNames.Count == 0)
+                {
+                    throw new Exception("Containers dependencies graph contains circular dependency!");
+                }
+
+                // Process independent containers
+                await Task.WhenAll(Dependencies.Where(x => independentContainerNames.Contains(x.Name)).Select(d => d.Run(Variables, token)));
+
+                // Remove processed containers from dependencies graph
+                independentContainerNames.ForEach(name =>
+                {
+                    var waitingContainerNames = _dependenciesGraph.Where(kv => kv.Value == name).Select(kv => kv.Key).ToList();
+                    if (waitingContainerNames.Any())
+                    {
+                        waitingContainerNames.ForEach(key => _dependenciesGraph.Remove(key));
+                    }                    
+                });
+                containerNames = containerNames.Except(independentContainerNames).ToList();
+            }
         }
 
         public Task Down(CancellationToken token = default) =>

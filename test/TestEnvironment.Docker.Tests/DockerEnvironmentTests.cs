@@ -40,6 +40,8 @@ namespace TestEnvironment.Docker.Tests
                 .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }), reuseContainer: true)
                 .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
                 .AddPostgresContainer("my-postgres", reuseContainer: true)
+                ////.AddContainerDependency(fromContainerName: "my-postgres", toContainerName: "my-mongo")
+                ////.AddContainerDependency(fromContainerName: "my-mongo", toContainerName: "my-postgres")
 #else
                 .AddElasticsearchContainer("my-elastic")
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")

@@ -9,31 +9,40 @@ namespace TestEnvironment.Docker
 {
     public class DockerEnvironmentBuilder : IDockerEnvironmentBuilder
     {
-        private readonly List<IDependency> _dependencies = new List<IDependency>();
-        private IDictionary<string, string> _variables = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _dependenciesGraph;
+        private readonly List<IDependency> _dependencies;
+        private IDictionary<string, string> _variables;
 
         public DockerClient DockerClient { get; }
 
-        public ILogger Logger { get; private set; } = LoggerFactory.Create(lb => lb.AddConsole().AddDebug()).CreateLogger<DockerEnvironment>();
+        public ILogger Logger { get; private set; }
 
         public bool IsDockerInDocker { get; private set; } = false;
 
         public bool DefaultNetwork { get; private set; } = false;
 
-        public string EnvironmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
+        public string EnvironmentName { get; private set; }
 
-        public string[] IgnoredFolders { get; private set; } = new[] { ".vs", ".vscode", "obj", "bin", ".git" };
+        public string[] IgnoredFolders { get; private set; }
+
+        public DockerEnvironmentBuilder(DockerClient dockerClient)
+        {
+            _dependenciesGraph = new Dictionary<string, string>();
+            _dependencies = new List<IDependency>();
+            _variables = new Dictionary<string, string>();
+            Logger = LoggerFactory.Create(lb => lb.AddConsole().AddDebug()).CreateLogger<DockerEnvironment>();
+            EnvironmentName = Guid.NewGuid().ToString().Substring(0, 10);
+            IgnoredFolders = new[] { ".vs", ".vscode", "obj", "bin", ".git" };
+
+            DockerClient = dockerClient;
+
+        }
 
         public DockerEnvironmentBuilder()
             : this(CreateDefaultDockerClient())
         {
         }
-
-        public DockerEnvironmentBuilder(DockerClient dockerClient)
-        {
-            DockerClient = dockerClient;
-        }
-
+        
         public IDockerEnvironmentBuilder AddDependency(IDependency dependency)
         {
             if (dependency == null) throw new ArgumentNullException(nameof(dependency));
@@ -113,7 +122,14 @@ namespace TestEnvironment.Docker
             return this;
         }
 
-        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, IgnoredFolders, Logger);
+        public IDockerEnvironmentBuilder AddContainerDependency(string fromContainerName, string toContainerName)
+        {
+            _dependenciesGraph.Add(containerName.GetContainerName(EnvironmentName), dependencyName.GetContainerName(EnvironmentName));
+
+            return this;
+        }
+
+        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, _dependenciesGraph, IgnoredFolders, Logger);
 
         private static DockerClient CreateDefaultDockerClient()
         {
