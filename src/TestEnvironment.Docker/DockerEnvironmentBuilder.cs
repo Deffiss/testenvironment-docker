@@ -124,7 +124,7 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironmentBuilder AddContainerDependency(string fromContainerName, string toContainerName)
         {
-            _dependenciesGraph.Add(containerName.GetContainerName(EnvironmentName), dependencyName.GetContainerName(EnvironmentName));
+            _dependenciesGraph.Add(fromContainerName.GetContainerName(EnvironmentName), toContainerName.GetContainerName(EnvironmentName));
 
             return this;
         }
