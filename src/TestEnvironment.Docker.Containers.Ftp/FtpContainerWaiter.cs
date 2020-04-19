@@ -6,36 +6,31 @@ using FluentFTP;
 
 namespace TestEnvironment.Docker.Containers.Ftp
 {
-    public class FtpContainerContainerWaiter : IContainerWaiter<FtpContainer>
+    public class FtpContainerContainerWaiter : BaseContainerWaiter<FtpContainer>
     {
-        private readonly ILogger _logger;
-
         public FtpContainerContainerWaiter(ILogger logger = null)
+            : base(logger)
         {
-            _logger = logger;
         }
 
-        public async Task<bool> Wait(FtpContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheckAsync(FtpContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) new ArgumentNullException(nameof(container));
-
             try
             {
-                using (var ftpClient = new FtpClient(container.FtpHost, container.IsDockerInDocker ? 21 : container.Ports[21], container.FtpUserName, container.FtpPassword))
-                {
-                    await ftpClient.ConnectAsync();
-                }
+                using var ftpClient = new FtpClient(container.FtpHost,
+                    container.IsDockerInDocker ? 21 : container.Ports[21], container.FtpUserName,
+                    container.FtpPassword);
+                
+                await ftpClient.ConnectAsync(cancellationToken);
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger?.LogDebug(ex.Message);
+                Logger?.LogDebug(ex.Message);
             }
 
             return false;
         }
-
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((FtpContainer)container, cancellationToken);
     }
 }

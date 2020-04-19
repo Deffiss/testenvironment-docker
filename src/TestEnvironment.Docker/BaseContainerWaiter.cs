@@ -8,14 +8,14 @@ namespace TestEnvironment.Docker
     public abstract class BaseContainerWaiter<TContainer> : IContainerWaiter<TContainer>
         where TContainer : Container
     {
-        private const int AttemptsCount = 60;
-        private const int DelayTime = 1000;
+        protected ILogger Logger { get; }
 
-        private readonly ILogger _logger;
+        protected virtual int AttemptsCount => 60;
+        protected virtual TimeSpan DelayTime => TimeSpan.FromSeconds(1);
 
         protected BaseContainerWaiter(ILogger logger)
         {
-            _logger = logger;
+            Logger = logger;
         }
 
         public async Task<bool> Wait(TContainer container, CancellationToken cancellationToken)
@@ -25,7 +25,7 @@ namespace TestEnvironment.Docker
             var attempts = AttemptsCount;
             do
             {
-                var isAlive = await PerformCheck(container, cancellationToken);
+                var isAlive = await PerformCheckAsync(container, cancellationToken);
 
                 if (isAlive) return true;
 
@@ -33,11 +33,11 @@ namespace TestEnvironment.Docker
                 await Task.Delay(DelayTime, cancellationToken);
             } while (attempts != 0);
 
-            _logger.LogError($"Container {container.Name} didn't start.");
+            Logger.LogError($"Container {container.Name} didn't start.");
             return false;
         }
 
-        protected abstract Task<bool> PerformCheck(TContainer container, CancellationToken cancellationToken);
+        protected abstract Task<bool> PerformCheckAsync(TContainer container, CancellationToken cancellationToken);
 
         public Task<bool> Wait(Container container, CancellationToken cancellationToken) =>
             Wait(container as TContainer, cancellationToken);

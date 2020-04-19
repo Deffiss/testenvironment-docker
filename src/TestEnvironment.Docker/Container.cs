@@ -1,4 +1,4 @@
-﻿using Docker.DotNet;
+using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using System;
@@ -64,35 +64,21 @@ namespace TestEnvironment.Docker
 
             await RunContainerSafely(stringifiedVariables, token);
 
-            if (_containerWaiter != null) await WaitForReadiness(token);
+            if (_containerWaiter != null)
+            {
+                var isStarted = await _containerWaiter.Wait(this, token);
+                if (!isStarted)
+                {
+                    Logger.LogError($"Container {Name} didn't start.");
+                    throw new TimeoutException($"Container {Name} didn't start.");
+                }
+            }
+
             if (_reuseContainer && _containerCleaner != null) await _containerCleaner.Cleanup(this, token);
         }
 
         public Task Stop(CancellationToken token = default) => DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
-
-        private async Task WaitForReadiness(CancellationToken token = default)
-        {
-            var attempts = AttemptsCount;
-            bool isAlive;
-            do
-            {
-                isAlive = await _containerWaiter.Wait(this, token);
-
-                if (!isAlive)
-                {
-                    attempts--;
-                    await Task.Delay(DelayTime, token);
-                }
-            }
-            while (!isAlive && attempts != 0);
-
-            if (attempts == 0)
-            {
-                Logger.LogError($"Container {Name} didn't start.");
-                throw new TimeoutException($"Container {Name} didn't start.");
-            }
-        }
-
+        
         private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token = default)
         {
             // Try to find container in docker session

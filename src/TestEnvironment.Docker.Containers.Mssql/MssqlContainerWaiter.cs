@@ -6,38 +6,31 @@ using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {
-    public class MssqlContainerWaiter : IContainerWaiter<MssqlContainer>
+    public class MssqlContainerWaiter : BaseContainerWaiter<MssqlContainer>
     {
-        private readonly ILogger _logger;
-
         public MssqlContainerWaiter(ILogger logger = null)
+            : base(logger)
         {
-            _logger = logger;
         }
 
-        public async Task<bool> Wait(MssqlContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheckAsync(MssqlContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
-
             try
             {
-                using (var connection = new SqlConnection(container.GetConnectionString()))
-                using (var command = new SqlCommand("SELECT @@VERSION", connection))
-                {
-                    await connection.OpenAsync();
-                    await command.ExecuteNonQueryAsync();
-                }
+                using var connection = new SqlConnection(container.GetConnectionString());
+                using var command = new SqlCommand("SELECT @@VERSION", connection);
+                
+                await connection.OpenAsync(cancellationToken);
+                await command.ExecuteNonQueryAsync(cancellationToken);
 
                 return true;
             }
             catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException || ex is SqlException)
             {
-                _logger?.LogDebug(ex.Message);
+                Logger?.LogDebug(ex.Message);
             }
 
             return false;
         }
-
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((MssqlContainer)container, cancellationToken);
     }
 }
