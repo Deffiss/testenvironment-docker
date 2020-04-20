@@ -1,44 +1,32 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TestEnvironment.Docker;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 
 namespace TestEnvironment.Docker.Containers.MariaDB
 {
-    public class MariaDBContainerWaiter : IContainerWaiter<MariaDBContainer>
+    public class MariaDBContainerWaiter : BaseContainerWaiter<MariaDBContainer>
     {
-        private readonly ILogger _logger;
-
         public MariaDBContainerWaiter(ILogger logger = null)
+            : base(logger)
         {
-            _logger = logger;
         }
 
-        public async Task<bool> Wait(MariaDBContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MariaDBContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) new ArgumentNullException(nameof(container));
+            // don't use await using here due to
+            // System.MissingMethodException : Method not found: 'System.Threading.Tasks.Task MySql.Data.MySqlClient.MySqlConnection.DisposeAsync()'.
+            using var connection = new MySqlConnection(container.GetConnectionString());
+            using var command = new MySqlCommand("select @@version", connection);
 
-            try
-            {
-                using (var connection = new MySqlConnection(container.GetConnectionString()))
-                using (var command = new MySqlCommand("select @@version", connection))
-                {
-                    await command.Connection.OpenAsync();
-                    await command.ExecuteNonQueryAsync();
-                }
+            await command.Connection.OpenAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken);
 
-                return true;
-            }
-            catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException || ex is MySqlException)
-            {
-                _logger?.LogDebug(ex.Message);
-            }
-
-            return false;
+            return true;
         }
 
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((MariaDBContainer)container, cancellationToken);
+        protected override bool IsRetryable(Exception exception) =>
+            exception is InvalidOperationException || exception is NotSupportedException || exception is MySqlException;
     }
 }

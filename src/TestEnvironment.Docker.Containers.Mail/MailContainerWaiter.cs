@@ -1,42 +1,30 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MailKit.Net.Smtp;
 
 namespace TestEnvironment.Docker.Containers.Mail
 {
-    public class MailContainerWaiter : IContainerWaiter<MailContainer>
+    public class MailContainerWaiter : BaseContainerWaiter<MailContainer>
     {
         private readonly ushort _smtpPort;
-        private readonly ILogger _logger;
 
         public MailContainerWaiter(ushort smtpPort = 1025, ILogger logger = null)
+            : base(logger)
         {
             _smtpPort = smtpPort;
-            _logger = logger;
         }
 
-        public async Task<bool> Wait(MailContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MailContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) new ArgumentNullException(nameof(container));
+            using var client = new SmtpClient();
 
-            try
-            {
-                using (var client = new SmtpClient())
-                {
-                    await client.ConnectAsync(container.IsDockerInDocker ? container.IPAddress : "localhost", container.IsDockerInDocker ? _smtpPort : container.Ports[_smtpPort]);
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogDebug(ex.Message);
-            }
+            await client.ConnectAsync(
+                container.IsDockerInDocker ? container.IPAddress : "localhost",
+                container.IsDockerInDocker ? _smtpPort : container.Ports[_smtpPort],
+                cancellationToken: cancellationToken);
 
-            return false;
+            return true;
         }
-
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((MailContainer)container, cancellationToken);
     }
 }

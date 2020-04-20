@@ -18,11 +18,19 @@ using MySql.Data.MySqlClient;
 using FluentFTP;
 using MailKit.Net.Smtp;
 using Npgsql;
+using Xunit.Abstractions;
 
 namespace TestEnvironment.Docker.Tests
 {
     public class DockerEnvironmentTests
     {
+        private readonly ITestOutputHelper _testOutput;
+
+        public DockerEnvironmentTests(ITestOutputHelper testOutput)
+        {
+            _testOutput = testOutput;
+        }
+
         [Fact]
         public async Task CreateDockerEnvironment()
         {
@@ -32,13 +40,19 @@ namespace TestEnvironment.Docker.Tests
                 .SetName("test-env")
                 .AddContainer("my-nginx", "nginx")
 #if DEBUG
-                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
+                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> {[9200] = 9200},
+                    reuseContainer: true)
+                .AddMssqlContainer("my-mssql", "HelloK11tt_0",
+                    environmentVariables: new Dictionary<string, string>
+                        {["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS"}, reuseContainer: true)
                 .AddMariaDBContainer("my-maria", "my-secret-pw", reuseContainer: true)
                 .AddMongoContainer("my-mongo", reuseContainer: true)
                 .AddMailContainer("my-mail", reuseContainer: true)
-                .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }), reuseContainer: true)
-                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
+                .AddFtpContainer("my-ftp", "superuser", "test",
+                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort) p, p => (ushort) p)
+                        .MergeDictionaries(new Dictionary<ushort, ushort> {[21] = 21}), reuseContainer: true)
+                .AddFromDockerfile("from-file", "Dockerfile",
+                    containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
                 .AddPostgresContainer("my-postgres", reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
@@ -46,10 +60,14 @@ namespace TestEnvironment.Docker.Tests
                 .AddMariaDBContainer("my-maria", "my-secret-pw")
                 .AddMongoContainer("my-mongo")
                 .AddMailContainer("my-mail")
-                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
-                .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }))
+                .AddFromDockerfile("from-file", "Dockerfile",
+                    containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
+                .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10)
+                    .ToDictionary(p => (ushort) p, p => (ushort) p).MergeDictionaries(new Dictionary<ushort, ushort>
+                    {
+                        [21] = 21
+                    }))
                 .AddPostgresContainer("my-postgres")
-
 #endif
                 .Build();
 
@@ -90,7 +108,7 @@ namespace TestEnvironment.Docker.Tests
 #endif
         }
 
-        private static async Task PrintMssqlVersion(MssqlContainer mssql)
+        private async Task PrintMssqlVersion(MssqlContainer mssql)
         {
             using (var connection = new SqlConnection(mssql.GetConnectionString()))
             using (var command = new SqlCommand("SELECT @@VERSION", connection))
@@ -100,25 +118,25 @@ namespace TestEnvironment.Docker.Tests
                 var reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
 
-                Console.WriteLine($"MSSQL Version: {reader.GetString(0)}");
+                _testOutput.WriteLine($"MSSQL Version: {reader.GetString(0)}");
             }
         }
 
-        private static async Task PrintElasticsearchVersion(ElasticsearchContainer elastic)
+        private async Task PrintElasticsearchVersion(ElasticsearchContainer elastic)
         {
             var elasticClient = new ElasticClient(new Uri(elastic.GetUrl()));
             var clusterInfo = await elasticClient.NodesInfoAsync();
-            Console.WriteLine($"Elasticsearch version: {clusterInfo.Nodes.Values.First().Version}");
+            _testOutput.WriteLine($"Elasticsearch version: {clusterInfo.Nodes.Values.First().Version}");
         }
 
-        private static void PrintMongoVersion(MongoContainer mongo)
+        private void PrintMongoVersion(MongoContainer mongo)
         {
             var mongoClient = new MongoClient(mongo.GetConnectionString());
             var clusterDescription = mongoClient.Cluster.Description;
-            Console.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
+            _testOutput.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
         }
 
-        private static async Task PrintMariaDBVersion(MariaDBContainer maria)
+        private async Task PrintMariaDBVersion(MariaDBContainer maria)
         {
             using (var connection = new MySqlConnection(maria.GetConnectionString()))
             using (var command = new MySqlCommand("select @@version", connection))
@@ -128,43 +146,49 @@ namespace TestEnvironment.Docker.Tests
                 var reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
 
-                Console.WriteLine($"MariaDB Version: {reader.GetString(0)}");
+                _testOutput.WriteLine($"MariaDB Version: {reader.GetString(0)}");
             }
         }
 
-        private static async Task PrintFtpServerType(FtpContainer ftpContainer)
+        private async Task PrintFtpServerType(FtpContainer ftpContainer)
         {
-            using (var ftpClient = new FtpClient(ftpContainer.FtpHost, ftpContainer.IsDockerInDocker ? 21 : ftpContainer.Ports[21], ftpContainer.FtpUserName, ftpContainer.FtpPassword))
+            var port = ftpContainer.IsDockerInDocker ? 21 : ftpContainer.Ports[21];
+
+            using (var ftpClient = new FtpClient(ftpContainer.FtpHost, port, ftpContainer.FtpUserName,
+                ftpContainer.FtpPassword))
             {
                 await ftpClient.ConnectAsync();
 
-                Console.WriteLine($"FTP type: {ftpClient.ServerType}");
+                _testOutput.WriteLine($"FTP type: {ftpClient.ServerType}");
             }
         }
 
-        private static async Task PrintSmtpCapabilities(MailContainer mailContainer)
+        private async Task PrintSmtpCapabilities(MailContainer mailContainer)
         {
+            var host = mailContainer.IsDockerInDocker ? mailContainer.IPAddress : "localhost";
+            var port = mailContainer.IsDockerInDocker ? 1025 : mailContainer.Ports[1025];
+
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync(mailContainer.IsDockerInDocker ? mailContainer.IPAddress : "localhost", mailContainer.IsDockerInDocker ? 1025 : mailContainer.Ports[1025]);
+                await client.ConnectAsync(host, port);
 
-                Console.WriteLine($"Smtp capabilites: {client.Capabilities}");
+                _testOutput.WriteLine($"Smtp capabilites: {client.Capabilities}");
             }
         }
 
-        private static async Task PrintReturnedHtml(Container staticFilesContainer)
+        private async Task PrintReturnedHtml(Container staticFilesContainer)
         {
-            var uri = new Uri($"http://{(staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : "localhost")}:" +
-                $"{(staticFilesContainer.IsDockerInDocker ? 8080 : staticFilesContainer.Ports[8080])}");
+            var host = staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : "localhost";
+            var port = staticFilesContainer.IsDockerInDocker ? 8080 : staticFilesContainer.Ports[8080];
 
-            using (var client = new HttpClient { BaseAddress = uri })
+            using (var client = new HttpClient {BaseAddress = new Uri($"http://{host}:{port}")})
             {
                 var response = await client.GetStringAsync("/");
-                Console.WriteLine($"Response from static server: {response}");
+                _testOutput.WriteLine($"Response from static server: {response}");
             }
         }
 
-        private static async Task PrintPostgresDbVersion(PostgresContainer postgres)
+        private async Task PrintPostgresDbVersion(PostgresContainer postgres)
         {
             using (var connection = new NpgsqlConnection(postgres.GetConnectionString()))
             using (var command = new NpgsqlCommand("select version();", connection))
@@ -174,7 +198,7 @@ namespace TestEnvironment.Docker.Tests
                 var reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
 
-                Console.WriteLine($"Postgres Version: {reader.GetString(0)}");
+                _testOutput.WriteLine($"Postgres Version: {reader.GetString(0)}");
             }
         }
     }

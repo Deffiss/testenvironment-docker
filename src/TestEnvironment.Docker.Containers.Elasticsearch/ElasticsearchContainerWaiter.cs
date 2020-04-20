@@ -7,30 +7,24 @@ using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
-    public class ElasticsearchContainerWaiter : IContainerWaiter<ElasticsearchContainer>
+    public class ElasticsearchContainerWaiter : BaseContainerWaiter<ElasticsearchContainer>
     {
-        private readonly ILogger _logger;
-
         public ElasticsearchContainerWaiter(ILogger logger = null)
+            : base(logger)
         {
-            _logger = logger;
         }
 
-        public async Task<bool> Wait(ElasticsearchContainer container, CancellationToken cancellationToken = default)
+        protected override async Task<bool> PerformCheck(ElasticsearchContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) new ArgumentNullException(nameof(container));
-
             var elastic = new ElasticClient(new Uri(container.GetUrl()));
             var health = await elastic.ClusterHealthAsync(ch => ch
                 .WaitForStatus(WaitForStatus.Yellow)
                 .Level(Level.Cluster)
-                .ErrorTrace(true));
+                .ErrorTrace(true), cancellationToken);
 
-            _logger?.LogDebug(health.DebugInformation);
+            Logger?.LogDebug(health.DebugInformation);
 
             return health.IsValid;
         }
-
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((ElasticsearchContainer)container, cancellationToken);
     }
 }

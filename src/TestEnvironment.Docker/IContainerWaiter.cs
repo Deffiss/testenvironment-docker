@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker
         Task<bool> Wait(Container container, CancellationToken cancellationToken);
     }
 
-    public interface IContainerWaiter<TContainer> : IContainerWaiter
+    public interface IContainerWaiter<in TContainer> : IContainerWaiter
     {
         Task<bool> Wait(TContainer container, CancellationToken cancellationToken);
     }

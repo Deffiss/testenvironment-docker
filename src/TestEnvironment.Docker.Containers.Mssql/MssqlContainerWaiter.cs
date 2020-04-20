@@ -1,43 +1,30 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {
-    public class MssqlContainerWaiter : IContainerWaiter<MssqlContainer>
+    public class MssqlContainerWaiter : BaseContainerWaiter<MssqlContainer>
     {
-        private readonly ILogger _logger;
-
         public MssqlContainerWaiter(ILogger logger = null)
+            : base(logger)
         {
-            _logger = logger;
         }
 
-        public async Task<bool> Wait(MssqlContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MssqlContainer container, CancellationToken cancellationToken)
         {
-            if (container == null) new ArgumentNullException(nameof(container));
+            using var connection = new SqlConnection(container.GetConnectionString());
+            using var command = new SqlCommand("SELECT @@VERSION", connection);
 
-            try
-            {
-                using (var connection = new SqlConnection(container.GetConnectionString()))
-                using (var command = new SqlCommand("SELECT @@VERSION", connection))
-                {
-                    await connection.OpenAsync();
-                    await command.ExecuteNonQueryAsync();
-                }
+            await connection.OpenAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken);
 
-                return true;
-            }
-            catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException || ex is SqlException)
-            {
-                _logger?.LogDebug(ex.Message);
-            }
-
-            return false;
+            return true;
         }
 
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) => Wait((MssqlContainer)container, cancellationToken);
+        protected override bool IsRetryable(Exception exception) =>
+            exception is InvalidOperationException || exception is NotSupportedException || exception is SqlException;
     }
 }
