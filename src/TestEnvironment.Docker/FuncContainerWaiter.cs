@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker
 {
-    public class FuncContainerWaiter : IContainerWaiter
+    public class FuncContainerWaiter : BaseContainerWaiter<Container>
     {
         private readonly Func<Container, Task<bool>> _waitFunc;
 
-        public FuncContainerWaiter(Func<Container, Task<bool>> waitFunc)
+        public FuncContainerWaiter(Func<Container, Task<bool>> waitFunc, ILogger logger = null)
+            : base(logger)
         {
             _waitFunc = waitFunc;
         }
 
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken = default) => _waitFunc(container);
+        protected override Task<bool> PerformCheckAsync(Container container, CancellationToken cancellationToken) =>
+            _waitFunc(container);
     }
 }
