@@ -11,9 +11,6 @@ namespace TestEnvironment.Docker
 {
     public class Container : IDependency
     {
-        private const int AttemptsCount = 60;
-        private const int DelayTime = 1000;
-
         private readonly IContainerWaiter _containerWaiter;
         private readonly IContainerCleaner _containerCleaner;
         private readonly bool _reuseContainer;

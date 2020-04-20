@@ -25,9 +25,21 @@ namespace TestEnvironment.Docker
             var attempts = AttemptsCount;
             do
             {
-                var isAlive = await PerformCheck(container, cancellationToken);
+                try
+                {
+                    Logger?.LogInformation($"{container.Name}: checking container state...");
+                    var isAlive = await PerformCheck(container, cancellationToken);
 
-                if (isAlive) return true;
+                    if (isAlive)
+                    {
+                        Logger?.LogInformation($"{container.Name}: container is Up!");
+                        return true;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Logger?.LogError(exception, $"{container.Name} check failed with exception {exception.Message}");
+                }
 
                 attempts--;
                 await Task.Delay(DelayTime, cancellationToken);

@@ -15,22 +15,13 @@ namespace TestEnvironment.Docker.Containers.Mssql
 
         protected override async Task<bool> PerformCheck(MssqlContainer container, CancellationToken cancellationToken)
         {
-            try
-            {
-                using var connection = new SqlConnection(container.GetConnectionString());
-                using var command = new SqlCommand("SELECT @@VERSION", connection);
+            using var connection = new SqlConnection(container.GetConnectionString());
+            using var command = new SqlCommand("SELECT @@VERSION", connection);
                 
-                await connection.OpenAsync(cancellationToken);
-                await command.ExecuteNonQueryAsync(cancellationToken);
+            await connection.OpenAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken);
 
-                return true;
-            }
-            catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException || ex is SqlException)
-            {
-                Logger?.LogDebug(ex.Message);
-            }
-
-            return false;
+            return true;
         }
     }
 }

@@ -1,5 +1,4 @@
-using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -15,25 +14,15 @@ namespace TestEnvironment.Docker.Containers.MariaDB
 
         protected override async Task<bool> PerformCheck(MariaDBContainer container, CancellationToken cancellationToken)
         {
-            try
-            {
-                // ReSharper disable UseAwaitUsing
-                using var connection = new MySqlConnection(container.GetConnectionString());
-                using var command = new MySqlCommand("select @@version", connection);
-                // ReSharper restore UseAwaitUsing
-                
-                await command.Connection.OpenAsync(cancellationToken);
-                await command.ExecuteNonQueryAsync(cancellationToken);
+            // don't use await using here due to
+            // System.MissingMethodException : Method not found: 'System.Threading.Tasks.Task MySql.Data.MySqlClient.MySqlConnection.DisposeAsync()'.
+            using var connection = new MySqlConnection(container.GetConnectionString());
+            using var command = new MySqlCommand("select @@version", connection);
 
-                return true;
-            }
-            catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException || ex is MySqlException)
-            {
-                Logger?.LogDebug(ex.Message);
-            }
+            await command.Connection.OpenAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken);
 
-            return false;
+            return true;
         }
-
     }
 }
