@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -24,5 +25,8 @@ namespace TestEnvironment.Docker.Containers.MariaDB
 
             return true;
         }
+
+        protected override bool IsRetryable(Exception exception) =>
+            exception is InvalidOperationException || exception is NotSupportedException || exception is MySqlException;
     }
 }

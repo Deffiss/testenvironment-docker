@@ -36,7 +36,7 @@ namespace TestEnvironment.Docker
                         return true;
                     }
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (IsRetryable(exception))
                 {
                     Logger?.LogError(exception, $"{container.Name} check failed with exception {exception.Message}");
                 }
@@ -50,6 +50,8 @@ namespace TestEnvironment.Docker
         }
 
         protected abstract Task<bool> PerformCheck(TContainer container, CancellationToken cancellationToken);
+
+        protected virtual bool IsRetryable(Exception exception) => true;
 
         public Task<bool> Wait(Container container, CancellationToken cancellationToken) =>
             Wait(container as TContainer, cancellationToken);
