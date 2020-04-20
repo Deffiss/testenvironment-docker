@@ -25,7 +25,7 @@ namespace TestEnvironment.Docker
             var attempts = AttemptsCount;
             do
             {
-                var isAlive = await PerformCheckAsync(container, cancellationToken);
+                var isAlive = await PerformCheck(container, cancellationToken);
 
                 if (isAlive) return true;
 
@@ -37,7 +37,7 @@ namespace TestEnvironment.Docker
             return false;
         }
 
-        protected abstract Task<bool> PerformCheckAsync(TContainer container, CancellationToken cancellationToken);
+        protected abstract Task<bool> PerformCheck(TContainer container, CancellationToken cancellationToken);
 
         public Task<bool> Wait(Container container, CancellationToken cancellationToken) =>
             Wait(container as TContainer, cancellationToken);

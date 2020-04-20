@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ namespace TestEnvironment.Docker.Containers.MariaDB
         {
         }
 
-        protected override async Task<bool> PerformCheckAsync(MariaDBContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MariaDBContainer container, CancellationToken cancellationToken)
         {
             try
             {

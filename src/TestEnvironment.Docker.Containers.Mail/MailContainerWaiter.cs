@@ -16,7 +16,7 @@ namespace TestEnvironment.Docker.Containers.Mail
             _smtpPort = smtpPort;
         }
 
-        protected override async Task<bool> PerformCheckAsync(MailContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MailContainer container, CancellationToken cancellationToken)
         {
             try
             {

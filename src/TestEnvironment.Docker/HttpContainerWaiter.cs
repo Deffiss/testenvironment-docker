@@ -31,7 +31,7 @@ namespace TestEnvironment.Docker
             _successfulCodes = successfulCodes;
         }
 
-        protected override async Task<bool> PerformCheckAsync(Container container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(Container container, CancellationToken cancellationToken)
         {
             try
             {

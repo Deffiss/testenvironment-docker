@@ -15,7 +15,7 @@ namespace TestEnvironment.Docker
             _waitFunc = waitFunc;
         }
 
-        protected override Task<bool> PerformCheckAsync(Container container, CancellationToken cancellationToken) =>
+        protected override Task<bool> PerformCheck(Container container, CancellationToken cancellationToken) =>
             _waitFunc(container);
     }
 }

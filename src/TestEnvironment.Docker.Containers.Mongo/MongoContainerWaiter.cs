@@ -13,7 +13,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
         {
         }
 
-        protected override async Task<bool> PerformCheckAsync(MongoContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MongoContainer container, CancellationToken cancellationToken)
         {
             try
             {

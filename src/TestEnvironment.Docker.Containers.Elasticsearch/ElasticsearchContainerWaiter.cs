@@ -14,8 +14,7 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
         {
         }
 
-        protected override async Task<bool> PerformCheckAsync(ElasticsearchContainer container,
-            CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(ElasticsearchContainer container, CancellationToken cancellationToken)
         {
             var elastic = new ElasticClient(new Uri(container.GetUrl()));
             var health = await elastic.ClusterHealthAsync(ch => ch

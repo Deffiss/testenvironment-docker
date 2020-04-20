@@ -13,7 +13,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
         {
         }
 
-        protected override async Task<bool> PerformCheckAsync(MssqlContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(MssqlContainer container, CancellationToken cancellationToken)
         {
             try
             {

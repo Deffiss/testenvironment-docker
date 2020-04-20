@@ -13,11 +13,12 @@ namespace TestEnvironment.Docker.Containers.Ftp
         {
         }
 
-        protected override async Task<bool> PerformCheckAsync(FtpContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(FtpContainer container, CancellationToken cancellationToken)
         {
             try
             {
-                using var ftpClient = new FtpClient(container.FtpHost,
+                using var ftpClient = new FtpClient(
+                    container.FtpHost,
                     container.IsDockerInDocker ? 21 : container.Ports[21], container.FtpUserName,
                     container.FtpPassword);
                 

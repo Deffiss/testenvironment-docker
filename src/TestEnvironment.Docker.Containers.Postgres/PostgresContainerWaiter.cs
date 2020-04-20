@@ -13,16 +13,15 @@ namespace TestEnvironment.Docker.Containers.Postgres
         {
         }
 
-        protected override async Task<bool> PerformCheckAsync(PostgresContainer container,
-            CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheck(PostgresContainer container, CancellationToken cancellationToken)
         {
             try
             {
                 Logger?.LogInformation($"Postgres: checking container state...");
-                
+
                 using var connection = new NpgsqlConnection(container.GetConnectionString());
                 using var command = new NpgsqlCommand("select version()", connection);
-                
+
                 await connection.OpenAsync(cancellationToken);
                 await command.ExecuteNonQueryAsync(cancellationToken);
 
