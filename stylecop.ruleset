@@ -124,8 +124,8 @@
     <Rule Id="SA1520" Action="Error" />
   <!--Other Rules-->
     <Rule Id="SA1600" Action="None" />
-	  <Rule Id="SA1601" Action="None" />
-	  <Rule Id="SA1602" Action="None" />
+    <Rule Id="SA1601" Action="None" />
+    <Rule Id="SA1602" Action="None" />
     <Rule Id="SA1633" Action="None" />
     <Rule Id="SA1652" Action="None" />
   </Rules>
