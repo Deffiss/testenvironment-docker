@@ -1,23 +1,23 @@
-using MongoDB.Driver;
-using Nest;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentFTP;
+using MailKit.Net.Smtp;
+using MongoDB.Driver;
+using MySql.Data.MySqlClient;
+using Nest;
+using Npgsql;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
-using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mail;
+using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
 using TestEnvironment.Docker.Containers.Postgres;
 using Xunit;
-using MySql.Data.MySqlClient;
-using FluentFTP;
-using MailKit.Net.Smtp;
-using Npgsql;
 using Xunit.Abstractions;
 
 namespace TestEnvironment.Docker.Tests
@@ -40,19 +40,18 @@ namespace TestEnvironment.Docker.Tests
                 .SetName("test-env")
                 .AddContainer("my-nginx", "nginx")
 #if DEBUG
-                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> {[9200] = 9200},
-                    reuseContainer: true)
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0",
-                    environmentVariables: new Dictionary<string, string>
-                        {["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS"}, reuseContainer: true)
+                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
+                .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
                 .AddMariaDBContainer("my-maria", "my-secret-pw", reuseContainer: true)
                 .AddMongoContainer("my-mongo", reuseContainer: true)
                 .AddMailContainer("my-mail", reuseContainer: true)
-                .AddFtpContainer("my-ftp", "superuser", "test",
-                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort) p, p => (ushort) p)
-                        .MergeDictionaries(new Dictionary<ushort, ushort> {[21] = 21}), reuseContainer: true)
-                .AddFromDockerfile("from-file", "Dockerfile",
-                    containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
+                .AddFtpContainer(
+                    "my-ftp",
+                    "superuser",
+                    "test",
+                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }),
+                    reuseContainer: true)
+                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
                 .AddPostgresContainer("my-postgres", reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
@@ -154,8 +153,7 @@ namespace TestEnvironment.Docker.Tests
         {
             var port = ftpContainer.IsDockerInDocker ? 21 : ftpContainer.Ports[21];
 
-            using (var ftpClient = new FtpClient(ftpContainer.FtpHost, port, ftpContainer.FtpUserName,
-                ftpContainer.FtpPassword))
+            using (var ftpClient = new FtpClient(ftpContainer.FtpHost, port, ftpContainer.FtpUserName, ftpContainer.FtpPassword))
             {
                 await ftpClient.ConnectAsync();
 
@@ -181,7 +179,7 @@ namespace TestEnvironment.Docker.Tests
             var host = staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : "localhost";
             var port = staticFilesContainer.IsDockerInDocker ? 8080 : staticFilesContainer.Ports[8080];
 
-            using (var client = new HttpClient {BaseAddress = new Uri($"http://{host}:{port}")})
+            using (var client = new HttpClient { BaseAddress = new Uri($"http://{host}:{port}") })
             {
                 var response = await client.GetStringAsync("/");
                 _testOutput.WriteLine($"Response from static server: {response}");

@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker
 {
@@ -15,14 +15,12 @@ namespace TestEnvironment.Docker
         private readonly ushort _httpPort;
         private readonly HttpStatusCode[] _successfulCodes;
 
-        public HttpContainerWaiter(string path, bool isHttps = false, ushort httpPort = 80, ILogger logger = null,
-            HttpStatusCode successfulCode = HttpStatusCode.OK)
-            : this(path, isHttps, httpPort, logger, new[] {successfulCode})
+        public HttpContainerWaiter(string path, bool isHttps = false, ushort httpPort = 80, ILogger logger = null, HttpStatusCode successfulCode = HttpStatusCode.OK)
+            : this(path, isHttps, httpPort, logger, new[] { successfulCode })
         {
         }
 
-        public HttpContainerWaiter(string path, bool isHttps = false, ushort httpPort = 80, ILogger logger = null,
-            params HttpStatusCode[] successfulCodes)
+        public HttpContainerWaiter(string path, bool isHttps = false, ushort httpPort = 80, ILogger logger = null, params HttpStatusCode[] successfulCodes)
             : base(logger)
         {
             _path = path;
@@ -37,7 +35,7 @@ namespace TestEnvironment.Docker
                               $"{(container.IsDockerInDocker ? container.IPAddress : "localhost")}:" +
                               $"{(container.IsDockerInDocker ? _httpPort : container.Ports[_httpPort])}");
 
-            using var client = new HttpClient {BaseAddress = uri};
+            using var client = new HttpClient { BaseAddress = uri };
             var response = await client.GetAsync(_path, cancellationToken);
 
             return _successfulCodes.Contains(response.StatusCode);

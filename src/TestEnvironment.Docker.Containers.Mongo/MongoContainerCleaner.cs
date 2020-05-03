@@ -15,7 +15,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
             _logger = logger;
         }
 
-        public async Task Cleanup(MongoContainer container, CancellationToken token = new CancellationToken())
+        public async Task Cleanup(MongoContainer container, CancellationToken token = default)
         {
             if (container == null)
             {
@@ -38,10 +38,9 @@ namespace TestEnvironment.Docker.Containers.Mongo
             {
                 _logger?.LogInformation($"MongoDB cleanup issue: {e.Message}");
             }
-
         }
 
-        public Task Cleanup(Container container, CancellationToken token = new CancellationToken()) =>
+        public Task Cleanup(Container container, CancellationToken token = default) =>
             Cleanup((MongoContainer)container, token);
     }
 }

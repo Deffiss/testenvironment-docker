@@ -2,19 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>Latest</LangVersion>
     <AssemblyName>TestEnvironment.Docker.Containers.Mail</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mail</RootNamespace>
     <Version>1.0.3</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mail</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add SMTP container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>docker tests smtp container</PackageTags>
-    <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
   </PropertyGroup>
 

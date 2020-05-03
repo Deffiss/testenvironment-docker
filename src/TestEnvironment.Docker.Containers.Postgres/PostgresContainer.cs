@@ -1,6 +1,6 @@
-﻿using Docker.DotNet;
+﻿using System.Collections.Generic;
+using Docker.DotNet;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace TestEnvironment.Docker.Containers.Postgres
 {

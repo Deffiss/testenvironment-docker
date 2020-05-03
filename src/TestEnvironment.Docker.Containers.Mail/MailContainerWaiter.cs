@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Mail
 {
