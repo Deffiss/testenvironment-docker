@@ -59,13 +59,16 @@ namespace TestEnvironment.Docker.Tests
                 .AddMariaDBContainer("my-maria", "my-secret-pw")
                 .AddMongoContainer("my-mongo")
                 .AddMailContainer("my-mail")
-                .AddFromDockerfile("from-file", "Dockerfile",
-                    containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
-                .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10)
-                    .ToDictionary(p => (ushort) p, p => (ushort) p).MergeDictionaries(new Dictionary<ushort, ushort>
-                    {
-                        [21] = 21
-                    }))
+                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
+                .AddFtpContainer(
+                    "my-ftp",
+                    "superuser",
+                    "test",
+                    ports: Enumerable.Range(30000, 10)
+                        .ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort>
+                        {
+                            [21] = 21
+                        }))
                 .AddPostgresContainer("my-postgres")
 #endif
                 .Build();
