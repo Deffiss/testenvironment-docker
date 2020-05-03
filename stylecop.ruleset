@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RuleSet Name="stylecop.ruleset" ToolsVersion="15.0">
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
-  <!--Unknown Rules?-->
     <Rule Id="SA0001" Action="None" />
   <!--Spacing Rules-->
     <Rule Id="SA1000" Action="Error" />
@@ -125,8 +124,8 @@
     <Rule Id="SA1520" Action="Error" />
   <!--Other Rules-->
     <Rule Id="SA1600" Action="None" />
-	<Rule Id="SA1601" Action="None" />
-	<Rule Id="SA1602" Action="None" />
+	  <Rule Id="SA1601" Action="None" />
+	  <Rule Id="SA1602" Action="None" />
     <Rule Id="SA1633" Action="None" />
     <Rule Id="SA1652" Action="None" />
   </Rules>
