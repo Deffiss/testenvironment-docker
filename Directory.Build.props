@@ -4,11 +4,11 @@
     <PropertyGroup>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet>
-		<PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-		<LangVersion>Latest</LangVersion>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <LangVersion>Latest</LangVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
