@@ -1,8 +1,8 @@
-﻿using FluentFTP;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Ftp
 {
@@ -17,7 +17,10 @@ namespace TestEnvironment.Docker.Containers.Ftp
 
         public async Task Cleanup(FtpContainer container, CancellationToken token = default)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (container == null)
+            {
+                throw new ArgumentNullException(nameof(container));
+            }
 
             using (var ftpClient = new FtpClient(container.FtpHost, container.IsDockerInDocker ? 21 : container.Ports[21], container.FtpUserName, container.FtpPassword))
             {
@@ -43,6 +46,6 @@ namespace TestEnvironment.Docker.Containers.Ftp
             }
         }
 
-        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((FtpContainer) container, token);
+        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((FtpContainer)container, token);
     }
 }

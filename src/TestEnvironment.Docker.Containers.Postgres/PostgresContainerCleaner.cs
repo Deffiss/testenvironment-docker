@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using Npgsql;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace TestEnvironment.Docker.Containers.Postgres
 {
@@ -19,7 +19,11 @@ namespace TestEnvironment.Docker.Containers.Postgres
 
         public async Task Cleanup(PostgresContainer container, CancellationToken token = default)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (container == null)
+            {
+                throw new ArgumentNullException(nameof(container));
+            }
+
             var cleanUpQuery = $"DROP OWNED BY {_userName}";
 
             using (var connection = new NpgsqlConnection(container.GetConnectionString()))

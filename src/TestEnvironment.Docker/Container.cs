@@ -1,11 +1,11 @@
-using Docker.DotNet;
-using Docker.DotNet.Models;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Docker.DotNet;
+using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker
 {
@@ -15,9 +15,31 @@ namespace TestEnvironment.Docker
         private readonly IContainerCleaner _containerCleaner;
         private readonly bool _reuseContainer;
 
-        protected ILogger Logger { get; }
-
-        protected DockerClient DockerClient { get; }
+        public Container(
+            DockerClient dockerClient,
+            string name,
+            string imageName,
+            string tag = "latest",
+            IDictionary<string, string> environmentVariables = null,
+            IDictionary<ushort, ushort> ports = null,
+            bool isDockerInDocker = false,
+            bool reuseContainer = false,
+            IContainerWaiter containerWaiter = null,
+            IContainerCleaner containerCleaner = null,
+            ILogger logger = null)
+        {
+            Name = name;
+            DockerClient = dockerClient;
+            Logger = logger;
+            IsDockerInDocker = isDockerInDocker;
+            ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
+            Tag = tag;
+            EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
+            Ports = ports;
+            _containerWaiter = containerWaiter;
+            _containerCleaner = containerCleaner;
+            _reuseContainer = reuseContainer;
+        }
 
         public bool IsDockerInDocker { get; }
 
@@ -35,26 +57,16 @@ namespace TestEnvironment.Docker
 
         public IDictionary<string, string> EnvironmentVariables { get; }
 
-        public Container(DockerClient dockerClient, string name, string imageName, string tag = "latest",
-            IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool isDockerInDocker = false,
-            bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null, ILogger logger = null)
-        {
-            Name = name;
-            DockerClient = dockerClient;
-            Logger = logger;
-            IsDockerInDocker = isDockerInDocker;
-            ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
-            Tag = tag;
-            EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
-            Ports = ports;
-            _containerWaiter = containerWaiter;
-            _containerCleaner = containerCleaner;
-            _reuseContainer = reuseContainer;
-        }
+        protected ILogger Logger { get; }
+
+        protected DockerClient DockerClient { get; }
 
         public async Task Run(IDictionary<string, string> environmentVariables, CancellationToken token = default)
         {
-            if (environmentVariables == null) throw new ArgumentNullException(nameof(environmentVariables));
+            if (environmentVariables == null)
+            {
+                throw new ArgumentNullException(nameof(environmentVariables));
+            }
 
             // Make sure that we don't try to add the same var twice.
             var stringifiedVariables = EnvironmentVariables.MergeDictionaries(environmentVariables).Select(p => $"{p.Key}={p.Value}").ToArray();
@@ -71,11 +83,48 @@ namespace TestEnvironment.Docker
                 }
             }
 
-            if (_reuseContainer && _containerCleaner != null) await _containerCleaner.Cleanup(this, token);
+            if (_reuseContainer && _containerCleaner != null)
+            {
+                await _containerCleaner.Cleanup(this, token);
+            }
         }
 
         public Task Stop(CancellationToken token = default) => DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
-        
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsync(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
+                }
+            }
+        }
+
+        protected async virtual ValueTask DisposeAsync(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    await DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true });
+                }
+            }
+        }
+
         private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token = default)
         {
             // Try to find container in docker session
@@ -91,7 +140,8 @@ namespace TestEnvironment.Docker
             // If container already exist - remove that
             if (startedContainer != null)
             {
-                if (!_reuseContainer) // TODO: check status and network
+                // TODO: check status and network
+                if (!_reuseContainer)
                 {
                     await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true }, token);
                     startedContainer = await CreateContainer();
@@ -148,40 +198,6 @@ namespace TestEnvironment.Docker
                     }, token);
 
                 return containers.First();
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
-                }
-            }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await DisposeAsync(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected async virtual ValueTask DisposeAsync(bool disposing)
-        {
-            if (disposing)
-            {
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    await DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true });
-                }
             }
         }
     }

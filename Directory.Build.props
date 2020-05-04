@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+    <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet>
+        <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
+        <LangVersion>Latest</LangVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" Link="stylecop.json" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" ExcludeAssets="All" PrivateAssets="All" />
+    </ItemGroup>
+</Project>
