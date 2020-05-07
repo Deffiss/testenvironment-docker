@@ -1,6 +1,6 @@
-﻿using Docker.DotNet;
+﻿using System.Collections.Generic;
+using Docker.DotNet;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {
@@ -19,9 +19,18 @@ namespace TestEnvironment.Docker.Containers.Mssql
             bool isDockerInDocker = false,
             bool reuseContainer = false,
             ILogger logger = null)
-            : base(dockerClient, name, imageName, tag,
-                new Dictionary<string, string> { ["ACCEPT_EULA"] = "Y", ["SA_PASSWORD"] = saPassword, ["MSSQL_PID"] = "Express" }.MergeDictionaries(environmentVariables), ports,
-                isDockerInDocker, reuseContainer, new MssqlContainerWaiter(logger), new MssqlContainerCleaner(logger), logger)
+            : base(
+                  dockerClient,
+                  name,
+                  imageName,
+                  tag,
+                  new Dictionary<string, string> { ["ACCEPT_EULA"] = "Y", ["SA_PASSWORD"] = saPassword, ["MSSQL_PID"] = "Express" }.MergeDictionaries(environmentVariables),
+                  ports,
+                  isDockerInDocker,
+                  reuseContainer,
+                  new MssqlContainerWaiter(logger),
+                  new MssqlContainerCleaner(logger),
+                  logger)
         {
             _saPassword = saPassword;
         }

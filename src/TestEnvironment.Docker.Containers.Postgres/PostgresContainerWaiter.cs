@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Npgsql;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace TestEnvironment.Docker.Containers.Postgres
 {

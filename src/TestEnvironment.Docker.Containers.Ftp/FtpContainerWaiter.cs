@@ -1,13 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using FluentFTP;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Ftp
 {
-    public class FtpContainerContainerWaiter : BaseContainerWaiter<FtpContainer>
+    public class FtpContainerWaiter : BaseContainerWaiter<FtpContainer>
     {
-        public FtpContainerContainerWaiter(ILogger logger = null)
+        public FtpContainerWaiter(ILogger logger = null)
             : base(logger)
         {
         }
@@ -16,9 +16,10 @@ namespace TestEnvironment.Docker.Containers.Ftp
         {
             using var ftpClient = new FtpClient(
                 container.FtpHost,
-                container.IsDockerInDocker ? 21 : container.Ports[21], container.FtpUserName,
+                container.IsDockerInDocker ? 21 : container.Ports[21],
+                container.FtpUserName,
                 container.FtpPassword);
-                
+
             await ftpClient.ConnectAsync(cancellationToken);
 
             return true;

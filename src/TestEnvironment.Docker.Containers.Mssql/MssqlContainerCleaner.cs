@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {
@@ -23,7 +23,10 @@ namespace TestEnvironment.Docker.Containers.Mssql
 
         public async Task Cleanup(MssqlContainer container, CancellationToken token = default)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (container == null)
+            {
+                throw new ArgumentNullException(nameof(container));
+            }
 
             using (var connection = new SqlConnection(container.GetConnectionString()))
             using (var command = new SqlCommand(CleanupCommand, connection))

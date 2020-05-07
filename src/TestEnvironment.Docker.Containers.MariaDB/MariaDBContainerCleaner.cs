@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TestEnvironment.Docker;
+using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 
 namespace TestEnvironment.Docker.Containers.MariaDB
 {
@@ -24,7 +23,10 @@ namespace TestEnvironment.Docker.Containers.MariaDB
 
         public async Task Cleanup(MariaDBContainer container, CancellationToken token = default)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (container == null)
+            {
+                throw new ArgumentNullException(nameof(container));
+            }
 
             using (var connection = new MySqlConnection(container.GetConnectionString()))
             using (var getDatabasesCommand = new MySqlCommand(GetAllDatabasesCommand, connection))

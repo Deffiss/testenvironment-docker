@@ -6,13 +6,8 @@ namespace TestEnvironment.Docker
 {
     public class ContainerFromDockerfile : Container
     {
-        public string Dockerfile { get; }
-
-        public IDictionary<string, string> BuildArgs { get; }
-
-        public string Context { get; }
-
-        public ContainerFromDockerfile(DockerClient dockerClient,
+        public ContainerFromDockerfile(
+            DockerClient dockerClient,
             string name,
             string dockerfile,
             IDictionary<string, string> buildArgs = null,
@@ -30,5 +25,11 @@ namespace TestEnvironment.Docker
             BuildArgs = buildArgs;
             Context = context;
         }
+
+        public string Dockerfile { get; }
+
+        public IDictionary<string, string> BuildArgs { get; }
+
+        public string Context { get; }
     }
 }

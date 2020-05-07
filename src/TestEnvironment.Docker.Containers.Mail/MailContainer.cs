@@ -19,8 +19,18 @@ namespace TestEnvironment.Docker.Containers.Mail
             bool isDockerInDocker = false,
             bool reuseContainer = false,
             ILogger logger = null)
-            : base(dockerClient, name, imageName, tag, environmentVariables,
-                  ports, isDockerInDocker, reuseContainer, new MailContainerWaiter(smptPort, logger), new MailContainerCleaner(apiPort, deleteEndpoint, logger: logger), logger)
+            : base(
+                  dockerClient,
+                  name,
+                  imageName,
+                  tag,
+                  environmentVariables,
+                  ports,
+                  isDockerInDocker,
+                  reuseContainer,
+                  new MailContainerWaiter(smptPort, logger),
+                  new MailContainerCleaner(apiPort, deleteEndpoint, logger: logger),
+                  logger)
         {
         }
     }

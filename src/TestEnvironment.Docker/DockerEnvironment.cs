@@ -1,14 +1,14 @@
-﻿using Docker.DotNet;
-using Docker.DotNet.Models;
-using Microsoft.Extensions.Logging;
-using SharpCompress.Common;
-using SharpCompress.Writers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Docker.DotNet;
+using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging;
+using SharpCompress.Common;
+using SharpCompress.Writers;
 
 namespace TestEnvironment.Docker
 {
@@ -17,12 +17,6 @@ namespace TestEnvironment.Docker
         private readonly DockerClient _dockerClient;
         private readonly string[] _ignoredFiles;
         private readonly ILogger _logger;
-
-        public string Name { get; }
-
-        public IDictionary<string, string> Variables { get; }
-
-        public IDependency[] Dependencies { get; }
 
         public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, string[] ignoredFiles = null, ILogger logger = null)
         {
@@ -33,6 +27,12 @@ namespace TestEnvironment.Docker
             _ignoredFiles = ignoredFiles;
             _logger = logger;
         }
+
+        public string Name { get; }
+
+        public IDictionary<string, string> Variables { get; }
+
+        public IDependency[] Dependencies { get; }
 
         public async Task Up(CancellationToken token = default)
         {
@@ -49,7 +49,43 @@ namespace TestEnvironment.Docker
         public Container GetContainer(string name) =>
             Dependencies.FirstOrDefault(d => d is Container c && c.Name.Equals(name.GetContainerName(Name), StringComparison.OrdinalIgnoreCase)) as Container;
 
-        public TContainer GetContainer<TContainer>(string name) where TContainer : Container => GetContainer(name) as TContainer;
+        public TContainer GetContainer<TContainer>(string name)
+            where TContainer : Container => GetContainer(name) as TContainer;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsync(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                foreach (var dependency in Dependencies)
+                {
+                    dependency.Dispose();
+                }
+            }
+        }
+
+        protected virtual async ValueTask DisposeAsync(bool disposing)
+        {
+            if (disposing)
+            {
+                var disposeTasks = Dependencies.Select(d => d.DisposeAsync()).ToArray();
+                foreach (var dt in disposeTasks)
+                {
+                    await dt;
+                }
+            }
+        }
 
         private async Task BuildRequiredImages(CancellationToken token)
         {
@@ -62,7 +98,7 @@ namespace TestEnvironment.Docker
                 {
                     // In order to pass the context we have to create tar file and use it as an argument.
                     CreateTarArchive();
-                
+
                     // Now call docker api.
                     await CreateImage();
                 }
@@ -81,7 +117,6 @@ namespace TestEnvironment.Docker
                 {
                     _logger?.LogError(exc, $"Unable to delete tar file {tempFileName} with context. Please, cleanup manually.");
                 }
-
 
                 void CreateTarArchive()
                 {
@@ -104,8 +139,15 @@ namespace TestEnvironment.Docker
                     var filenames = Directory.GetFiles(sourceDirectory);
                     foreach (string filename in filenames)
                     {
-                        if (Path.GetFileName(filename).Equals(tempFileName)) continue;
-                        if (new FileInfo(filename).Attributes.HasFlag(FileAttributes.Hidden)) continue;
+                        if (Path.GetFileName(filename).Equals(tempFileName))
+                        {
+                            continue;
+                        }
+
+                        if (new FileInfo(filename).Attributes.HasFlag(FileAttributes.Hidden))
+                        {
+                            continue;
+                        }
 
                         // Make sure that we can read the file
                         try
@@ -146,15 +188,18 @@ namespace TestEnvironment.Docker
                 {
                     using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
                     {
-                        var image = await _dockerClient.Images.BuildImageFromDockerfileAsync(tarContextStream, new ImageBuildParameters
-                        {
-                            Dockerfile = container.Dockerfile,
-                            BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
-                            Tags = new[] { $"{container.ImageName}:{container.Tag}" },
-                            PullParent = true,
-                            Remove = true,
-                            ForceRemove = true,
-                        }, token);
+                        var image = await _dockerClient.Images.BuildImageFromDockerfileAsync(
+                            tarContextStream,
+                            new ImageBuildParameters
+                            {
+                                Dockerfile = container.Dockerfile,
+                                BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
+                                Tags = new[] { $"{container.ImageName}:{container.Tag}" },
+                                PullParent = true,
+                                Remove = true,
+                                ForceRemove = true,
+                            },
+                            token);
 
                         await new StreamReader(image).ReadToEndAsync();
                     }
@@ -164,13 +209,15 @@ namespace TestEnvironment.Docker
 
         private async Task PullRequiredImages(CancellationToken token)
         {
-            foreach(var contianer in Dependencies.OfType<Container>())
+            foreach (var contianer in Dependencies.OfType<Container>())
             {
-                var images = await _dockerClient.Images.ListImagesAsync(new ImagesListParameters
-                {
-                    All = true,
-                    MatchName = $"{contianer.ImageName}:{contianer.Tag}"
-                }, token);
+                var images = await _dockerClient.Images.ListImagesAsync(
+                    new ImagesListParameters
+                    {
+                        All = true,
+                        MatchName = $"{contianer.ImageName}:{contianer.Tag}"
+                    },
+                    token);
 
                 if (!images.Any())
                 {
@@ -179,55 +226,21 @@ namespace TestEnvironment.Docker
                     // Pull the image.
                     try
                     {
-
                         await _dockerClient.Images.CreateImageAsync(
                             new ImagesCreateParameters
                             {
                                 FromImage = contianer.ImageName,
                                 Tag = contianer.Tag
-                            }, null, new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")), token);
+                            },
+                            null,
+                            new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")),
+                            token);
                     }
                     catch (Exception exc)
                     {
                         _logger?.LogError(exc, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
                         throw;
                     }
-
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var dependency in Dependencies)
-                {
-                    dependency.Dispose();
-                }
-            }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await DisposeAsync(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual async ValueTask DisposeAsync(bool disposing)
-        {
-            if (disposing)
-            {
-                var disposeTasks = Dependencies.Select(d => d.DisposeAsync()).ToArray();
-                foreach (var dt in disposeTasks)
-                {
-                    await dt;
                 }
             }
         }

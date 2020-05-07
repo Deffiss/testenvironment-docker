@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {

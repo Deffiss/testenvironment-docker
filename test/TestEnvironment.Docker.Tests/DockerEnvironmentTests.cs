@@ -1,23 +1,23 @@
-using MongoDB.Driver;
-using Nest;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentFTP;
+using MailKit.Net.Smtp;
+using MongoDB.Driver;
+using MySql.Data.MySqlClient;
+using Nest;
+using Npgsql;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
-using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mail;
+using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
 using TestEnvironment.Docker.Containers.Postgres;
 using Xunit;
-using MySql.Data.MySqlClient;
-using FluentFTP;
-using MailKit.Net.Smtp;
-using Npgsql;
 using Xunit.Abstractions;
 
 namespace TestEnvironment.Docker.Tests
@@ -39,8 +39,7 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 },
-                    reuseContainer: true)
+                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
 #else
                 .AddElasticsearchContainer("my-elastic")
 #endif
@@ -64,9 +63,7 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0",
-                    environmentVariables: new Dictionary<string, string>
-                    { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
+                .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
 #else
                 .AddMssqlContainer("my-mssql", "HelloK11tt_0")
 #endif
@@ -162,15 +159,22 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddFtpContainer("my-ftp", "superuser", "test",
-                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p)
-                        .MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }), reuseContainer: true)
+                .AddFtpContainer(
+                    "my-ftp",
+                    "superuser",
+                    "test",
+                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }),
+                    reuseContainer: true)
 #else
-                .AddFtpContainer("my-ftp", "superuser", "test", ports: Enumerable.Range(30000, 10)
-                    .ToDictionary(p => (ushort) p, p => (ushort) p).MergeDictionaries(new Dictionary<ushort, ushort>
-                    {
-                        [21] = 21
-                    }))
+                .AddFtpContainer(
+                    "my-ftp",
+                    "superuser",
+                    "test",
+                    ports: Enumerable.Range(30000, 10)
+                        .ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort>
+                        {
+                            [21] = 21
+                        }))
 #endif
                 .Build();
 
@@ -192,11 +196,9 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddFromDockerfile("from-file", "Dockerfile",
-                    containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
+                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
 #else
-                .AddFromDockerfile("from-file", "Dockerfile",
-                    containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
+                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
 #endif
                 .Build();
 
@@ -280,8 +282,7 @@ namespace TestEnvironment.Docker.Tests
         {
             var port = ftpContainer.IsDockerInDocker ? 21 : ftpContainer.Ports[21];
 
-            using (var ftpClient = new FtpClient(ftpContainer.FtpHost, port, ftpContainer.FtpUserName,
-                ftpContainer.FtpPassword))
+            using (var ftpClient = new FtpClient(ftpContainer.FtpHost, port, ftpContainer.FtpUserName, ftpContainer.FtpPassword))
             {
                 await ftpClient.ConnectAsync();
 
@@ -307,7 +308,7 @@ namespace TestEnvironment.Docker.Tests
             var host = staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : "localhost";
             var port = staticFilesContainer.IsDockerInDocker ? 8080 : staticFilesContainer.Ports[8080];
 
-            using (var client = new HttpClient {BaseAddress = new Uri($"http://{host}:{port}")})
+            using (var client = new HttpClient { BaseAddress = new Uri($"http://{host}:{port}") })
             {
                 var response = await client.GetStringAsync("/");
                 _testOutput.WriteLine($"Response from static server: {response}");
@@ -328,7 +329,9 @@ namespace TestEnvironment.Docker.Tests
             }
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async Task DisposeEnvironment(DockerEnvironment environment)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
 #if !DEBUG
             await environment.Down();

@@ -1,7 +1,7 @@
-﻿using Docker.DotNet;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker
 {

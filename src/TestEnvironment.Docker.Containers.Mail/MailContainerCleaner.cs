@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Mail
 {
@@ -21,7 +21,10 @@ namespace TestEnvironment.Docker.Containers.Mail
 
         public async Task Cleanup(MailContainer container, CancellationToken token = default)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (container == null)
+            {
+                throw new ArgumentNullException(nameof(container));
+            }
 
             var uri = new Uri($"http://" +
                 $"{(container.IsDockerInDocker ? container.IPAddress : "localhost")}:" +
@@ -45,6 +48,6 @@ namespace TestEnvironment.Docker.Containers.Mail
             }
         }
 
-        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((MailContainer) container, token);
+        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((MailContainer)container, token);
     }
 }
