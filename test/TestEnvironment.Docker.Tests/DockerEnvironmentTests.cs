@@ -253,7 +253,7 @@ namespace TestEnvironment.Docker.Tests
         private async Task PrintElasticsearchVersion(ElasticsearchContainer elastic)
         {
             var elasticClient = new ElasticClient(new Uri(elastic.GetUrl()));
-            var clusterInfo = await elasticClient.NodesInfoAsync();
+            var clusterInfo = await elasticClient.Nodes.InfoAsync();
             _testOutput.WriteLine($"Elasticsearch version: {clusterInfo.Nodes.Values.First().Version}");
         }
 

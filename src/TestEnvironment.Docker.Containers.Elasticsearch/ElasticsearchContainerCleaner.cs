@@ -16,8 +16,8 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
 
             var elastic = new ElasticClient(new Uri(container.GetUrl()));
 
-            await elastic.DeleteIndexTemplateAsync("*");
-            await elastic.DeleteIndexAsync("*");
+            await elastic.Indices.DeleteTemplateAsync("*", ct: token);
+            await elastic.Indices.DeleteAsync("*", ct: token);
         }
 
         public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((ElasticsearchContainer)container, token);

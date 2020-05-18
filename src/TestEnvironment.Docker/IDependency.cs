@@ -18,13 +18,16 @@ namespace TestEnvironment.Docker
         /// <summary>
         /// Run the dependency.
         /// </summary>
+        /// <param name="environmentVariables">Environment vars.</param>
         /// <param name="token">Cancellation token.</param>
+        /// <returns>Awaitable task.</returns>
         Task Run(IDictionary<string, string> environmentVariables, CancellationToken token = default);
 
         /// <summary>
         /// Stop the dependency.
         /// </summary>
         /// <param name="token">Cancellation token.</param>
+        /// <returns>Awaitable task.</returns>
         Task Stop(CancellationToken token = default);
     }
 }
