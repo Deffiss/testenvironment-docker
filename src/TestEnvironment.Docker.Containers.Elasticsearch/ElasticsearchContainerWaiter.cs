@@ -17,11 +17,12 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
         protected override async Task<bool> PerformCheck(ElasticsearchContainer container, CancellationToken cancellationToken)
         {
             var elastic = new ElasticClient(new Uri(container.GetUrl()));
-            var health = await elastic.ClusterHealthAsync(
-                ch => ch
-                .WaitForStatus(WaitForStatus.Yellow)
-                .Level(Level.Cluster)
-                .ErrorTrace(true), cancellationToken);
+            var health = await elastic.Cluster.HealthAsync(
+                selector: ch => ch
+                    .WaitForStatus(WaitForStatus.Yellow)
+                    .Level(Level.Cluster)
+                    .ErrorTrace(true),
+                ct: cancellationToken);
 
             Logger?.LogDebug(health.DebugInformation);
 
