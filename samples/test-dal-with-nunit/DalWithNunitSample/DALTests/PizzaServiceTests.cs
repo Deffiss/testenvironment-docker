@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using DAL;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -17,87 +19,63 @@ namespace DALTests
         }
 
         [Test]
-        public async Task GetAll_WhenPizzasListExists_ShouldReturnAllPizzas()
+        public async Task OrderPizza_WhenOrderSpecified_ShouldCreateOrder()
         {
             // Arrange
-            DbContext.Pizzas.AddRange(new Pizza[]
+            var pepperoni = new Pizza { Name = "Pepperoni" };
+            var napoli = new Pizza { Name = "Spacca Napoli" };
+
+            DbContext.Pizzas.AddRange(new Pizza[] { pepperoni, napoli });
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            await _pizzaService.OrderPizza("John Smith", new List<Pizza> { pepperoni, napoli });
+
+            // Assert
+            var order = await DbContext.Orders.FirstOrDefaultAsync();
+            var pizzaOrders = await DbContext.PizzaOrders.ToListAsync();
+
+            order.Should().BeEquivalentTo(
+                new Order
             {
-                new Pizza { Name = "Pepperoni" },
-                new Pizza { Name = "Spacca Napoli" },
-                new Pizza { Name = "Gino Sorbilo" }
+                Customer = "John Smith",
+                CreatedAt = DateTime.UtcNow.Date
+            }, options => options.Excluding(x => x.Id));
+            pizzaOrders.Should().BeEquivalentTo(new List<PizzaOrder>
+            {
+                new PizzaOrder { OrderId = order.Id, PizzaId = pepperoni.Id },
+                new PizzaOrder { OrderId = order.Id, PizzaId = napoli.Id }
+            });
+        }
+
+        [Test]
+        public async Task RemoveOrder_WhenOrderIdSpecified_ShouldRemoveOrder()
+        {
+            // Arrange
+            var pepperoni = new Pizza { Name = "Pepperoni" };
+            var napoli = new Pizza { Name = "Spacca Napoli" };
+            var order = new Order { CreatedAt = DateTime.UtcNow.Date, Customer = "Bart Simpson" };
+
+            DbContext.Pizzas.AddRange(new Pizza[] { pepperoni, napoli });
+            DbContext.Orders.Add(order);
+            await DbContext.SaveChangesAsync();
+
+            DbContext.PizzaOrders.AddRange(new PizzaOrder[]
+            {
+                new PizzaOrder { OrderId = order.Id, PizzaId = pepperoni.Id },
+                new PizzaOrder { OrderId = order.Id, PizzaId = napoli.Id }
             });
             await DbContext.SaveChangesAsync();
 
             // Act
-            var pizzas = await _pizzaService.GetAll();
+            await _pizzaService.RemoveOrder(order.Id);
 
             // Assert
-            pizzas.Should().BeEquivalentTo(
-                new Pizza[]
-            {
-                new Pizza { Name = "Pepperoni" },
-                new Pizza { Name = "Spacca Napoli" },
-                new Pizza { Name = "Gino Sorbilo" }
-            }, options => options.Excluding(x => x.Id));
-        }
+            var orders = await DbContext.Orders.ToListAsync();
+            var pizzaOrders = await DbContext.PizzaOrders.ToListAsync();
 
-        [Test]
-        public async Task GetById_WhenPizzaWithSpecifiedIdExists_ShouldReturnFoundPizza()
-        {
-            // Arrange
-            var pepperoni = new Pizza { Name = "Pepperoni" };
-            DbContext.Add(pepperoni);
-            await DbContext.SaveChangesAsync();
-
-            // Act
-            var result = await _pizzaService.GetById(pepperoni.Id);
-
-            // Assert
-            result.Should().BeEquivalentTo(new Pizza { Id = pepperoni.Id, Name = "Pepperoni" });
-        }
-
-        [Test]
-        public async Task Create_WhenPizzaSpecified_ShouldCreatePizza()
-        {
-            // Arrange & Act
-            await _pizzaService.Create(new Pizza { Name = "Pepperoni" });
-
-            // Assert
-            var result = await DbContext.Pizzas.FirstOrDefaultAsync(x => x.Name == "Pepperoni");
-            result.Should().BeEquivalentTo(new Pizza { Name = "Pepperoni" }, options => options.Excluding(x => x.Id));
-        }
-
-        [Test]
-        public async Task Update_WhenProvidedUpdatedPizza_ShouldUpdatePizza()
-        {
-            // Arrange
-            var pepperoni = new Pizza { Name = "Pepperoni" };
-            DbContext.Pizzas.Add(pepperoni);
-            await DbContext.SaveChangesAsync();
-
-            // Act
-            pepperoni.Name = "Spacca Napoli";
-            await _pizzaService.Update(pepperoni);
-
-            // Assert
-            var result = await DbContext.Pizzas.FirstOrDefaultAsync(x => x.Id == pepperoni.Id);
-            result.Should().BeEquivalentTo(new Pizza { Id = pepperoni.Id, Name = "Spacca Napoli" });
-        }
-
-        [Test]
-        public async Task Delete_WhenProvidedId_ShouldRemovePizza()
-        {
-            // Arrange
-            var pepperoni = new Pizza { Name = "pepperoni" };
-            DbContext.Pizzas.Add(pepperoni);
-            await DbContext.SaveChangesAsync();
-
-            // Act
-            await _pizzaService.Delete(pepperoni.Id);
-
-            // Assert
-            var result = await DbContext.Pizzas.ToListAsync();
-            result.Should().BeEmpty();
+            orders.Should().BeEmpty();
+            pizzaOrders.Should().BeEmpty();
         }
     }
 }

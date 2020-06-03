@@ -29,12 +29,15 @@ namespace DALTests
         public async Task OneTimeTearDown()
         {
             await _dockerEnvironment.DisposeAsync();
+            await DbContext.DisposeAsync();
         }
 
         [TearDown]
         public async Task ClearDb()
         {
+            DbContext.PizzaOrders.RemoveRange(DbContext.PizzaOrders);
             DbContext.Pizzas.RemoveRange(DbContext.Pizzas);
+            DbContext.Orders.RemoveRange(DbContext.Orders);
             await DbContext.SaveChangesAsync();
         }
 

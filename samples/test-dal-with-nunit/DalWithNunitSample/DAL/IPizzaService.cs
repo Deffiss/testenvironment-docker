@@ -5,14 +5,8 @@ namespace DAL
 {
     public interface IPizzaService
     {
-        Task<List<Pizza>> GetAll();
+        Task OrderPizza(string customer, List<Pizza> pizzas);
 
-        Task<Pizza> GetById(int id);
-
-        Task Create(Pizza pizza);
-
-        Task Update(Pizza pizza);
-
-        Task Delete(int id);
+        Task RemoveOrder(int id);
     }
 }

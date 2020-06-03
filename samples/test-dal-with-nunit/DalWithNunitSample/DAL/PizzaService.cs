@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,33 +15,29 @@ namespace DAL
             _dbContext = dbContext;
         }
 
-        public Task<List<Pizza>> GetAll()
+        public async Task OrderPizza(string customer, List<Pizza> pizzas)
         {
-            return _dbContext.Pizzas.ToListAsync();
-        }
+            var order = new Order
+            {
+                Customer = customer,
+                CreatedAt = DateTime.UtcNow.Date
+            };
 
-        public Task<Pizza> GetById(int id)
-        {
-            return _dbContext.Pizzas.FirstOrDefaultAsync(x => x.Id == id);
-        }
+            _dbContext.Orders.Add(order);
+            await _dbContext.SaveChangesAsync();
 
-        public async Task Create(Pizza pizza)
-        {
-            _dbContext.Pizzas.Add(pizza);
+            _dbContext.PizzaOrders.AddRange(pizzas.Select(x => new PizzaOrder { OrderId = order.Id, PizzaId = x.Id }));
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Update(Pizza pizza)
+        public async Task RemoveOrder(int id)
         {
-            var pizzaToUpdate = await _dbContext.Pizzas.FirstOrDefaultAsync(x => x.Id == pizza.Id);
-            pizzaToUpdate.Name = pizza.Name;
+            var order = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id);
+            var pizzaOrders = await _dbContext.PizzaOrders.Where(x => x.OrderId == order.Id).ToListAsync();
 
-            await _dbContext.SaveChangesAsync();
-        }
+            _dbContext.PizzaOrders.RemoveRange(pizzaOrders);
+            _dbContext.Orders.Remove(order);
 
-        public async Task Delete(int id)
-        {
-            _dbContext.Pizzas.Remove(await _dbContext.Pizzas.FirstOrDefaultAsync(x => x.Id == id));
             await _dbContext.SaveChangesAsync();
         }
     }
