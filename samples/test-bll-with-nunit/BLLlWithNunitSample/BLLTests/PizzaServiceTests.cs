@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DAL;
+using BLL;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
-namespace DALTests
+namespace BLLTests
 {
     public class PizzaServiceTests : TestBase
     {

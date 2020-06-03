@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{B33D23CC-A796-49EC-837E-D57780135D9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLL", "BLL\BLL.csproj", "{B33D23CC-A796-49EC-837E-D57780135D9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DALTests", "DALTests\DALTests.csproj", "{40201E89-2D12-484F-972D-276B2FFF70AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLLTests", "BLLTests\BLLTests.csproj", "{40201E89-2D12-484F-972D-276B2FFF70AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

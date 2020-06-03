@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DAL
+namespace BLL
 {
     public class Order
     {

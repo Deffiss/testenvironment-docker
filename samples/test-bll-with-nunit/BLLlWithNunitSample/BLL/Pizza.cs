@@ -1,4 +1,4 @@
-﻿namespace DAL
+﻿namespace BLL
 {
     public class Pizza
     {

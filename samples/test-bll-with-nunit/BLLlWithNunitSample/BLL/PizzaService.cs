@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL
+namespace BLL
 {
     public class PizzaService : IPizzaService
     {

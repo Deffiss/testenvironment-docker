@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using DAL;
+using BLL;
 using NUnit.Framework;
 using TestEnvironment.Docker;
 using TestEnvironment.Docker.Containers.Mssql;
 
-namespace DALTests
+namespace BLLTests
 {
     public class TestBase
     {
