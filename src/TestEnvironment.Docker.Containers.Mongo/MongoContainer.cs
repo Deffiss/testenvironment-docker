@@ -6,9 +6,6 @@ namespace TestEnvironment.Docker.Containers.Mongo
 {
     public class MongoContainer : Container
     {
-        private readonly string _userName;
-        private readonly string _userPassword;
-
         public MongoContainer(
             DockerClient dockerClient,
             string name,
@@ -22,21 +19,27 @@ namespace TestEnvironment.Docker.Containers.Mongo
             bool reuseContainer = false,
             IContainerWaiter containerWaiter = null,
             IContainerCleaner containerCleaner = null,
-            ILogger logger = null)
-            : base(dockerClient, name, imageName, tag, environmentVariables, ports, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger)
+            ILogger logger = null,
+            IList<string> entrypoint = null,
+            IContainerInitializer containerInitializer = null)
+            : base(dockerClient, name, imageName, tag, environmentVariables, ports, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger, entrypoint, containerInitializer)
         {
-            _userName = userName;
-            _userPassword = userPassword;
+            UserName = userName;
+            UserPassword = userPassword;
         }
 
-        public string GetConnectionString()
+        protected string UserName { get; }
+
+        protected string UserPassword { get; }
+
+        public virtual string GetConnectionString()
         {
             var hostname = IsDockerInDocker ? IPAddress : "localhost";
             var port = IsDockerInDocker ? 27017 : Ports[27017];
 
-            return string.IsNullOrEmpty(_userName) || string.IsNullOrEmpty(_userPassword)
+            return string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPassword)
                 ? $@"mongodb://{hostname}:{port}"
-                : $@"mongodb://{_userName}:{_userPassword}@{hostname}:{port}";
+                : $@"mongodb://{UserName}:{UserPassword}@{hostname}:{port}";
         }
     }
 }

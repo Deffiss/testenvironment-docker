@@ -12,7 +12,9 @@ namespace TestEnvironment.Docker
     public class Container : IDependency
     {
         private readonly IContainerWaiter _containerWaiter;
+        private readonly IContainerInitializer _containerInitializer;
         private readonly IContainerCleaner _containerCleaner;
+
         private readonly bool _reuseContainer;
 
         public Container(
@@ -26,7 +28,9 @@ namespace TestEnvironment.Docker
             bool reuseContainer = false,
             IContainerWaiter containerWaiter = null,
             IContainerCleaner containerCleaner = null,
-            ILogger logger = null)
+            ILogger logger = null,
+            IList<string> entrypoint = null,
+            IContainerInitializer containerInitializer = null)
         {
             Name = name;
             DockerClient = dockerClient;
@@ -37,8 +41,11 @@ namespace TestEnvironment.Docker
             EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
             Ports = ports;
             _containerWaiter = containerWaiter;
+            _containerInitializer = containerInitializer;
             _containerCleaner = containerCleaner;
             _reuseContainer = reuseContainer;
+
+            Entrypoint = entrypoint;
         }
 
         public bool IsDockerInDocker { get; }
@@ -50,6 +57,8 @@ namespace TestEnvironment.Docker
         public string IPAddress { get; private set; }
 
         public IDictionary<ushort, ushort> Ports { get; private set; }
+
+        public IList<string> Entrypoint { get; private set; }
 
         public string ImageName { get; }
 
@@ -69,7 +78,8 @@ namespace TestEnvironment.Docker
             }
 
             // Make sure that we don't try to add the same var twice.
-            var stringifiedVariables = EnvironmentVariables.MergeDictionaries(environmentVariables).Select(p => $"{p.Key}={p.Value}").ToArray();
+            var stringifiedVariables = EnvironmentVariables.MergeDictionaries(environmentVariables)
+                .Select(p => $"{p.Key}={p.Value}").ToArray();
 
             await RunContainerSafely(stringifiedVariables, token);
 
@@ -83,13 +93,19 @@ namespace TestEnvironment.Docker
                 }
             }
 
+            if (_containerInitializer != null)
+            {
+                await _containerInitializer.Initialize(this, token);
+            }
+
             if (_reuseContainer && _containerCleaner != null)
             {
                 await _containerCleaner.Cleanup(this, token);
             }
         }
 
-        public Task Stop(CancellationToken token = default) => DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
+        public Task Stop(CancellationToken token = default) =>
+            DockerClient.Containers.StopContainerAsync(Id, new ContainerStopParameters { }, token);
 
         public void Dispose()
         {
@@ -109,7 +125,8 @@ namespace TestEnvironment.Docker
             {
                 if (!string.IsNullOrEmpty(Id))
                 {
-                    DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true }).Wait();
+                    DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true })
+                        .Wait();
                 }
             }
         }
@@ -120,7 +137,9 @@ namespace TestEnvironment.Docker
             {
                 if (!string.IsNullOrEmpty(Id))
                 {
-                    await DockerClient.Containers.RemoveContainerAsync(Id, new ContainerRemoveParameters { Force = true });
+                    await DockerClient.Containers.RemoveContainerAsync(
+                        Id,
+                        new ContainerRemoveParameters { Force = true });
                 }
             }
         }
@@ -145,7 +164,10 @@ namespace TestEnvironment.Docker
                 // TODO: check status and network
                 if (!_reuseContainer)
                 {
-                    await DockerClient.Containers.RemoveContainerAsync(startedContainer.ID, new ContainerRemoveParameters { Force = true }, token);
+                    await DockerClient.Containers.RemoveContainerAsync(
+                        startedContainer.ID,
+                        new ContainerRemoveParameters { Force = true },
+                        token);
                     startedContainer = await CreateContainer();
                 }
             }
@@ -157,7 +179,8 @@ namespace TestEnvironment.Docker
             Logger.LogInformation($"Container '{Name}' has been run.");
             Logger.LogDebug($"Container state: {startedContainer.State}");
             Logger.LogDebug($"Container status: {startedContainer.Status}");
-            Logger.LogDebug($"Container IPAddress: {startedContainer.NetworkSettings.Networks.FirstOrDefault().Key} - {startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress}");
+            Logger.LogDebug(
+                $"Container IPAddress: {startedContainer.NetworkSettings.Networks.FirstOrDefault().Key} - {startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress}");
 
             Id = startedContainer.ID;
             IPAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
@@ -183,7 +206,15 @@ namespace TestEnvironment.Docker
                 if (Ports != null)
                 {
                     createParams.HostConfig.PortBindings = Ports
-                        .ToDictionary(p => $"{p.Key}/tcp", p => (IList<PortBinding>)new List<PortBinding> { new PortBinding { HostPort = p.Value.ToString() } });
+                        .ToDictionary(
+                            p => $"{p.Key}/tcp",
+                            p => (IList<PortBinding>)new List<PortBinding>
+                                { new PortBinding { HostPort = p.Value.ToString() } });
+                }
+
+                if (Entrypoint != null && Entrypoint.Any())
+                {
+                    createParams.Entrypoint = Entrypoint;
                 }
 
                 var container = await DockerClient.Containers.CreateContainerAsync(createParams, token);
@@ -196,7 +227,8 @@ namespace TestEnvironment.Docker
                     new ContainersListParameters
                     {
                         All = true,
-                        Filters = new Dictionary<string, IDictionary<string, bool>> { ["name"] = new Dictionary<string, bool> { [$"/{Name}"] = true } }
+                        Filters = new Dictionary<string, IDictionary<string, bool>>
+                            { ["name"] = new Dictionary<string, bool> { [$"/{Name}"] = true } }
                     }, token);
 
                 return containers.First();
