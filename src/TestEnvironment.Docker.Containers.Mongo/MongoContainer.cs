@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
-    public class MongoContainer : Container
+    public class MongoContainer : Container, IMongoContainer
     {
         private readonly string _userName;
         private readonly string _userPassword;

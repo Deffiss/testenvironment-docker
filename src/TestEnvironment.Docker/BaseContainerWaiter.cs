@@ -50,7 +50,7 @@ namespace TestEnvironment.Docker
             }
             while (attempts != 0);
 
-            Logger.LogError($"Container {container.Name} didn't start.");
+            Logger?.LogError($"Container {container.Name} didn't start.");
             return false;
         }
 

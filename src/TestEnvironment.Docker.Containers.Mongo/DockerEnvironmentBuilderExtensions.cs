@@ -7,6 +7,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
         public static IDockerEnvironmentBuilder AddMongoSingleReplicaSetContainer(
             this IDockerEnvironmentBuilder builder,
             string name,
+            string replicaSetName = "rs0",
             string imageName = "mongo",
             string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
@@ -16,6 +17,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                 new MongoSingleReplicaSetContainer(
                     builder.DockerClient,
                     name.GetContainerName(builder.EnvironmentName),
+                    replicaSetName,
                     imageName,
                     tag,
                     environmentVariables,

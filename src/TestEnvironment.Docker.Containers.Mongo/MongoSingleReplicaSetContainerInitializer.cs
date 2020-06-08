@@ -8,6 +8,18 @@ namespace TestEnvironment.Docker.Containers.Mongo
 {
     public class MongoSingleReplicaSetContainerInitializer : IContainerInitializer<MongoSingleReplicaSetContainer>
     {
+        private readonly string _replicaSetName;
+
+        public MongoSingleReplicaSetContainerInitializer(string replicaSetName)
+        {
+            if (string.IsNullOrWhiteSpace(replicaSetName))
+            {
+                throw new ArgumentException("The value must be specified", nameof(replicaSetName));
+            }
+
+            _replicaSetName = replicaSetName;
+        }
+
         public async Task<bool> Initialize(
             MongoSingleReplicaSetContainer container,
             CancellationToken cancellationToken)
@@ -19,6 +31,11 @@ namespace TestEnvironment.Docker.Containers.Mongo
 
             var mongoClient = new MongoClient(container.GetDirectNodeConnectionString());
 
+            if (await IsInitialized(mongoClient, cancellationToken))
+            {
+                return true;
+            }
+
             await mongoClient.GetDatabase("admin").RunCommandAsync(
                 new BsonDocumentCommand<BsonDocument>(new BsonDocument
                 {
@@ -26,7 +43,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                         "replSetInitiate",
                         new BsonDocument
                         {
-                            { "_id", "rs0" },
+                            { "_id", _replicaSetName },
                             {
                                 "members",
                                 new BsonArray
@@ -46,6 +63,31 @@ namespace TestEnvironment.Docker.Containers.Mongo
                 }), cancellationToken: cancellationToken);
 
             return true;
+        }
+
+        public async Task<bool> IsInitialized(IMongoClient mongoClient, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var configuration = await mongoClient.GetDatabase("admin")
+                    .RunCommandAsync(
+                        new BsonDocumentCommand<BsonDocument>(new BsonDocument { { "replSetGetConfig", 1 } }),
+                        cancellationToken: cancellationToken);
+
+                if (configuration["config"]["_id"].AsString == _replicaSetName &&
+                    configuration["config"]["members"].AsBsonArray.Count == 1 &&
+                    configuration["config"]["members"].AsBsonArray[0]["_id"] == 0 &&
+                    configuration["config"]["members"].AsBsonArray[0]["host"] == mongoClient.Settings.Server.ToString())
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (MongoCommandException exception) when (exception.CodeName == "NotYetInitialized")
+            {
+                return false;
+            }
         }
 
         public Task<bool> Initialize(Container container, CancellationToken cancellationToken) =>

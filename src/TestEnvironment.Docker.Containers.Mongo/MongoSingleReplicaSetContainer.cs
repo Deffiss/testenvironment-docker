@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
-    public class MongoSingleReplicaSetContainer : Container
+    public class MongoSingleReplicaSetContainer : Container, IMongoContainer
     {
         public MongoSingleReplicaSetContainer(
             DockerClient dockerClient,
             string name,
+            string replicaSetName,
             string imageName,
             string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
@@ -29,9 +31,13 @@ namespace TestEnvironment.Docker.Containers.Mongo
                 containerWaiter,
                 containerCleaner,
                 logger,
-                new List<string> { "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" },
-                new MongoSingleReplicaSetContainerInitializer())
+                new List<string> { "/usr/bin/mongod", "--bind_ip_all", "--replSet", replicaSetName },
+                new MongoSingleReplicaSetContainerInitializer(replicaSetName))
         {
+            if (string.IsNullOrWhiteSpace(replicaSetName))
+            {
+                throw new ArgumentException("The value must be specified", nameof(replicaSetName));
+            }
         }
 
         public string GetDirectNodeConnectionString()

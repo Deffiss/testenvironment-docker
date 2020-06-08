@@ -6,7 +6,8 @@ using MongoDB.Driver;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
-    public class MongoContainerCleaner : IContainerCleaner<MongoContainer>
+    public class MongoContainerCleaner : IContainerCleaner<MongoContainer>,
+        IContainerCleaner<MongoSingleReplicaSetContainer>
     {
         private readonly ILogger _logger;
 
@@ -15,7 +16,16 @@ namespace TestEnvironment.Docker.Containers.Mongo
             _logger = logger;
         }
 
-        public async Task Cleanup(MongoContainer container, CancellationToken token = default)
+        public Task Cleanup(MongoContainer container, CancellationToken token = default) =>
+            Cleanup((IMongoContainer)container, token);
+
+        public Task Cleanup(MongoSingleReplicaSetContainer container, CancellationToken token = default) =>
+            Cleanup((IMongoContainer)container, token);
+
+        public Task Cleanup(Container container, CancellationToken token = default) =>
+            Cleanup((IMongoContainer)container, token);
+
+        private async Task Cleanup(IMongoContainer container, CancellationToken cancellationToken)
         {
             if (container == null)
             {
@@ -23,14 +33,14 @@ namespace TestEnvironment.Docker.Containers.Mongo
             }
 
             var client = new MongoClient(container.GetConnectionString());
-            var databaseNames = (await client.ListDatabaseNamesAsync(token)).ToList();
+            var databaseNames = (await client.ListDatabaseNamesAsync(cancellationToken)).ToList();
             try
             {
                 foreach (var databaseName in databaseNames)
                 {
                     if (databaseName != "admin" && databaseName != "local")
                     {
-                        await client.DropDatabaseAsync(databaseName, token);
+                        await client.DropDatabaseAsync(databaseName, cancellationToken);
                     }
                 }
             }
@@ -39,8 +49,5 @@ namespace TestEnvironment.Docker.Containers.Mongo
                 _logger?.LogInformation($"MongoDB cleanup issue: {e.Message}");
             }
         }
-
-        public Task Cleanup(Container container, CancellationToken token = default) =>
-            Cleanup((MongoContainer)container, token);
     }
 }
