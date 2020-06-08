@@ -40,10 +40,6 @@ namespace TestEnvironment.Docker.Containers.Mongo
             var port = IsDockerInDocker ? 27017 : Ports[27017];
 
             return $@"mongodb://{hostname}:{port}/?connect=direct";
-
-            // return string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPassword)
-            //    ? $@"mongodb://{hostname}:{port}/?connect=direct"
-            //    : $@"mongodb://{UserName}:{UserPassword}@{hostname}:{port}/?connect=direct";
         }
 
         public string GetConnectionString()
@@ -52,10 +48,6 @@ namespace TestEnvironment.Docker.Containers.Mongo
             var port = IsDockerInDocker ? 27017 : Ports[27017];
 
             return $@"mongodb://{hostname}:{port}/?replicaSet=rs0";
-
-            // return string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPassword)
-            //     ? $@"mongodb://{hostname}:{port}/?replicaSet=rs0"
-            //     : $@"mongodb://{UserName}:{UserPassword}@{hostname}:{port}/?authSource=admin&replicaSet=rs0";
         }
     }
 }
