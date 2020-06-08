@@ -242,7 +242,7 @@ namespace TestEnvironment.Docker.Tests
             // Arrange
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
-                .SetName("test-env")
+                .SetName("test-env-similar-names")
 #if DEBUG
                 .AddMongoContainer("my-mongo-2", reuseContainer: true)
                 .AddMongoContainer("my-mongo", tag: "4.0", reuseContainer: true)

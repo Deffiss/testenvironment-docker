@@ -114,7 +114,7 @@ namespace TestEnvironment.Docker
             }
         }
 
-        protected async virtual ValueTask DisposeAsync(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (disposing)
             {
