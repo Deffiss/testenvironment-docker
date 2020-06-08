@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentFTP;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MySql.Data.MySqlClient;
@@ -26,10 +27,12 @@ namespace TestEnvironment.Docker.Tests
     public class DockerEnvironmentTests
     {
         private readonly ITestOutputHelper _testOutput;
+        private readonly ILogger _logger;
 
         public DockerEnvironmentTests(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
+            _logger = new XUnitLogger(testOutput);
         }
 
         [Fact]
@@ -111,6 +114,7 @@ namespace TestEnvironment.Docker.Tests
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
+                .WithLogger(_logger)
 #if DEBUG
                 .AddMongoContainer("my-mongo", reuseContainer: true)
 #else

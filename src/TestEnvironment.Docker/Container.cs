@@ -58,7 +58,7 @@ namespace TestEnvironment.Docker
 
         public IDictionary<ushort, ushort> Ports { get; private set; }
 
-        public IList<string> Entrypoint { get; private set; }
+        public IList<string> Entrypoint { get; }
 
         public string ImageName { get; }
 
