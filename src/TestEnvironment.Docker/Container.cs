@@ -114,7 +114,7 @@ namespace TestEnvironment.Docker
             }
         }
 
-        protected async virtual ValueTask DisposeAsync(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (disposing)
             {
@@ -127,15 +127,17 @@ namespace TestEnvironment.Docker
 
         private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token = default)
         {
+            var containerName = $"/{Name}";
+
             // Try to find container in docker session
             var containers = await DockerClient.Containers.ListContainersAsync(
                 new ContainersListParameters
                 {
                     All = true,
-                    Filters = new Dictionary<string, IDictionary<string, bool>> { ["name"] = new Dictionary<string, bool> { [$"/{Name}"] = true } }
+                    Filters = new Dictionary<string, IDictionary<string, bool>> { ["name"] = new Dictionary<string, bool> { [containerName] = true } }
                 }, token);
 
-            var startedContainer = containers.FirstOrDefault();
+            var startedContainer = containers.FirstOrDefault(x => x.Names.Contains(containerName));
 
             // If container already exist - remove that
             if (startedContainer != null)

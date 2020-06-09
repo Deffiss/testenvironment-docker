@@ -236,6 +236,34 @@ namespace TestEnvironment.Docker.Tests
             await DisposeEnvironment(environment);
         }
 
+        [Fact]
+        public async Task TwoContainersWithSimilarNames_ShouldStartCorrectly()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .UseDefaultNetwork()
+                .SetName("test-env-similar-names")
+#if DEBUG
+                .AddMongoContainer("my-mongo-2", reuseContainer: true)
+                .AddMongoContainer("my-mongo", tag: "4.0", reuseContainer: true)
+#else
+                .AddMongoContainer("my-mongo-2")
+                .AddMongoContainer("my-mongo", tag: "4.0")
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var mongo = environment.GetContainer<MongoContainer>("my-mongo");
+            var mongo2 = environment.GetContainer<MongoContainer>("my-mongo-2");
+            PrintMongoVersion(mongo);
+            PrintMongoVersion(mongo2);
+
+            await DisposeEnvironment(environment);
+        }
+
         private async Task PrintMssqlVersion(MssqlContainer mssql)
         {
             using (var connection = new SqlConnection(mssql.GetConnectionString()))
