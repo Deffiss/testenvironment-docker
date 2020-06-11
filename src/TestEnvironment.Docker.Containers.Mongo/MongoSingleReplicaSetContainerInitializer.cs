@@ -65,7 +65,10 @@ namespace TestEnvironment.Docker.Containers.Mongo
             return true;
         }
 
-        public async Task<bool> IsInitialized(IMongoClient mongoClient, CancellationToken cancellationToken)
+        public Task<bool> Initialize(Container container, CancellationToken cancellationToken) =>
+            Initialize(container as MongoSingleReplicaSetContainer, cancellationToken);
+
+        private async Task<bool> IsInitialized(IMongoClient mongoClient, CancellationToken cancellationToken)
         {
             try
             {
@@ -74,23 +77,16 @@ namespace TestEnvironment.Docker.Containers.Mongo
                         new BsonDocumentCommand<BsonDocument>(new BsonDocument { { "replSetGetConfig", 1 } }),
                         cancellationToken: cancellationToken);
 
-                if (configuration["config"]["_id"].AsString == _replicaSetName &&
-                    configuration["config"]["members"].AsBsonArray.Count == 1 &&
-                    configuration["config"]["members"].AsBsonArray[0]["_id"] == 0 &&
-                    configuration["config"]["members"].AsBsonArray[0]["host"] == mongoClient.Settings.Server.ToString())
-                {
-                    return true;
-                }
-
-                return false;
+                return configuration["config"]["_id"].AsString == _replicaSetName &&
+                       configuration["config"]["members"].AsBsonArray.Count == 1 &&
+                       configuration["config"]["members"].AsBsonArray[0]["_id"] == 0 &&
+                       configuration["config"]["members"].AsBsonArray[0]["host"] ==
+                       mongoClient.Settings.Server.ToString();
             }
             catch (MongoCommandException exception) when (exception.CodeName == "NotYetInitialized")
             {
                 return false;
             }
         }
-
-        public Task<bool> Initialize(Container container, CancellationToken cancellationToken) =>
-            Initialize(container as MongoSingleReplicaSetContainer, cancellationToken);
     }
 }
