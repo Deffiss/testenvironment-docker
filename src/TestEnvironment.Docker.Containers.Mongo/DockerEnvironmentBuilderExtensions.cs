@@ -4,6 +4,32 @@ namespace TestEnvironment.Docker.Containers.Mongo
 {
     public static class DockerEnvironmentBuilderExtensions
     {
+        public static IDockerEnvironmentBuilder AddMongoSingleReplicaSetContainer(
+            this IDockerEnvironmentBuilder builder,
+            string name,
+            string replicaSetName = "rs0",
+            string imageName = "mongo",
+            string tag = "latest",
+            ushort? port = null,
+            IDictionary<string, string> environmentVariables = null,
+            bool reuseContainer = false)
+        {
+            return builder.AddDependency(
+                new MongoSingleReplicaSetContainer(
+                    builder.DockerClient,
+                    name.GetContainerName(builder.EnvironmentName),
+                    replicaSetName,
+                    imageName,
+                    tag,
+                    port,
+                    environmentVariables,
+                    builder.IsDockerInDocker,
+                    reuseContainer,
+                    new MongoSingleReplicaSetContainerWaiter(builder.Logger),
+                    new MongoContainerCleaner(builder.Logger),
+                    builder.Logger));
+        }
+
         public static IDockerEnvironmentBuilder AddMongoContainer(
             this IDockerEnvironmentBuilder builder,
             string name,
