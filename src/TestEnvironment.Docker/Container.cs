@@ -144,19 +144,43 @@ namespace TestEnvironment.Docker
             }
         }
 
+        protected virtual CreateContainerParameters GetCreateContainerParameters(string[] environmentVariables)
+        {
+            var createParams = new CreateContainerParameters
+            {
+                Name = Name,
+                Image = $"{ImageName}:{Tag}",
+                AttachStdout = true,
+                Env = environmentVariables,
+                Hostname = Name,
+                Domainname = Name,
+                HostConfig = new HostConfig
+                {
+                    PublishAllPorts = Ports == null
+                }
+            };
+
+            if (Ports != null)
+            {
+                createParams.HostConfig.PortBindings = Ports
+                    .ToDictionary(
+                        p => $"{p.Key}/tcp",
+                        p => (IList<PortBinding>)new List<PortBinding>
+                            { new PortBinding { HostPort = p.Value.ToString() } });
+            }
+
+            if (Entrypoint != null && Entrypoint.Any())
+            {
+                createParams.Entrypoint = Entrypoint;
+            }
+
+            return createParams;
+        }
+
         private async Task RunContainerSafely(string[] environmentVariables, CancellationToken token = default)
         {
-            var containerName = $"/{Name}";
-
             // Try to find container in docker session
-            var containers = await DockerClient.Containers.ListContainersAsync(
-                new ContainersListParameters
-                {
-                    All = true,
-                    Filters = new Dictionary<string, IDictionary<string, bool>> { ["name"] = new Dictionary<string, bool> { [containerName] = true } }
-                }, token);
-
-            var startedContainer = containers.FirstOrDefault(x => x.Names.Contains(containerName));
+            var startedContainer = await GetContainer(token);
 
             // If container already exist - remove that
             if (startedContainer != null)
@@ -168,12 +192,12 @@ namespace TestEnvironment.Docker
                         startedContainer.ID,
                         new ContainerRemoveParameters { Force = true },
                         token);
-                    startedContainer = await CreateContainer();
+                    startedContainer = await CreateContainer(environmentVariables, token);
                 }
             }
             else
             {
-                startedContainer = await CreateContainer();
+                startedContainer = await CreateContainer(environmentVariables, token);
             }
 
             Logger.LogInformation($"Container '{Name}' has been run.");
@@ -185,54 +209,35 @@ namespace TestEnvironment.Docker
             Id = startedContainer.ID;
             IPAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
             Ports = startedContainer.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
+        }
 
-            async Task<ContainerListResponse> CreateContainer()
-            {
-                // Create new container
-                var createParams = new CreateContainerParameters
+        private async Task<ContainerListResponse> CreateContainer(string[] environmentVariables, CancellationToken token)
+        {
+            // Create new container
+            var createParams = GetCreateContainerParameters(environmentVariables);
+
+            var container = await DockerClient.Containers.CreateContainerAsync(createParams, token);
+
+            // Run container
+            await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), token);
+
+            // Try to find container in docker session
+            return await GetContainer(token);
+        }
+
+        private async Task<ContainerListResponse> GetContainer(CancellationToken token)
+        {
+            var containerName = $"/{Name}";
+
+            var containers = await DockerClient.Containers.ListContainersAsync(
+                new ContainersListParameters
                 {
-                    Name = Name,
-                    Image = $"{ImageName}:{Tag}",
-                    AttachStdout = true,
-                    Env = environmentVariables,
-                    Hostname = Name,
-                    Domainname = Name,
-                    HostConfig = new HostConfig
-                    {
-                        PublishAllPorts = Ports == null,
-                    },
-                };
+                    All = true,
+                    Filters = new Dictionary<string, IDictionary<string, bool>>
+                        { ["name"] = new Dictionary<string, bool> { [containerName] = true } }
+                }, token);
 
-                if (Ports != null)
-                {
-                    createParams.HostConfig.PortBindings = Ports
-                        .ToDictionary(
-                            p => $"{p.Key}/tcp",
-                            p => (IList<PortBinding>)new List<PortBinding>
-                                { new PortBinding { HostPort = p.Value.ToString() } });
-                }
-
-                if (Entrypoint != null && Entrypoint.Any())
-                {
-                    createParams.Entrypoint = Entrypoint;
-                }
-
-                var container = await DockerClient.Containers.CreateContainerAsync(createParams, token);
-
-                // Run container
-                await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), token);
-
-                // Try to find container in docker session
-                containers = await DockerClient.Containers.ListContainersAsync(
-                    new ContainersListParameters
-                    {
-                        All = true,
-                        Filters = new Dictionary<string, IDictionary<string, bool>>
-                            { ["name"] = new Dictionary<string, bool> { [$"/{Name}"] = true } }
-                    }, token);
-
-                return containers.First();
-            }
+            return containers.FirstOrDefault(x => x.Names.Contains(containerName));
         }
     }
 }

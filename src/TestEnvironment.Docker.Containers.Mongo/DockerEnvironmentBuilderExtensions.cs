@@ -10,6 +10,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
             string replicaSetName = "rs0",
             string imageName = "mongo",
             string tag = "latest",
+            ushort? port = null,
             IDictionary<string, string> environmentVariables = null,
             bool reuseContainer = false)
         {
@@ -20,6 +21,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                     replicaSetName,
                     imageName,
                     tag,
+                    port,
                     environmentVariables,
                     builder.IsDockerInDocker,
                     reuseContainer,

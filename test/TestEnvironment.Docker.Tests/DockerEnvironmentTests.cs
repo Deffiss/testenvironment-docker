@@ -135,14 +135,17 @@ namespace TestEnvironment.Docker.Tests
         [Fact]
         public async Task AddMongoSingleReplicaSetContainer_WhenContainerIsUp_ShouldPrintMongoReplicaSetConfiguration()
         {
-// Arrange
+            // Arrange
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
+                .WithLogger(_logger)
+
+                // 27017 port is busy in AppVeyor
 #if DEBUG
-                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", reuseContainer: true)
+                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", reuseContainer: true, port: 37017)
 #else
-                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet")
+                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", port: 37017)
 #endif
                 .Build();
 
@@ -324,8 +327,6 @@ namespace TestEnvironment.Docker.Tests
         private async Task PrintMongoReplicaSetConfiguration(MongoSingleReplicaSetContainer mongo)
         {
             var mongoClient = new MongoClient(mongo.GetConnectionString());
-            var clusterDescription = mongoClient.Cluster.Description;
-            _testOutput.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
 
             var configuration = await mongoClient.GetDatabase("admin")
                 .RunCommandAsync(new BsonDocumentCommand<BsonDocument>(new BsonDocument { { "replSetGetConfig", 1 } }));
