@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BLL
+namespace DAL
 {
     public class PizzaContext : DbContext
     {
