@@ -30,7 +30,7 @@ namespace BLLTests
             await DbContext.SaveChangesAsync();
 
             // Act
-            await _pizzaService.OrderPizza("John Smith", new List<Pizza> { pepperoni, napoli });
+            await _pizzaService.OrderPizza("John Smith", new List<int> { pepperoni.Id, napoli.Id });
 
             // Assert
             var order = await DbContext.Orders.FirstOrDefaultAsync();

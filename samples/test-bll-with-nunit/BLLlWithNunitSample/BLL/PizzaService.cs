@@ -16,7 +16,7 @@ namespace BLL
             _dbContext = dbContext;
         }
 
-        public async Task OrderPizza(string customer, List<Pizza> pizzas)
+        public async Task OrderPizza(string customer, List<int> pizzaIds)
         {
             var order = new Order
             {
@@ -26,6 +26,8 @@ namespace BLL
 
             _dbContext.Orders.Add(order);
             await _dbContext.SaveChangesAsync();
+
+            var pizzas = await _dbContext.Pizzas.Where(x => pizzaIds.Contains(x.Id)).ToListAsync();
 
             _dbContext.PizzaOrders.AddRange(pizzas.Select(x => new PizzaOrder { OrderId = order.Id, PizzaId = x.Id }));
             await _dbContext.SaveChangesAsync();
