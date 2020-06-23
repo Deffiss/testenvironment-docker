@@ -26,6 +26,6 @@ jobs:
     - name: Setup .NET Core 2
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.2.104
+        dotnet-version: 2.2.301
     - name: Test netcoreapp2.1
       run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release -f netcoreapp2.1 --no-restore
