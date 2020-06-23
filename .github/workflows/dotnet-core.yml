@@ -21,5 +21,11 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release -f netcoreapp3.1
+    - name: Test netcoreapp3.1
+      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release -f netcoreapp3.1 --no-restore
+    - name: Setup .NET Core 2
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.104
+    - name: Test netcoreapp2.1
+      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release -f netcoreapp2.1 --no-restore
