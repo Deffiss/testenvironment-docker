@@ -13,10 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core 2
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.2.301
     - name: Setup .NET Core 3
       uses: actions/setup-dotnet@v1
       with:
@@ -26,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release
+      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release -f netcoreapp3.1
