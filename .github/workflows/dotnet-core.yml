@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj --no-restore --verbosity normal
+      run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release
