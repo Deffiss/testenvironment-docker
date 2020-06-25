@@ -9,11 +9,14 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core 3
+    - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
@@ -21,13 +24,5 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: Test netcoreapp3.1
+    - name: Test
       run: dotnet test --configuration Release -f netcoreapp3.1 --no-restore
-    - name: Setup .NET Core 2
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.2.207
-    - name: Build Tests netcoreapp2.1
-      run: dotnet build --configuration Release -f netcoreapp2.1 --no-restore
-    - name: Test netcoreapp2.1
-      run: dotnet test --configuration Release -f netcoreapp2.1 --no-restore
