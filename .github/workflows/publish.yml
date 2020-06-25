@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    tags: [ ** ]
+    tags: ['**']
 
 jobs:
   build_and_test_and_publish:
