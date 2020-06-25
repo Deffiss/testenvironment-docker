@@ -7,7 +7,7 @@
         <PackageProjectUrl>https://github.com/Deffiss/testenvironment-docker</PackageProjectUrl>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <RepositoryUrl>https://github.com/Deffiss/testenvironment-docker</RepositoryUrl>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>Latest</LangVersion>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
