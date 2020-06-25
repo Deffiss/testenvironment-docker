@@ -28,6 +28,6 @@ jobs:
       with:
         dotnet-version: 2.1.701
     - name: Build Tests netcoreapp2.1
-      run: dotnet build ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj --configuration Release -f netcoreapp2.1 --no-restore
+      run: dotnet build ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj --configuration Release -f netcoreapp2.1 --no-restore -langversion:preview
     - name: Test netcoreapp2.1
       run: dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj --configuration Release -f netcoreapp2.1 --no-restore
