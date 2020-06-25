@@ -1,4 +1,4 @@
-[![Build](https://github.com/Deffiss/testenvironment-docker/workflows/Build/badge.svg)  [![NuGet](https://img.shields.io/nuget/v/TestEnvironment.Docker.svg)](https://www.nuget.org/packages/TestEnvironment.Docker/)
+[![Build](https://github.com/Deffiss/testenvironment-docker/workflows/Build/badge.svg)](https://github.com/Deffiss/testenvironment-docker/actions?query=workflow%3ABuild)  [![NuGet](https://img.shields.io/nuget/v/TestEnvironment.Docker.svg)](https://www.nuget.org/packages/TestEnvironment.Docker/)
 
 # Test environment with Docker containers
 
