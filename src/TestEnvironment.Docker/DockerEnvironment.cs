@@ -5,27 +5,29 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
-using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using SharpCompress.Common;
 using SharpCompress.Writers;
+using TestEnvironment.Docker.DockerApi.Abstractions.Models;
+using TestEnvironment.Docker.DockerApi.Abstractions.Services;
+using TestEnvironment.Docker.DockerApi.Internal.Services;
 
 namespace TestEnvironment.Docker
 {
     public class DockerEnvironment : ITestEnvironment
     {
-        private readonly DockerClient _dockerClient;
         private readonly string[] _ignoredFiles;
         private readonly ILogger _logger;
+        private readonly IDockerImagesService _dockerImagesService;
 
         public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, string[] ignoredFiles = null, ILogger logger = null)
         {
             Name = name;
             Variables = variables;
             Dependencies = dependencies;
-            _dockerClient = dockerClient;
             _ignoredFiles = ignoredFiles;
             _logger = logger;
+            _dockerImagesService = new DockerImagesService(dockerClient);
         }
 
         public string Name { get; }
@@ -100,7 +102,8 @@ namespace TestEnvironment.Docker
                     CreateTarArchive();
 
                     // Now call docker api.
-                    await CreateImage();
+                    var configuration = new ImageFromDockerfileConfiguration(container.ImageName, container.Tag, container.Dockerfile, container.BuildArgs);
+                    await _dockerImagesService.BuildImage(configuration, tempFileName, token);
                 }
                 catch (Exception exc)
                 {
@@ -183,27 +186,6 @@ namespace TestEnvironment.Docker
                         }
                     }
                 }
-
-                async Task CreateImage()
-                {
-                    using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
-                    {
-                        var image = await _dockerClient.Images.BuildImageFromDockerfileAsync(
-                            tarContextStream,
-                            new ImageBuildParameters
-                            {
-                                Dockerfile = container.Dockerfile,
-                                BuildArgs = container.BuildArgs ?? new Dictionary<string, string>(),
-                                Tags = new[] { $"{container.ImageName}:{container.Tag}" },
-                                PullParent = true,
-                                Remove = true,
-                                ForceRemove = true,
-                            },
-                            token);
-
-                        await new StreamReader(image).ReadToEndAsync();
-                    }
-                }
             }
         }
 
@@ -211,34 +193,24 @@ namespace TestEnvironment.Docker
         {
             foreach (var contianer in Dependencies.OfType<Container>())
             {
-                var images = await _dockerClient.Images.ListImagesAsync(
-                    new ImagesListParameters
-                    {
-                        All = true,
-                        MatchName = $"{contianer.ImageName}:{contianer.Tag}"
-                    },
-                    token);
+                var imageExists = await _dockerImagesService.IsExists(contianer.ImageName, contianer.Tag, token);
 
-                if (!images.Any())
+                if (!imageExists)
                 {
                     _logger.LogInformation($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
 
                     // Pull the image.
                     try
                     {
-                        await _dockerClient.Images.CreateImageAsync(
-                            new ImagesCreateParameters
-                            {
-                                FromImage = contianer.ImageName,
-                                Tag = contianer.Tag
-                            },
-                            null,
-                            new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")),
+                        await _dockerImagesService.PullImage(
+                            contianer.ImageName,
+                            contianer.Tag,
+                            (imageName, tag, message) => _logger.LogDebug($"Pulling image {imageName}:{tag}:\n{message}"),
                             token);
                     }
-                    catch (Exception exc)
+                    catch (Exception e)
                     {
-                        _logger?.LogError(exc, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
+                        _logger?.LogError(e, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
                         throw;
                     }
                 }
