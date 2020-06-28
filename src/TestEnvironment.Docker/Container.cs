@@ -13,9 +13,10 @@ namespace TestEnvironment.Docker
     public class Container : IDependency
     {
         private readonly IContainerWaiter _containerWaiter;
+        private readonly IContainerInitializer _containerInitializer;
         private readonly IContainerCleaner _containerCleaner;
-        private readonly bool _reuseContainer;
         private readonly IDockerContainersService _dockerContainersService;
+        private readonly bool _reuseContainer;
 
         public Container(
             DockerClient dockerClient,
@@ -28,7 +29,9 @@ namespace TestEnvironment.Docker
             bool reuseContainer = false,
             IContainerWaiter containerWaiter = null,
             IContainerCleaner containerCleaner = null,
-            ILogger logger = null)
+            ILogger logger = null,
+            IList<string> entrypoint = null,
+            IContainerInitializer containerInitializer = null)
         {
             Name = name;
             Logger = logger;
@@ -38,8 +41,11 @@ namespace TestEnvironment.Docker
             EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
             Ports = ports;
             _containerWaiter = containerWaiter;
+            _containerInitializer = containerInitializer;
             _containerCleaner = containerCleaner;
             _reuseContainer = reuseContainer;
+
+            Entrypoint = entrypoint;
             _dockerContainersService = new DockerContainersService(dockerClient);
         }
 
@@ -52,6 +58,8 @@ namespace TestEnvironment.Docker
         public string IPAddress { get; private set; }
 
         public IDictionary<ushort, ushort> Ports { get; private set; }
+
+        public IList<string> Entrypoint { get; }
 
         public string ImageName { get; }
 
@@ -79,6 +87,11 @@ namespace TestEnvironment.Docker
                     Logger.LogError($"Container {Name} didn't start.");
                     throw new TimeoutException($"Container {Name} didn't start.");
                 }
+            }
+
+            if (_containerInitializer != null)
+            {
+                await _containerInitializer.Initialize(this, token);
             }
 
             if (_reuseContainer && _containerCleaner != null)
@@ -112,7 +125,7 @@ namespace TestEnvironment.Docker
             }
         }
 
-        protected async virtual ValueTask DisposeAsync(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (disposing)
             {
@@ -123,11 +136,20 @@ namespace TestEnvironment.Docker
             }
         }
 
+        protected virtual ContainerConfiguration GetContainerConfiguration(IDictionary<string, string> environmentVariables, IList<string> exposedPorts) => new ContainerConfiguration(
+            Name,
+            ImageName,
+            Tag,
+            Entrypoint,
+            exposedPorts,
+            environmentVariables,
+            Ports);
+
         private async Task RunContainerSafely(IDictionary<string, string> environmentVariables, CancellationToken token = default)
         {
             // Try to find container in docker session
             var runningContainer = await _dockerContainersService.GetContainerByName(Name, token);
-            var configuration = new ContainerConfiguration(Name, ImageName, Tag, environmentVariables, Ports);
+            var configuration = GetContainerConfiguration(environmentVariables, null);
 
             // If container already exist - remove that
             if (runningContainer != null)

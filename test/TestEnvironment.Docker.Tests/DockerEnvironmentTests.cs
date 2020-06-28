@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentFTP;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MySql.Data.MySqlClient;
 using Nest;
@@ -25,10 +27,12 @@ namespace TestEnvironment.Docker.Tests
     public class DockerEnvironmentTests
     {
         private readonly ITestOutputHelper _testOutput;
+        private readonly ILogger _logger;
 
         public DockerEnvironmentTests(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
+            _logger = new XUnitLogger(testOutput);
         }
 
         [Fact]
@@ -110,6 +114,7 @@ namespace TestEnvironment.Docker.Tests
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
+                .WithLogger(_logger)
 #if DEBUG
                 .AddMongoContainer("my-mongo", reuseContainer: true)
 #else
@@ -123,6 +128,33 @@ namespace TestEnvironment.Docker.Tests
             // Assert
             var mongo = environment.GetContainer<MongoContainer>("my-mongo");
             PrintMongoVersion(mongo);
+
+            await DisposeEnvironment(environment);
+        }
+
+        [Fact]
+        public async Task AddMongoSingleReplicaSetContainer_WhenContainerIsUp_ShouldPrintMongoReplicaSetConfiguration()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .UseDefaultNetwork()
+                .SetName("test-env")
+                .WithLogger(_logger)
+
+                // 27017 port is busy in AppVeyor
+#if DEBUG
+                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", reuseContainer: true, port: 37017)
+#else
+                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", port: 37017)
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var mongo = environment.GetContainer<MongoSingleReplicaSetContainer>("my-mongo-replicaSet");
+            await PrintMongoReplicaSetConfiguration(mongo);
 
             await DisposeEnvironment(environment);
         }
@@ -236,6 +268,34 @@ namespace TestEnvironment.Docker.Tests
             await DisposeEnvironment(environment);
         }
 
+        [Fact]
+        public async Task TwoContainersWithSimilarNames_ShouldStartCorrectly()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .UseDefaultNetwork()
+                .SetName("test-env-similar-names")
+#if DEBUG
+                .AddMongoContainer("my-mongo-2", reuseContainer: true)
+                .AddMongoContainer("my-mongo", tag: "4.0", reuseContainer: true)
+#else
+                .AddMongoContainer("my-mongo-2")
+                .AddMongoContainer("my-mongo", tag: "4.0")
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var mongo = environment.GetContainer<MongoContainer>("my-mongo");
+            var mongo2 = environment.GetContainer<MongoContainer>("my-mongo-2");
+            PrintMongoVersion(mongo);
+            PrintMongoVersion(mongo2);
+
+            await DisposeEnvironment(environment);
+        }
+
         private async Task PrintMssqlVersion(MssqlContainer mssql)
         {
             using (var connection = new SqlConnection(mssql.GetConnectionString()))
@@ -262,6 +322,16 @@ namespace TestEnvironment.Docker.Tests
             var mongoClient = new MongoClient(mongo.GetConnectionString());
             var clusterDescription = mongoClient.Cluster.Description;
             _testOutput.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
+        }
+
+        private async Task PrintMongoReplicaSetConfiguration(MongoSingleReplicaSetContainer mongo)
+        {
+            var mongoClient = new MongoClient(mongo.GetConnectionString());
+
+            var configuration = await mongoClient.GetDatabase("admin")
+                .RunCommandAsync(new BsonDocumentCommand<BsonDocument>(new BsonDocument { { "replSetGetConfig", 1 } }));
+
+            _testOutput.WriteLine($"Mongo replica set configuration: {configuration}");
         }
 
         private async Task PrintMariaDBVersion(MariaDBContainer maria)

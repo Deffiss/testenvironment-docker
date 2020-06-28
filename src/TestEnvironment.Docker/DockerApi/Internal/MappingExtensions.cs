@@ -23,6 +23,8 @@ namespace TestEnvironment.Docker.DockerApi.Internal
             Env = configuration.EnvironmentVariables.Select(p => $"{p.Key}={p.Value}").ToArray(),
             Hostname = configuration.Name,
             Domainname = configuration.Name,
+            Entrypoint = configuration.EntryPoint,
+            ExposedPorts = configuration.ExposedPorts?.ToDictionary(port => port, value => default(EmptyStruct)),
             HostConfig = new HostConfig
             {
                 PublishAllPorts = configuration.Ports == null,
