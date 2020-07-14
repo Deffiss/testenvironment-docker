@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
@@ -31,7 +32,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
 
         public string GetConnectionString()
         {
-            var hostname = IsDockerInDocker ? IPAddress : "localhost";
+            var hostname = IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
             var port = IsDockerInDocker ? 27017 : Ports[27017];
 
             return string.IsNullOrEmpty(_userName) || string.IsNullOrEmpty(_userPassword)

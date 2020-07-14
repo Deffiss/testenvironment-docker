@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Postgres
 {
@@ -41,6 +42,6 @@ namespace TestEnvironment.Docker.Containers.Postgres
         }
 
         public string GetConnectionString() =>
-            $"Host={(IsDockerInDocker ? IPAddress : "localhost")};Port={(IsDockerInDocker ? 5432 : Ports[5432])};Username={_userName};Password={_password}";
+            $"Host={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())};Port={(IsDockerInDocker ? 5432 : Ports[5432])};Username={_userName};Password={_password}";
     }
 }

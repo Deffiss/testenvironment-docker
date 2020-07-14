@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace TestEnvironment.Docker.Containers.Mail
             }
 
             var uri = new Uri($"http://" +
-                $"{(container.IsDockerInDocker ? container.IPAddress : "localhost")}:" +
+                $"{(container.IsDockerInDocker ? container.IPAddress : IPAddress.Loopback.ToString())}:" +
                 $"{(container.IsDockerInDocker ? _apiPort : container.Ports[_apiPort])}");
 
             using (var httpClient = new HttpClient { BaseAddress = uri })
