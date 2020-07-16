@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,7 @@ namespace TestEnvironment.Docker.Containers.Mail
             using var client = new SmtpClient();
 
             await client.ConnectAsync(
-                container.IsDockerInDocker ? container.IPAddress : "localhost",
+                container.IsDockerInDocker ? container.IPAddress : IPAddress.Loopback.ToString(),
                 container.IsDockerInDocker ? _smtpPort : container.Ports[_smtpPort],
                 cancellationToken: cancellationToken);
 

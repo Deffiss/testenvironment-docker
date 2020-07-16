@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Ftp
 {
@@ -23,7 +24,7 @@ namespace TestEnvironment.Docker.Containers.Ftp
                   name,
                   imageName,
                   tag,
-                  new Dictionary<string, string> { ["PUBLICHOST"] = "localhost", ["FTP_USER_NAME"] = ftpUserName, ["FTP_USER_PASS"] = ftpPassword, ["FTP_USER_HOME"] = $"/home/ftpusers/{ftpUserName}" }.MergeDictionaries(environmentVariables),
+                  new Dictionary<string, string> { ["PUBLICHOST"] = IP.Loopback.ToString(), ["FTP_USER_NAME"] = ftpUserName, ["FTP_USER_PASS"] = ftpPassword, ["FTP_USER_HOME"] = $"/home/ftpusers/{ftpUserName}" }.MergeDictionaries(environmentVariables),
                   ports,
                   isDockerInDocker,
                   reuseContainer,
@@ -39,6 +40,6 @@ namespace TestEnvironment.Docker.Containers.Ftp
 
         public string FtpPassword { get; }
 
-        public string FtpHost => IsDockerInDocker ? IPAddress : "localhost";
+        public string FtpHost => IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
     }
 }

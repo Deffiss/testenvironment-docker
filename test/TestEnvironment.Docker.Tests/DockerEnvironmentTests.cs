@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentFTP;
@@ -362,7 +363,7 @@ namespace TestEnvironment.Docker.Tests
 
         private async Task PrintSmtpCapabilities(MailContainer mailContainer)
         {
-            var host = mailContainer.IsDockerInDocker ? mailContainer.IPAddress : "localhost";
+            var host = mailContainer.IsDockerInDocker ? mailContainer.IPAddress : IPAddress.Loopback.ToString();
             var port = mailContainer.IsDockerInDocker ? 1025 : mailContainer.Ports[1025];
 
             using (var client = new SmtpClient())
@@ -375,7 +376,7 @@ namespace TestEnvironment.Docker.Tests
 
         private async Task PrintReturnedHtml(Container staticFilesContainer)
         {
-            var host = staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : "localhost";
+            var host = staticFilesContainer.IsDockerInDocker ? staticFilesContainer.IPAddress : IPAddress.Loopback.ToString();
             var port = staticFilesContainer.IsDockerInDocker ? 8080 : staticFilesContainer.Ports[8080];
 
             using (var client = new HttpClient { BaseAddress = new Uri($"http://{host}:{port}") })
