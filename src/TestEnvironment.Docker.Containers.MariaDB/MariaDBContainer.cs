@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
-using TestEnvironment.Docker;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.MariaDB
 {
@@ -28,6 +26,6 @@ namespace TestEnvironment.Docker.Containers.MariaDB
         }
 
         public string GetConnectionString() =>
-            $"server={(IsDockerInDocker ? IPAddress : "localhost")};user=root;password={_rootPassowrd};port={(IsDockerInDocker ? 3306 : Ports[3306])};allow user variables=true";
+            $"server={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())};user=root;password={_rootPassowrd};port={(IsDockerInDocker ? 3306 : Ports[3306])};allow user variables=true";
     }
 }

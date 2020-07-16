@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
@@ -22,6 +23,6 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
         {
         }
 
-        public string GetUrl() => IsDockerInDocker ? $"http://{IPAddress}:9200" : $"http://localhost:{Ports[9200]}";
+        public string GetUrl() => IsDockerInDocker ? $"http://{IPAddress}:9200" : $"http://{IP.Loopback}:{Ports[9200]}";
     }
 }
