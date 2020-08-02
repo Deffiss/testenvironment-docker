@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {
@@ -36,6 +37,6 @@ namespace TestEnvironment.Docker.Containers.Mssql
         }
 
         public string GetConnectionString() =>
-            $"Data Source={(IsDockerInDocker ? IPAddress : "localhost")}, {(IsDockerInDocker ? 1433 : Ports[1433])}; UID=sa; pwd={_saPassword};";
+            $"Data Source={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())}, {(IsDockerInDocker ? 1433 : Ports[1433])}; UID=sa; pwd={_saPassword};";
     }
 }

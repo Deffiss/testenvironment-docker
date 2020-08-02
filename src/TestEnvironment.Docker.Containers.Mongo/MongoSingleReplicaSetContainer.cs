@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Docker.DotNet;
-using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using TestEnvironment.Docker.DockerApi.Abstractions.Models;
+using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
@@ -51,7 +51,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
 
         public string GetDirectNodeConnectionString()
         {
-            var hostname = IsDockerInDocker ? IPAddress : "localhost";
+            var hostname = IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
             var port = _port ?? (IsDockerInDocker ? 27017 : Ports[27017]);
 
             return $@"mongodb://{hostname}:{port}/?connect=direct";
@@ -59,7 +59,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
 
         public string GetConnectionString()
         {
-            var hostname = IsDockerInDocker ? IPAddress : "localhost";
+            var hostname = IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
             var port = _port ?? (IsDockerInDocker ? 27017 : Ports[27017]);
 
             return $@"mongodb://{hostname}:{port}/?replicaSet={_replicaSetName}";

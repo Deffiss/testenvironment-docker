@@ -32,7 +32,7 @@ namespace TestEnvironment.Docker
         protected override async Task<bool> PerformCheck(Container container, CancellationToken cancellationToken)
         {
             var uri = new Uri($"{(_isHttps ? "https" : "http")}://" +
-                              $"{(container.IsDockerInDocker ? container.IPAddress : "localhost")}:" +
+                              $"{(container.IsDockerInDocker ? container.IPAddress : IPAddress.Loopback.ToString())}:" +
                               $"{(container.IsDockerInDocker ? _httpPort : container.Ports[_httpPort])}");
 
             using var client = new HttpClient { BaseAddress = uri };
