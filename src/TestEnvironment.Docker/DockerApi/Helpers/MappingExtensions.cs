@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Docker.DotNet.Models;
-using TestEnvironment.Docker.DockerApi.Abstractions.Models;
+using TestEnvironment.Docker.DockerApi.Models;
+using TestEnvironment.Docker.Test.Containers;
 
-namespace TestEnvironment.Docker.DockerApi.Internal
+namespace TestEnvironment.Docker.DockerApi.Helpers
 {
     public static class MappingExtensions
     {

@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
-using TestEnvironment.Docker.DockerApi.Abstractions.Models;
-using TestEnvironment.Docker.DockerApi.Abstractions.Services;
-using TestEnvironment.Docker.DockerApi.Internal.Services;
+using TestEnvironment.Docker.DockerApi.Models;
+using TestEnvironment.Docker.DockerApi.Services;
+using TestEnvironment.Docker.Test.Helpers;
 
 namespace TestEnvironment.Docker
 {

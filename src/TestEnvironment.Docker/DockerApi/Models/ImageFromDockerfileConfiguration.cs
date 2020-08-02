@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TestEnvironment.Docker.DockerApi.Abstractions.Models
+namespace TestEnvironment.Docker.DockerApi.Models
 {
     public class ImageFromDockerfileConfiguration
     {

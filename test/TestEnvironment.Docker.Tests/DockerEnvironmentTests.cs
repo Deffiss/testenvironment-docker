@@ -20,6 +20,7 @@ using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
 using TestEnvironment.Docker.Containers.Postgres;
+using TestEnvironment.Docker.Test.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using TestEnvironment.Docker.DockerApi.Abstractions.Models;
+using TestEnvironment.Docker.DockerApi.Models;
+using TestEnvironment.Docker.Test.Containers;
 
-namespace TestEnvironment.Docker.DockerApi.Abstractions.Services
+namespace TestEnvironment.Docker.DockerApi.Services
 {
     public interface IDockerContainersService
     {

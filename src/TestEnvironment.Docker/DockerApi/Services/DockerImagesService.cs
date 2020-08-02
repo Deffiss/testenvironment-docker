@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using TestEnvironment.Docker.DockerApi.Abstractions.Models;
-using TestEnvironment.Docker.DockerApi.Abstractions.Services;
+using TestEnvironment.Docker.DockerApi.Helpers;
+using TestEnvironment.Docker.DockerApi.Models;
 
-namespace TestEnvironment.Docker.DockerApi.Internal.Services
+namespace TestEnvironment.Docker.DockerApi.Services
 {
     public class DockerImagesService : IDockerImagesService
     {

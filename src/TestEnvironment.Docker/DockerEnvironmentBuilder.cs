@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.Test.Helpers;
 
 namespace TestEnvironment.Docker
 {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TestEnvironment.Docker.Test.Helpers;
 
 namespace TestEnvironment.Docker.Containers.Elasticsearch
 {

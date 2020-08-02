@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.Test.Helpers;
 using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Elasticsearch

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using SharpCompress.Common;
 using SharpCompress.Writers;
@@ -12,86 +10,41 @@ using TestEnvironment.Docker.DockerApi.Models;
 using TestEnvironment.Docker.DockerApi.Services;
 using TestEnvironment.Docker.Test.Helpers;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker.Test.Environments
 {
-    public class DockerEnvironment : ITestEnvironment
+    public class DockerEnvironment
     {
-        private readonly string[] _ignoredFiles;
-        private readonly ILogger _logger;
+        private readonly DockerEnvironmentConfiguration _configuration;
         private readonly IDockerImagesService _dockerImagesService;
 
-        public DockerEnvironment(string name, IDictionary<string, string> variables, IDependency[] dependencies, DockerClient dockerClient, string[] ignoredFiles = null, ILogger logger = null)
+        public DockerEnvironment(DockerEnvironmentConfiguration configuration)
         {
-            Name = name;
-            Variables = variables;
-            Dependencies = dependencies;
-            _ignoredFiles = ignoredFiles;
-            _logger = logger;
-            _dockerImagesService = new DockerImagesService(dockerClient);
+            _configuration = configuration;
+            _dockerImagesService = new DockerImagesService(DockerClientStorage.DockerClient);
         }
 
-        public string Name { get; }
+        public bool IsDockerInDocker => _configuration.IsDockerInDocker;
 
-        public IDictionary<string, string> Variables { get; }
-
-        public IDependency[] Dependencies { get; }
-
-        public async Task Up(CancellationToken token = default)
+        public static DockerEnvironmentBuilder Create()
         {
-            await BuildRequiredImages(token);
-
-            await PullRequiredImages(token);
-
-            await Task.WhenAll(Dependencies.Select(d => d.Run(Variables, token)));
+            return new DockerEnvironmentBuilder();
         }
 
-        public Task Down(CancellationToken token = default) =>
-            Task.WhenAll(Dependencies.Select(d => d.Stop(token)));
-
-        public Container GetContainer(string name) =>
-            Dependencies.FirstOrDefault(d => d is Container c && c.Name.Equals(name.GetContainerName(Name), StringComparison.OrdinalIgnoreCase)) as Container;
-
-        public TContainer GetContainer<TContainer>(string name)
-            where TContainer : Container => GetContainer(name) as TContainer;
-
-        public void Dispose()
+        public async Task Up(CancellationToken cancellationToken = default)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            await BuildRequiredImages(cancellationToken);
+            await PullRequiredImages(cancellationToken);
+            await Task.WhenAll(_configuration.Containers.Select(container => RunContainerAndLogResult(container, cancellationToken)));
         }
 
-        public async ValueTask DisposeAsync()
+        public Task Down(CancellationToken cancellationToken = default)
         {
-            await DisposeAsync(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var dependency in Dependencies)
-                {
-                    dependency.Dispose();
-                }
-            }
-        }
-
-        protected virtual async ValueTask DisposeAsync(bool disposing)
-        {
-            if (disposing)
-            {
-                var disposeTasks = Dependencies.Select(d => d.DisposeAsync()).ToArray();
-                foreach (var dt in disposeTasks)
-                {
-                    await dt;
-                }
-            }
+            return Task.WhenAll(_configuration.Containers.Select(container => container.Stop(cancellationToken)));
         }
 
         private async Task BuildRequiredImages(CancellationToken token)
         {
-            foreach (var container in Dependencies.OfType<ContainerFromDockerfile>())
+            foreach (var container in _configuration.Containers.OfType<ContainerFromDockerfile>())
             {
                 var tempFileName = Guid.NewGuid().ToString();
                 var contextDirectory = container.Context.Equals(".") ? Directory.GetCurrentDirectory() : container.Context;
@@ -99,7 +52,7 @@ namespace TestEnvironment.Docker
                 try
                 {
                     // In order to pass the context we have to create tar file and use it as an argument.
-                    CreateTarArchive();
+                    CreateTarArchive(_configuration.IgnoredFolders, tempFileName, contextDirectory, _configuration.Logger);
 
                     // Now call docker api.
                     var configuration = new ImageFromDockerfileConfiguration(container.ImageName, container.Tag, container.Dockerfile, container.BuildArgs);
@@ -107,7 +60,7 @@ namespace TestEnvironment.Docker
                 }
                 catch (Exception exc)
                 {
-                    _logger?.LogError(exc, $"Unable to create the image from dockerfile.");
+                    _configuration.Logger.LogError(exc, $"Unable to create the image from dockerfile.");
                     throw;
                 }
 
@@ -118,22 +71,22 @@ namespace TestEnvironment.Docker
                 }
                 catch (Exception exc)
                 {
-                    _logger?.LogError(exc, $"Unable to delete tar file {tempFileName} with context. Please, cleanup manually.");
+                    _configuration.Logger.LogError(exc, $"Unable to delete tar file {tempFileName} with context. Please, cleanup manually.");
                 }
 
-                void CreateTarArchive()
+                static void CreateTarArchive(string[] ignoredFolders, string tempFileName, string contextDirectory, ILogger logger)
                 {
                     using (var stream = File.OpenWrite(tempFileName))
                     using (var writer = WriterFactory.Open(stream, ArchiveType.Tar, CompressionType.None))
                     {
-                        AddDirectoryFilesToTar(writer, contextDirectory, true);
+                        AddDirectoryFilesToTar(writer, contextDirectory, true, ignoredFolders, tempFileName, contextDirectory, logger);
                     }
                 }
 
                 // Adds recuresively files to tar archive.
-                void AddDirectoryFilesToTar(IWriter writer, string sourceDirectory, bool recurse)
+                static void AddDirectoryFilesToTar(IWriter writer, string sourceDirectory, bool recurse, string[] ignoredFolders, string tempFileName, string contextDirectory, ILogger logger)
                 {
-                    if (_ignoredFiles?.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))) == true)
+                    if (ignoredFolders?.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))) == true)
                     {
                         return;
                     }
@@ -173,7 +126,7 @@ namespace TestEnvironment.Docker
                         }
                         catch (Exception exc)
                         {
-                            _logger?.LogWarning($"Can not add file {filename} to the context: {exc.Message}.");
+                            logger.LogWarning($"Can not add file {filename} to the context: {exc.Message}.");
                         }
                     }
 
@@ -182,7 +135,7 @@ namespace TestEnvironment.Docker
                         var directories = Directory.GetDirectories(sourceDirectory);
                         foreach (var directory in directories)
                         {
-                            AddDirectoryFilesToTar(writer, directory, recurse);
+                            AddDirectoryFilesToTar(writer, directory, recurse, ignoredFolders, tempFileName, contextDirectory, logger);
                         }
                     }
                 }
@@ -191,13 +144,13 @@ namespace TestEnvironment.Docker
 
         private async Task PullRequiredImages(CancellationToken token)
         {
-            foreach (var contianer in Dependencies.OfType<Container>())
+            foreach (var contianer in _configuration.Containers)
             {
                 var imageExists = await _dockerImagesService.IsExists(contianer.ImageName, contianer.Tag, token);
 
                 if (!imageExists)
                 {
-                    _logger.LogInformation($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
+                    _configuration.Logger.LogInformation($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
 
                     // Pull the image.
                     try
@@ -205,15 +158,33 @@ namespace TestEnvironment.Docker
                         await _dockerImagesService.PullImage(
                             contianer.ImageName,
                             contianer.Tag,
-                            (imageName, tag, message) => _logger.LogDebug($"Pulling image {imageName}:{tag}:\n{message}"),
+                            (imageName, tag, message) => _configuration.Logger.LogDebug($"Pulling image {imageName}:{tag}:\n{message}"),
                             token);
                     }
                     catch (Exception e)
                     {
-                        _logger?.LogError(e, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
+                        _configuration.Logger.LogError(e, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
                         throw;
                     }
                 }
+            }
+        }
+
+        private async Task RunContainerAndLogResult(Containers.Container container, CancellationToken cancellationToken)
+        {
+            var logger = _configuration.Logger;
+            try
+            {
+                var result = await container.Run(_configuration.EnvironmentVariables, cancellationToken);
+                logger.LogInformation($"Container '{container.Name}' has been run.");
+                logger.LogDebug($"Container state: {result.State}");
+                logger.LogDebug($"Container status: {result.Status}");
+                logger.LogDebug($"Container IPAddress: {result.NetworkName} - {result.IPAddress}");
+                container.AssignDockerEnvironment(this);
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"Container {container.Name} didn't start. Exception: {e}");
             }
         }
     }

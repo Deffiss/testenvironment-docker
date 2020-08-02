@@ -1,4 +1,4 @@
-﻿namespace TestEnvironment.Docker
+﻿namespace TestEnvironment.Docker.Test.Helpers
 {
     public static class StringExtensions
     {
