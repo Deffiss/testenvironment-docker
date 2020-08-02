@@ -16,11 +16,16 @@ namespace TestEnvironment.Docker.DockerApi.Internal.Services
 
         public DockerImagesService(DockerClient client)
         {
-            _client = client;
+            _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public async Task BuildImage(ImageFromDockerfileConfiguration configuration, string tempFileName, CancellationToken cancellationToken)
+        public async Task BuildImage(ImageFromDockerfileConfiguration configuration, string tempFileName, CancellationToken cancellationToken = default)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             using (var tarContextStream = new FileStream(tempFileName, FileMode.Open))
             {
                 var image = await _client.Images.BuildImageFromDockerfileAsync(
@@ -32,8 +37,13 @@ namespace TestEnvironment.Docker.DockerApi.Internal.Services
             }
         }
 
-        public async Task<bool> IsExists(string imageName, string tag, CancellationToken cancellationToken)
+        public async Task<bool> IsExists(string imageName, string tag, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(imageName) || string.IsNullOrWhiteSpace(tag))
+            {
+                throw new ArgumentException("Image Name and Tag shouldn't be null or empty or whitespace!");
+            }
+
             var images = await _client.Images.ListImagesAsync(
                     new ImagesListParameters
                     {
@@ -45,8 +55,13 @@ namespace TestEnvironment.Docker.DockerApi.Internal.Services
             return images.Any();
         }
 
-        public Task PullImage(string imageName, string tag, Action<string, string, string> progressAction, CancellationToken cancellationToken)
+        public Task PullImage(string imageName, string tag, Action<string, string, string> progressAction = null, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(imageName) || string.IsNullOrWhiteSpace(tag))
+            {
+                throw new ArgumentException("Image Name and Tag shouldn't be null or empty or whitespace!");
+            }
+
             return _client.Images.CreateImageAsync(
                             new ImagesCreateParameters
                             {
@@ -54,7 +69,7 @@ namespace TestEnvironment.Docker.DockerApi.Internal.Services
                                 Tag = tag
                             },
                             null,
-                            new Progress<JSONMessage>(m => progressAction(imageName, tag, m.ProgressMessage)),
+                            new Progress<JSONMessage>(m => progressAction?.Invoke(imageName, tag, m.ProgressMessage)),
                             cancellationToken);
         }
     }

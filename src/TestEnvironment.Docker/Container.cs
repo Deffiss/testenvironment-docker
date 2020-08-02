@@ -152,14 +152,11 @@ namespace TestEnvironment.Docker
             var configuration = GetContainerConfiguration(environmentVariables, null);
 
             // If container already exist - remove that
-            if (runningContainer != null)
+            // TODO: check status and network
+            if (runningContainer != null && !_reuseContainer)
             {
-                // TODO: check status and network
-                if (!_reuseContainer)
-                {
-                    await _dockerContainersService.RemoveContainerById(runningContainer.Id, token);
-                    runningContainer = await CreateContainer(configuration, token);
-                }
+                await _dockerContainersService.RemoveContainerById(runningContainer.Id, token);
+                runningContainer = await CreateContainer(configuration, token);
             }
             else
             {
