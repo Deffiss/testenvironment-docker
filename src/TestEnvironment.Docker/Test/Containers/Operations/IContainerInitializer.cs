@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker.Test.Containers.Operations
 {
-    public interface IContainerInitializer<TContainer>
-        where TContainer : Container
+    public interface IContainerInitializer
     {
-        Task<bool> Initialize(TContainer container, CancellationToken cancellationToken);
+        Task<bool> Initialize<TContainer, TConfiguration>(TContainer container, CancellationToken cancellationToken)
+            where TContainer : Container<TConfiguration>
+            where TConfiguration : ContainerConfiguration;
     }
 }

@@ -2,95 +2,97 @@
 
 namespace TestEnvironment.Docker.Test.Containers
 {
-    public class ContainerBuilder : BaseContainerBuilder<Container, ContainerConfiguration>
+    public class ContainerBuilder<TContainer, TConfiguration> : BaseContainerBuilder<Container<TConfiguration>, ContainerConfiguration>
+        where TContainer : Container<TConfiguration>
+        where TConfiguration : ContainerConfiguration, new()
     {
-        private readonly ContainerConfiguration _configuration;
-
         public ContainerBuilder()
         {
-            _configuration = new ContainerConfiguration();
+            Configuration = new TConfiguration();
         }
 
-        public ContainerBuilder SetName(string name)
+        protected TConfiguration Configuration { get; }
+
+        public ContainerBuilder<TContainer, TConfiguration> SetName(string name)
         {
-            _configuration.Name = name;
+            Configuration.Name = name;
 
             return this;
         }
 
-        public ContainerBuilder SetImageName(string imageName)
+        public ContainerBuilder<TContainer, TConfiguration> SetImageName(string imageName)
         {
-            _configuration.ImageName = imageName;
+            Configuration.ImageName = imageName;
 
             return this;
         }
 
-        public ContainerBuilder SetTag(string tag)
+        public ContainerBuilder<TContainer, TConfiguration> SetTag(string tag)
         {
-            _configuration.Tag = tag;
+            Configuration.Tag = tag;
 
             return this;
         }
 
-        public ContainerBuilder SetReuseContainer(bool reuseContainer)
+        public ContainerBuilder<TContainer, TConfiguration> SetReuseContainer(bool reuseContainer)
         {
-            _configuration.ReuseContainer = reuseContainer;
+            Configuration.ReuseContainer = reuseContainer;
 
             return this;
         }
 
-        public ContainerBuilder SetEntryPoint(IList<string> entryPoint)
+        public ContainerBuilder<TContainer, TConfiguration> SetEntryPoint(IList<string> entryPoint)
         {
-            _configuration.EntryPoint = entryPoint;
+            Configuration.EntryPoint = entryPoint;
 
             return this;
         }
 
-        public ContainerBuilder SetExposedPorts(IList<string> exposedPorts)
+        public ContainerBuilder<TContainer, TConfiguration> SetExposedPorts(IList<string> exposedPorts)
         {
-            _configuration.ExposedPorts = exposedPorts;
+            Configuration.ExposedPorts = exposedPorts;
 
             return this;
         }
 
-        public ContainerBuilder SetEnvironmentVariables(IDictionary<string, string> environmentVariables)
+        public ContainerBuilder<TContainer, TConfiguration> SetEnvironmentVariables(IDictionary<string, string> environmentVariables)
         {
-            _configuration.EnvironmentVariables = environmentVariables;
+            Configuration.EnvironmentVariables = environmentVariables;
 
             return this;
         }
 
-        public ContainerBuilder SetPorts(IDictionary<ushort, ushort> ports)
+        public ContainerBuilder<TContainer, TConfiguration> SetPorts(IDictionary<ushort, ushort> ports)
         {
-            _configuration.Ports = ports;
+            Configuration.Ports = ports;
 
             return this;
         }
 
-        public ContainerBuilder SetContainerWaiter(Operations.IContainerWaiter<Container> containerWaiter)
+        public ContainerBuilder<TContainer, TConfiguration> SetContainerWaiter(Operations.IContainerWaiter containerWaiter)
         {
-            _configuration.ContainerWaiter = containerWaiter;
+            Configuration.ContainerWaiter = containerWaiter;
 
             return this;
         }
 
-        public ContainerBuilder SetContainerCleaner(Operations.IContainerCleaner<Container> containerCleaner)
+        public ContainerBuilder<TContainer, TConfiguration> SetContainerCleaner(Operations.IContainerCleaner containerCleaner)
         {
-            _configuration.ContainerCleaner = containerCleaner;
+            Configuration.ContainerCleaner = containerCleaner;
 
             return this;
         }
 
-        public ContainerBuilder SetContainerInitializer(Operations.IContainerInitializer<Container> containerInitializer)
+        public ContainerBuilder<TContainer, TConfiguration> SetContainerInitializer(Operations.IContainerInitializer containerInitializer)
         {
-            _configuration.ContainerInitializer = containerInitializer;
+            Configuration.ContainerInitializer = containerInitializer;
 
             return this;
         }
 
-        public override Container Build()
+        public override Container<TConfiguration> Build()
         {
-            return new Container(_configuration);
+            return new Container<TConfiguration>(Configuration);
         }
     }
 }

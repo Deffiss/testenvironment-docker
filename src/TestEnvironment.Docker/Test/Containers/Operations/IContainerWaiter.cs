@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 
 namespace TestEnvironment.Docker.Test.Containers.Operations
 {
-    public interface IContainerWaiter<TContainer>
-        where TContainer : Container
+    public interface IContainerWaiter
     {
-        Task<bool> Wait(TContainer container, CancellationToken cancellationToken = default);
+        Task<bool> Wait<TContainer, TConfiguration>(TContainer container, CancellationToken cancellationToken = default)
+            where TContainer : Container<TConfiguration>
+            where TConfiguration : ContainerConfiguration;
     }
 }

@@ -20,10 +20,10 @@ namespace TestEnvironment.Docker.Test.Containers
 
         public IDictionary<ushort, ushort> Ports { get; set; }
 
-        public Operations.IContainerWaiter<Container> ContainerWaiter { get; set; }
+        public Operations.IContainerWaiter ContainerWaiter { get; set; }
 
-        public Operations.IContainerCleaner<Container> ContainerCleaner { get; set; }
+        public Operations.IContainerCleaner ContainerCleaner { get; set; }
 
-        public Operations.IContainerInitializer<Container> ContainerInitializer { get; set; }
+        public Operations.IContainerInitializer ContainerInitializer { get; set; }
     }
 }
