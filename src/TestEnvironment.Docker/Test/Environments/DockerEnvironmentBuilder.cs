@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TestEnvironment.Docker.Test.Environments
 {
-    public class DockerEnvironmentBuilder : BaseEnvironmentBuilder<DockerEnvironment, DockerEnvironmentConfiguration>
+    public class DockerEnvironmentBuilder
     {
         private readonly DockerEnvironmentConfiguration _configuration;
 
@@ -47,14 +47,14 @@ namespace TestEnvironment.Docker.Test.Environments
             return this;
         }
 
-        public DockerEnvironmentBuilder AddContainer(Container container)
+        public DockerEnvironmentBuilder AddContainer(Containers.Container container)
         {
             _configuration.Containers.Add(container);
 
             return this;
         }
 
-        public override DockerEnvironment Build()
+        public DockerEnvironment Build()
         {
             return new DockerEnvironment(_configuration);
         }

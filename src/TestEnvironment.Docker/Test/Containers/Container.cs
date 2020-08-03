@@ -8,14 +8,13 @@ using TestEnvironment.Docker.Test.Helpers;
 
 namespace TestEnvironment.Docker.Test.Containers
 {
-    public class Container<TConfiguration>
-        where TConfiguration : ContainerConfiguration
+    public class Container
     {
         private readonly IDockerContainersService _dockerContainersService;
         private ContainerState _containerState;
         private Environments.DockerEnvironment _currentDockerEnvironment;
 
-        public Container(TConfiguration configuration)
+        public Container(ContainerConfiguration configuration)
         {
             Configuration = configuration;
             _dockerContainersService = new DockerContainersService(DockerClientStorage.DockerClient);
@@ -36,11 +35,11 @@ namespace TestEnvironment.Docker.Test.Containers
 
         public IDictionary<ushort, ushort> Ports => _containerState?.Ports;
 
-        protected TConfiguration Configuration { get; }
+        protected ContainerConfiguration Configuration { get; }
 
-        public static ContainerBuilder<Container<ContainerConfiguration>, ContainerConfiguration> Create()
+        public static ContainerBuilder Create()
         {
-            return new ContainerBuilder<Container<ContainerConfiguration>, ContainerConfiguration>();
+            return new ContainerBuilder();
         }
 
         public void AssignDockerEnvironment(Environments.DockerEnvironment dockerEnvironment)

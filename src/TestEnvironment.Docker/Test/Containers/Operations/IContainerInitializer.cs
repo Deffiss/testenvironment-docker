@@ -5,8 +5,7 @@ namespace TestEnvironment.Docker.Test.Containers.Operations
 {
     public interface IContainerInitializer
     {
-        Task<bool> Initialize<TContainer, TConfiguration>(TContainer container, CancellationToken cancellationToken)
-            where TContainer : Container<TConfiguration>
-            where TConfiguration : ContainerConfiguration;
+        Task<bool> Initialize<TContainer>(TContainer container, CancellationToken cancellationToken)
+            where TContainer : Container;
     }
 }

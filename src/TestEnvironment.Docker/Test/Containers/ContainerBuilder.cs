@@ -2,97 +2,95 @@
 
 namespace TestEnvironment.Docker.Test.Containers
 {
-    public class ContainerBuilder<TContainer, TConfiguration> : BaseContainerBuilder<Container<TConfiguration>, ContainerConfiguration>
-        where TContainer : Container<TConfiguration>
-        where TConfiguration : ContainerConfiguration, new()
+    public class ContainerBuilder
     {
         public ContainerBuilder()
         {
-            Configuration = new TConfiguration();
+            Configuration = new ContainerConfiguration();
         }
 
-        protected TConfiguration Configuration { get; }
+        protected ContainerConfiguration Configuration { get; }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetName(string name)
+        public ContainerBuilder SetName(string name)
         {
             Configuration.Name = name;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetImageName(string imageName)
+        public ContainerBuilder SetImageName(string imageName)
         {
             Configuration.ImageName = imageName;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetTag(string tag)
+        public ContainerBuilder SetTag(string tag)
         {
             Configuration.Tag = tag;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetReuseContainer(bool reuseContainer)
+        public ContainerBuilder SetReuseContainer(bool reuseContainer)
         {
             Configuration.ReuseContainer = reuseContainer;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetEntryPoint(IList<string> entryPoint)
+        public ContainerBuilder SetEntryPoint(IList<string> entryPoint)
         {
             Configuration.EntryPoint = entryPoint;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetExposedPorts(IList<string> exposedPorts)
+        public ContainerBuilder SetExposedPorts(IList<string> exposedPorts)
         {
             Configuration.ExposedPorts = exposedPorts;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetEnvironmentVariables(IDictionary<string, string> environmentVariables)
+        public ContainerBuilder SetEnvironmentVariables(IDictionary<string, string> environmentVariables)
         {
             Configuration.EnvironmentVariables = environmentVariables;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetPorts(IDictionary<ushort, ushort> ports)
+        public ContainerBuilder SetPorts(IDictionary<ushort, ushort> ports)
         {
             Configuration.Ports = ports;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetContainerWaiter(Operations.IContainerWaiter containerWaiter)
+        public ContainerBuilder SetContainerWaiter(Operations.IContainerWaiter containerWaiter)
         {
             Configuration.ContainerWaiter = containerWaiter;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetContainerCleaner(Operations.IContainerCleaner containerCleaner)
+        public ContainerBuilder SetContainerCleaner(Operations.IContainerCleaner containerCleaner)
         {
             Configuration.ContainerCleaner = containerCleaner;
 
             return this;
         }
 
-        public ContainerBuilder<TContainer, TConfiguration> SetContainerInitializer(Operations.IContainerInitializer containerInitializer)
+        public ContainerBuilder SetContainerInitializer(Operations.IContainerInitializer containerInitializer)
         {
             Configuration.ContainerInitializer = containerInitializer;
 
             return this;
         }
 
-        public override Container<TConfiguration> Build()
+        public Container Build()
         {
-            return new Container<TConfiguration>(Configuration);
+            return new Container(Configuration);
         }
     }
 }
