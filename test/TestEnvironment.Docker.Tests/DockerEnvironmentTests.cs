@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FirebirdSql.Data.FirebirdClient;
 using FluentFTP;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
@@ -13,12 +14,15 @@ using MongoDB.Driver;
 using MySql.Data.MySqlClient;
 using Nest;
 using Npgsql;
+using Oracle.ManagedDataAccess.Client;
 using TestEnvironment.Docker.Containers.Elasticsearch;
+using TestEnvironment.Docker.Containers.Firebird;
 using TestEnvironment.Docker.Containers.Ftp;
 using TestEnvironment.Docker.Containers.Mail;
 using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
+using TestEnvironment.Docker.Containers.Oracle;
 using TestEnvironment.Docker.Containers.Postgres;
 using Xunit;
 using Xunit.Abstractions;
@@ -80,6 +84,54 @@ namespace TestEnvironment.Docker.Tests
             // Assert
             var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
             await PrintMssqlVersion(mssql);
+
+            await DisposeEnvironment(environment);
+        }
+
+        [Fact]
+        public async Task AddOracleContainer_WhenContainerIsUp_ShouldPrintOracleVersion()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .UseDefaultNetwork()
+                .SetName("test-env")
+#if DEBUG
+                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+#else
+                .AddOracleContainer("my-oracle")
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var oracle = environment.GetContainer<OracleContainer>("my-oracle");
+            await PrintOracleVersion(oracle);
+
+            await DisposeEnvironment(environment);
+        }
+
+        [Fact]
+        public async Task AddFirebirdContainer_WhenContainerIsUp_ShouldPrintFirebirdVersion()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .UseDefaultNetwork()
+                .SetName("test-env")
+#if DEBUG
+                .AddFirebirdContainer("my-firebird", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [3050] = 3050 })
+#else
+                .AddFirebirdContainer("my-firebird")
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var firebird = environment.GetContainer<FirebirdContainer>("my-firebird");
+            await PrintFirebirdVersion(firebird);
 
             await DisposeEnvironment(environment);
         }
@@ -308,6 +360,34 @@ namespace TestEnvironment.Docker.Tests
                 await reader.ReadAsync();
 
                 _testOutput.WriteLine($"MSSQL Version: {reader.GetString(0)}");
+            }
+        }
+
+        private async Task PrintOracleVersion(OracleContainer oracle)
+        {
+            using (var connection = new OracleConnection(oracle.GetConnectionString()))
+            using (var command = new OracleCommand("SELECT * FROM V$VERSION", connection))
+            {
+                await connection.OpenAsync();
+
+                var reader = await command.ExecuteReaderAsync();
+                await reader.ReadAsync();
+
+                _testOutput.WriteLine($"Oracle Version: {reader.GetString(0)}");
+            }
+        }
+
+        private async Task PrintFirebirdVersion(FirebirdContainer firebird)
+        {
+            using (var connection = new FbConnection(firebird.GetConnectionString()))
+            using (var command = new FbCommand("SELECT rdb$get_context('SYSTEM', 'ENGINE_VERSION') from rdb$database;", connection))
+            {
+                await connection.OpenAsync();
+
+                var reader = await command.ExecuteReaderAsync();
+                await reader.ReadAsync();
+
+                _testOutput.WriteLine($"Firebird Version: {reader.GetString(0)}");
             }
         }
 

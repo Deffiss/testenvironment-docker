@@ -17,11 +17,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Elasticsearch\TestEnvironment.Docker.Containers.Elasticsearch.csproj" />
+    <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Firebird\TestEnvironment.Docker.Containers.Firebird.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Ftp\TestEnvironment.Docker.Containers.Ftp.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mail\TestEnvironment.Docker.Containers.Mail.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.MariaDB\TestEnvironment.Docker.Containers.MariaDB.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mongo\TestEnvironment.Docker.Containers.Mongo.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mssql\TestEnvironment.Docker.Containers.Mssql.csproj" />
+    <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Oracle\TestEnvironment.Docker.Containers.Oracle.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Postgres\TestEnvironment.Docker.Containers.Postgres.csproj" />
   </ItemGroup>

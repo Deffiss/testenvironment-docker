@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>TestEnvironment.Docker.Containers.Firebird</AssemblyName>
+    <RootNamespace>TestEnvironment.Docker.Containers.Firebird</RootNamespace>
+    <Version>1.0.7</Version>
+    <PackageId>TestEnvironment.Docker.Containers.Firebird</PackageId>
+    <Authors>Fabien Ménager</Authors>
+    <Description>Add Firebird container specific functionality.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>docker tests firebird container</PackageTags>
+    <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FirebirdSql.Data.FirebirdClient" Version="7.5.0" />
+  </ItemGroup>
+
+</Project>
