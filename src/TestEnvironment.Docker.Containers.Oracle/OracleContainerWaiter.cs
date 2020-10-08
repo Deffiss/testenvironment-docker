@@ -19,6 +19,11 @@ namespace TestEnvironment.Docker.Containers.Oracle
             using var command = new OracleCommand("SELECT * FROM V$VERSION", connection);
 
             await connection.OpenAsync(cancellationToken);
+
+            var info = connection.GetSessionInfo();
+            info.TimeZone = "UTC";
+            connection.SetSessionInfo(info);
+
             await command.ExecuteNonQueryAsync(cancellationToken);
 
             return true;

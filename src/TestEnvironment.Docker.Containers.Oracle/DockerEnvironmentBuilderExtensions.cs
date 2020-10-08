@@ -25,7 +25,6 @@ namespace TestEnvironment.Docker.Containers.Oracle
                     tag,
                     new Dictionary<string, string>
                     {
-                        ["TZ"] = "UTC",
                     }.MergeDictionaries(environmentVariables),
                     ports,
                     builder.IsDockerInDocker,

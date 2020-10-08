@@ -370,6 +370,10 @@ namespace TestEnvironment.Docker.Tests
             {
                 await connection.OpenAsync();
 
+                var info = connection.GetSessionInfo();
+                info.TimeZone = "UTC";
+                connection.SetSessionInfo(info);
+
                 var reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
 
