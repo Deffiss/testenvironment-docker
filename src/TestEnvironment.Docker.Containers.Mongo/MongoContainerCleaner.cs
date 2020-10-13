@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -33,7 +34,10 @@ namespace TestEnvironment.Docker.Containers.Mongo
             }
 
             var client = new MongoClient(container.GetConnectionString());
-            var databaseNames = (await client.ListDatabaseNamesAsync(cancellationToken)).ToList();
+            var databaseNames = (await client.ListDatabasesAsync(cancellationToken))
+                .ToList()
+                .Select(x => x["name"].AsString);
+
             try
             {
                 foreach (var databaseName in databaseNames)

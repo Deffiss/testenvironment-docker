@@ -83,7 +83,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                        configuration["config"]["members"].AsBsonArray[0]["host"] ==
                        mongoClient.Settings.Server.ToString();
             }
-            catch (MongoCommandException exception) when (exception.CodeName == "NotYetInitialized")
+            catch (MongoCommandException exception) when (exception.Code == 94 /*"NotYetInitialized"*/)
             {
                 return false;
             }
