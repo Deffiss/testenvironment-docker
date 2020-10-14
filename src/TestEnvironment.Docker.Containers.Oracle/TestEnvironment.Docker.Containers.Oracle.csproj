@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>TestEnvironment.Docker.Containers.Oracle</AssemblyName>
+    <RootNamespace>TestEnvironment.Docker.Containers.Oracle</RootNamespace>
+    <Version>1.0.7</Version>
+    <PackageId>TestEnvironment.Docker.Containers.Oracle</PackageId>
+    <Authors>Fabien Ménager</Authors>
+    <Description>Add Oracle container specific functionality.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>docker tests oracle container</PackageTags>
+    <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.90" />
+  </ItemGroup>
+
+</Project>
