@@ -1,14 +1,11 @@
 version: '1.0.0.{build}'
 image: Ubuntu
-init:
-  - timedatectl list-timezones
 services:
   - docker
 configuration: Release
 environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 build_script:
-  - timedatectl list-timezones
   - dotnet build TestEnvironment.sln -c Release
 test_script:
   - dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release

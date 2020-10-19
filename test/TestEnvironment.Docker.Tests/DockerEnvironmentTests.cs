@@ -98,7 +98,7 @@ namespace TestEnvironment.Docker.Tests
 #if DEBUG
                 .AddOracleContainer(
                     "my-oracle",
-                    environmentVariables: new Dictionary<string, string> { ["TZ"] = "UTC" },
+                    environmentVariables: new Dictionary<string, string> { ["TZ"] = "Etc/UTC" },
                     reuseContainer: true,
                     ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
 #else
