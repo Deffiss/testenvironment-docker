@@ -1,7 +1,7 @@
 version: '1.0.0.{build}'
 image: Ubuntu
 init:
-  - tzutil /s UTC
+  - %windir%\system32\tzutil /s UTC
 services:
   - docker
 configuration: Release
