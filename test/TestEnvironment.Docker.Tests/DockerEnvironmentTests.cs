@@ -370,10 +370,11 @@ namespace TestEnvironment.Docker.Tests
             {
                 await connection.OpenAsync();
 
-/*                var info = connection.GetSessionInfo();
-                var utc = TimeZoneInfo.GetSystemTimeZones().First(tz => tz.Id.Equals("utc", StringComparison.OrdinalIgnoreCase));
-                info.TimeZone = TimeZoneInfo.GetSystemTimeZones().First().Id;
-                connection.SetSessionInfo(info);*/
+                var info = connection.GetSessionInfo();
+
+                // var utc = TimeZoneInfo.GetSystemTimeZones().First(tz => tz.Id.Equals("utc", StringComparison.OrdinalIgnoreCase));
+                info.TimeZone = "CET";
+                connection.SetSessionInfo(info);
 
                 var reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
