@@ -377,7 +377,7 @@ namespace TestEnvironment.Docker.Tests
                 var info = connection.GetSessionInfo();
 
                 // var utc = TimeZoneInfo.GetSystemTimeZones().First(tz => tz.Id.Equals("utc", StringComparison.OrdinalIgnoreCase));
-                info.TimeZone = "UTC";
+                info.TimeZone = "Etc/UTC";
                 connection.SetSessionInfo(info);
 
                 var reader = await command.ExecuteReaderAsync();
