@@ -96,7 +96,11 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+                .AddOracleContainer(
+                    "my-oracle",
+                    environmentVariables: new Dictionary<string, string> { ["TZ"] = "UTC" },
+                    reuseContainer: true,
+                    ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
 #else
                 .AddOracleContainer("my-oracle")
 #endif
@@ -373,7 +377,7 @@ namespace TestEnvironment.Docker.Tests
                 var info = connection.GetSessionInfo();
 
                 // var utc = TimeZoneInfo.GetSystemTimeZones().First(tz => tz.Id.Equals("utc", StringComparison.OrdinalIgnoreCase));
-                info.TimeZone = "CET";
+                info.TimeZone = "UTC";
                 connection.SetSessionInfo(info);
 
                 var reader = await command.ExecuteReaderAsync();
