@@ -1,14 +1,14 @@
 version: '1.0.0.{build}'
 image: Ubuntu
 init:
-  - %windir%\system32\tzutil /s UTC
+  - timedatectl set-timezone UTC
 services:
   - docker
 configuration: Release
 environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 build_script:
-  - date +'%:z %Z'
+  - timedatectl list-timezones
   - dotnet build TestEnvironment.sln -c Release
 test_script:
   - dotnet test ./test/TestEnvironment.Docker.Tests/TestEnvironment.Docker.Tests.csproj -c Release
