@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Confluent.Kafka;
 using FluentFTP;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ using Nest;
 using Npgsql;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
+using TestEnvironment.Docker.Containers.Kafka;
 using TestEnvironment.Docker.Containers.Mail;
 using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
@@ -34,6 +36,29 @@ namespace TestEnvironment.Docker.Tests
         {
             _testOutput = testOutput;
             _logger = new XUnitLogger(testOutput);
+        }
+
+        [Fact]
+        public async Task AddKafkaContainer_WhenContainerIsUp_ShouldPrintKafkaVersion()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .SetName("test-env")
+#if DEBUG
+                .AddKafkaContainer("my-kafka", reuseContainer: true)
+#else
+                .AddKafkaContainer("my-kafka")
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var kafka = environment.GetContainer<KafkaContainer>("my-kafka");
+            PrintKafkaVersion(kafka);
+
+            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -309,6 +334,19 @@ namespace TestEnvironment.Docker.Tests
 
                 _testOutput.WriteLine($"MSSQL Version: {reader.GetString(0)}");
             }
+        }
+
+        private void PrintKafkaVersion(KafkaContainer kafka)
+        {
+            using var adminClient = new AdminClientBuilder(new AdminClientConfig
+                {
+                    BootstrapServers = kafka.GetUrl(),
+                    ApiVersionRequestTimeoutMs = 50000
+                })
+                .Build();
+
+            var metaData = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
+            _testOutput.WriteLine($"Kafka version: {metaData.Brokers.FirstOrDefault().ToString()}");
         }
 
         private async Task PrintElasticsearchVersion(ElasticsearchContainer elastic)

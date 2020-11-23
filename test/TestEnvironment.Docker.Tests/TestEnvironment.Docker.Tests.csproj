@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="1.5.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\TestEnvironmenbt.Docker.Containers.Kafka\TestEnvironmenbt.Docker.Containers.Kafka.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Elasticsearch\TestEnvironment.Docker.Containers.Elasticsearch.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Ftp\TestEnvironment.Docker.Containers.Ftp.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mail\TestEnvironment.Docker.Containers.Mail.csproj" />
