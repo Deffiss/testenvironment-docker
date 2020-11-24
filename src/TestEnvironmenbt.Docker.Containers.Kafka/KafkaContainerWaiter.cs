@@ -26,67 +26,32 @@ namespace TestEnvironment.Docker.Containers.Kafka
                 })
                 .Build();
             var topicName = $"{container.Name}_topic_health";
-            try
+            var topics = adminClient.GetMetadata(topicName, TimeSpan.FromSeconds(10)).Topics.Select(t => t.Topic).ToArray();
+            if (!topics.Contains(topicName))
             {
-                while (true)
+                await adminClient.CreateTopicsAsync(new[]
                 {
-                    var metadata = adminClient.GetMetadata(topicName, TimeSpan.FromSeconds(10));
-                    if (metadata.Topics.Any(x => x.Topic == topicName) && await ProduceAMessage(topicName, container, cancellationToken))
+                    new TopicSpecification()
                     {
-                        return true;
-                    }
+                        NumPartitions = 1,
+                        Name = topicName,
+                        ReplicationFactor = 1
+                    },
+                });
+            }
 
-                    var createPartitionTask = adminClient.CreateTopicsAsync(new[]
-                    {
-                        new TopicSpecification()
-                        {
-                            NumPartitions = 1,
-                            Name = topicName,
-                            ReplicationFactor = 1
-                        },
-                    });
-                    await TimeoutAfter(createPartitionTask, TimeSpan.FromSeconds(5));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, $"Kafka initialization issue, retry after {RetryDelay.TotalSeconds} seconds");
-                await Task.Delay(RetryDelay, cancellationToken);
-                return false;
-            }
+            await ProduceMessage(topicName, container, cancellationToken);
+            return true;
         }
 
-        private static async Task TimeoutAfter(Task task, TimeSpan timeout)
-        {
-            using var cts = new CancellationTokenSource();
-            if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)).ConfigureAwait(false))
-            {
-                cts.Cancel();
-                await task.ConfigureAwait(false);
-            }
-            else
-            {
-                throw new OperationCanceledException($"Task timed out after {timeout.ToString()}");
-            }
-        }
-
-        private async Task<bool> ProduceAMessage(string topicName, KafkaContainer container, CancellationToken cancellationToken)
+        private async Task ProduceMessage(string topicName, KafkaContainer container, CancellationToken cancellationToken)
         {
             var producerConfig = new ProducerConfig
             {
                 BootstrapServers = container.GetUrl()
             };
             using var p = new ProducerBuilder<string, string>(producerConfig).Build();
-            try
-            {
-                await p.ProduceAsync(topicName, new Message<string, string> { Value = "test-message", Key = null }, cancellationToken);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Kafka produce issue");
-                return false;
-            }
+            await p.ProduceAsync(topicName, new Message<string, string> { Value = "test-message", Key = null }, cancellationToken);
         }
     }
 }
