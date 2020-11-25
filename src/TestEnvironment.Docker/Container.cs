@@ -139,7 +139,7 @@ namespace TestEnvironment.Docker
                 {
                     await DockerClient.Containers.RemoveContainerAsync(
                         Id,
-                        new ContainerRemoveParameters { Force = true });
+                        new ContainerRemoveParameters { Force = true, RemoveVolumes = true });
                 }
             }
         }
@@ -153,7 +153,6 @@ namespace TestEnvironment.Docker
                 AttachStdout = true,
                 Env = environmentVariables,
                 Hostname = Name,
-                Domainname = Name,
                 HostConfig = new HostConfig
                 {
                     PublishAllPorts = Ports == null
