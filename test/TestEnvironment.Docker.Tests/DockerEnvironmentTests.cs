@@ -124,7 +124,7 @@ namespace TestEnvironment.Docker.Tests
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
-                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 }, environmentVariables: new Dictionary<string, string> { { "TZ", "UTC" } })
+                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 }, environmentVariables: new Dictionary<string, string> { { "JAVA_OPTS", "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=UTC" } })
 
                 // #if DEBUG
                 //                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 },)
