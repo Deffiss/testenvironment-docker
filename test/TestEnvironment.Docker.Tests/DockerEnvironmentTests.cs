@@ -124,11 +124,13 @@ namespace TestEnvironment.Docker.Tests
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
-#if DEBUG
-                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
-#else
-                .AddOracleContainer("my-oracle", ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
-#endif
+                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 }, environmentVariables: new Dictionary<string, string> { { "TZ", "UTC" } })
+
+                // #if DEBUG
+                //                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 },)
+                // #else
+                //                .AddOracleContainer("my-oracle", ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+                // #endif
                 .Build();
 
             // Act

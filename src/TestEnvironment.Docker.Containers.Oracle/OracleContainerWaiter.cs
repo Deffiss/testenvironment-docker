@@ -20,6 +20,10 @@ namespace TestEnvironment.Docker.Containers.Oracle
 
             await connection.OpenAsync(cancellationToken);
 
+            OracleGlobalization info = connection.GetSessionInfo();
+            info.TimeZone = "UTC";
+            connection.SetSessionInfo(info);
+
             await command.ExecuteNonQueryAsync(cancellationToken);
 
             return true;
