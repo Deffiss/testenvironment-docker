@@ -10,7 +10,7 @@ namespace TestEnvironment.Docker.Containers.Oracle
             string userName = "system",
             string password = "oracle",
             string imageName = "davidgarciavivesdn/oracle-test",
-            string tag = "",
+            string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
             IDictionary<ushort, ushort> ports = null,
             bool reuseContainer = false,
