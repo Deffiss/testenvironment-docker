@@ -34,8 +34,7 @@ namespace TestEnvironment.Docker.Containers.Oracle
                   reuseContainer,
                   new OracleContainerWaiter(logger),
                   new OracleContainerCleaner(logger, userName),
-                  logger,
-                  entrypoint: entrypoint)
+                  logger)
         {
             _userName = userName;
             _password = password;

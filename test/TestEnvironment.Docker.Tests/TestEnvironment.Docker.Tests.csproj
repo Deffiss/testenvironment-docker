@@ -3,13 +3,11 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <Version>1.0.0-pre</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="1.5.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.12.0-beta3" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
@@ -30,6 +28,12 @@
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Oracle\TestEnvironment.Docker.Containers.Oracle.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Postgres\TestEnvironment.Docker.Containers.Postgres.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\..\src\TestEnvironment.Docker.Containers.Oracle\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

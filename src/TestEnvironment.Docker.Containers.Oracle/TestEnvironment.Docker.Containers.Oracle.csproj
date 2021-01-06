@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Oracle</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Oracle</RootNamespace>
-    <Version>1.0.7-pre</Version>
+    <Version>1.0.7</Version>
     <PackageId>TestEnvironment.Docker.Containers.Oracle</PackageId>
     <Authors>Fabien Ménager</Authors>
     <Description>Add Oracle container specific functionality.</Description>
@@ -14,11 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.12.0-beta3" />
+    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

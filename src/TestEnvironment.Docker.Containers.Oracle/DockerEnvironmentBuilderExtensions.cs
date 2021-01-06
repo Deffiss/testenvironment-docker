@@ -9,12 +9,11 @@ namespace TestEnvironment.Docker.Containers.Oracle
             string name,
             string userName = "system",
             string password = "oracle",
-            string imageName = "davidgarciavivesdn/oracle-test",
+            string imageName = "wnameless/oracle-xe-11g-r2",
             string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
             IDictionary<ushort, ushort> ports = null,
-            bool reuseContainer = false,
-            IList<string> entrypoint = null)
+            bool reuseContainer = false)
         {
             return builder.AddDependency(
                 new OracleContainer(
@@ -28,8 +27,7 @@ namespace TestEnvironment.Docker.Containers.Oracle
                     ports,
                     builder.IsDockerInDocker,
                     reuseContainer,
-                    builder.Logger,
-                    entrypoint));
+                    builder.Logger));
         }
     }
 }

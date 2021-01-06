@@ -117,25 +117,18 @@ namespace TestEnvironment.Docker.Tests
         }
         */
 
-        // Uploaded new oracle-test image 03
         [Fact]
         public async Task AddOracleContainer_WhenContainerIsUp_ShouldPrintOracleVersion()
         {
-            Environment.SetEnvironmentVariable("TZ", "UTC");
-
             // Arrange
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
-                .AddOracleContainer("my-oracle", userName: "system", password: "oracle", imageName: "oracleinanutshell/oracle-xe-11g", tag: "latest", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521, [8080] = 8080 }, environmentVariables: new Dictionary<string, string> { { "TZ", "UTC" } })
-
-                // .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 }, environmentVariables: new Dictionary<string, string> { { "JAVA_OPTS", "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=UTC" } })
-
-                // #if DEBUG
-                //                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 },)
-                // #else
-                //                .AddOracleContainer("my-oracle", ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
-                // #endif
+#if DEBUG
+                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+#else
+                .AddOracleContainer("my-oracle", ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+#endif
                 .Build();
 
             // Act
@@ -529,11 +522,15 @@ namespace TestEnvironment.Docker.Tests
             }
         }
 
-        private async Task DisposeEnvironment(DockerEnvironment environment)
-        {
-            await environment.Down();
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
+        private async Task DisposeEnvironment(DockerEnvironment environment)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+#if !DEBUG
+            await environment.Down();
             await environment.DisposeAsync();
+#endif
         }
     }
 }

@@ -31,11 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker.Cont
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironmenbt.Docker.Containers.Kafka", "src\TestEnvironmenbt.Docker.Containers.Kafka\TestEnvironmenbt.Docker.Containers.Kafka.csproj", "{273B2E1E-C2A1-4A74-9BA3-0042314B133D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6DD361F2-81A6-453D-94B6-A173F8A4E198}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

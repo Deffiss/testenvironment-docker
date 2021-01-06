@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	  <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Firebird</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Firebird</RootNamespace>
-    <Version>1.0.7-pre</Version>
+    <Version>1.0.7</Version>
     <PackageId>TestEnvironment.Docker.Containers.Firebird</PackageId>
     <Authors>Fabien Ménager</Authors>
     <Description>Add Firebird container specific functionality.</Description>
