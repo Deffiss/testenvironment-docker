@@ -21,9 +21,8 @@ namespace TestEnvironment.Docker.Containers.Oracle
             IDictionary<ushort, ushort> ports = null,
             bool isDockerInDocker = false,
             bool reuseContainer = false,
-            IContainerWaiter containerWaiter = null,
-            IContainerCleaner containerCleaner = null,
-            ILogger logger = null)
+            ILogger logger = null,
+            IList<string> entrypoint = null)
             : base(
                   dockerClient,
                   name,
@@ -33,9 +32,10 @@ namespace TestEnvironment.Docker.Containers.Oracle
                   ports,
                   isDockerInDocker,
                   reuseContainer,
-                  containerWaiter,
-                  containerCleaner,
-                  logger)
+                  new OracleContainerWaiter(logger),
+                  new OracleContainerCleaner(logger, userName),
+                  logger,
+                  entrypoint: entrypoint)
         {
             _userName = userName;
             _password = password;

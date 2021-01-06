@@ -13,7 +13,8 @@ namespace TestEnvironment.Docker.Containers.Oracle
             string tag = "latest",
             IDictionary<string, string> environmentVariables = null,
             IDictionary<ushort, ushort> ports = null,
-            bool reuseContainer = false)
+            bool reuseContainer = false,
+            IList<string> entrypoint = null)
         {
             return builder.AddDependency(
                 new OracleContainer(
@@ -23,15 +24,12 @@ namespace TestEnvironment.Docker.Containers.Oracle
                     password,
                     imageName,
                     tag,
-                    new Dictionary<string, string>
-                    {
-                    }.MergeDictionaries(environmentVariables),
+                    environmentVariables,
                     ports,
                     builder.IsDockerInDocker,
                     reuseContainer,
-                    new OracleContainerWaiter(builder.Logger),
-                    new OracleContainerCleaner(builder.Logger, userName),
-                    builder.Logger));
+                    builder.Logger,
+                    entrypoint));
         }
     }
 }

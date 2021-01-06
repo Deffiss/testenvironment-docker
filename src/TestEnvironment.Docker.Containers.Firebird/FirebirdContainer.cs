@@ -45,7 +45,7 @@ namespace TestEnvironment.Docker.Containers.Firebird
         {
             var host = IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
             var port = IsDockerInDocker ? 3050 : Ports[3050];
-            return $"DataSource={host};Port={port};User={_userName};Password={_password};Pooling=false;Database=SampleDatabase";
+            return $"DataSource={host};Port={port};User={_userName};Password={_password};Pooling=false";
         }
     }
 }

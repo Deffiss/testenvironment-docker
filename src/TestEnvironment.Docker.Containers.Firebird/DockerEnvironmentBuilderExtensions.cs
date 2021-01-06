@@ -27,9 +27,11 @@ namespace TestEnvironment.Docker.Containers.Firebird
                     {
                         ["FIREBIRD_USER"] = userName,
                         ["FIREBIRD_PASSWORD"] = password,
-                        ["FIREBIRD_DATABASE"] = "SampleDatabase",
-                        ["EnableWireCrypt"] = "true",
-                        ["ISC_PASSWORD"] = password,
+                        ["FIREBIRD_DATABASE"] = "SampleDatabase"
+
+                        // ,
+                        // ["EnableWireCrypt"] = "true",
+                        // ["ISC_PASSWORD"] = password,
                     }.MergeDictionaries(environmentVariables),
                     ports,
                     builder.IsDockerInDocker,

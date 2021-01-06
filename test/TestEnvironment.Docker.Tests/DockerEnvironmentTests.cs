@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Confluent.Kafka;
 using FirebirdSql.Data.FirebirdClient;
 using FluentFTP;
 using MailKit.Net.Smtp;
@@ -18,6 +19,7 @@ using Oracle.ManagedDataAccess.Client;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Firebird;
 using TestEnvironment.Docker.Containers.Ftp;
+using TestEnvironment.Docker.Containers.Kafka;
 using TestEnvironment.Docker.Containers.Mail;
 using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
@@ -38,6 +40,29 @@ namespace TestEnvironment.Docker.Tests
         {
             _testOutput = testOutput;
             _logger = new XUnitLogger(testOutput);
+        }
+
+        [Fact]
+        public async Task AddKafkaContainer_WhenContainerIsUp_ShouldPrintKafkaVersion()
+        {
+            // Arrange
+            var environment = new DockerEnvironmentBuilder()
+                .SetName("test-env")
+#if DEBUG
+                .AddKafkaContainer("my-kafka", reuseContainer: true)
+#else
+                .AddKafkaContainer("my-kafka")
+#endif
+                .Build();
+
+            // Act
+            await environment.Up();
+
+            // Assert
+            var kafka = environment.GetContainer<KafkaContainer>("my-kafka");
+            PrintKafkaVersion(kafka);
+
+            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -96,9 +121,9 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 }, entrypoint: new List<string> { "export TZ=UTC; /usr/sbin/startup.sh && tail -f /dev/null" })
 #else
-                .AddOracleContainer("my-oracle")
+                .AddOracleContainer("my-oracle", entrypoint: new List<string> { "export TZ=UTC; /usr/sbin/startup.sh && tail -f /dev/null" })
 #endif
                 .Build();
 
@@ -363,6 +388,19 @@ namespace TestEnvironment.Docker.Tests
             }
         }
 
+        private void PrintKafkaVersion(KafkaContainer kafka)
+        {
+            using var adminClient = new AdminClientBuilder(new AdminClientConfig
+            {
+                BootstrapServers = kafka.GetUrl(),
+                ApiVersionRequestTimeoutMs = 50000
+            })
+                .Build();
+
+            var metaData = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
+            _testOutput.WriteLine($"Kafka version: {metaData.Brokers.FirstOrDefault().ToString()}");
+        }
+
         private async Task PrintOracleVersion(OracleContainer oracle)
         {
             using (var connection = new OracleConnection(oracle.GetConnectionString()))
@@ -485,6 +523,7 @@ namespace TestEnvironment.Docker.Tests
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+
         private async Task DisposeEnvironment(DockerEnvironment environment)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {

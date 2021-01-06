@@ -209,36 +209,39 @@ namespace TestEnvironment.Docker
 
         private async Task PullRequiredImages(CancellationToken token)
         {
-            foreach (var contianer in Dependencies.OfType<Container>())
+            foreach (var container in Dependencies.OfType<Container>())
             {
                 var images = await _dockerClient.Images.ListImagesAsync(
                     new ImagesListParameters
                     {
                         All = true,
-                        MatchName = $"{contianer.ImageName}:{contianer.Tag}"
+                        Filters = new Dictionary<string, IDictionary<string, bool>>
+                        { ["reference"] = new Dictionary<string, bool> { [$"{container.ImageName}:{container.Tag}"] = true } }
                     },
                     token);
 
                 if (!images.Any())
                 {
-                    _logger.LogInformation($"Pulling the image {contianer.ImageName}:{contianer.Tag}");
+                    _logger.LogInformation($"Pulling the image {container.ImageName}:{container.Tag}");
 
                     // Pull the image.
                     try
                     {
+                        var progress = new Progress<JSONMessage>((m) => Console.WriteLine($"{m.Progress}-{m.ProgressMessage}-{m.Status}"));
+
                         await _dockerClient.Images.CreateImageAsync(
                             new ImagesCreateParameters
                             {
-                                FromImage = contianer.ImageName,
-                                Tag = contianer.Tag
+                                FromImage = container.ImageName,
+                                Tag = container.Tag
                             },
                             null,
-                            new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {contianer.ImageName}:{contianer.Tag}:\n{m.ProgressMessage}")),
+                            new Progress<JSONMessage>(m => _logger.LogInformation($"Pulling image {container.ImageName}:{container.Tag}:\n{m.ProgressMessage}")),
                             token);
                     }
                     catch (Exception exc)
                     {
-                        _logger?.LogError(exc, $"Unable to pull the image {contianer.ImageName}:{contianer.Tag}");
+                        _logger?.LogError(exc, $"Unable to pull the image {container.ImageName}:{container.Tag}");
                         throw;
                     }
                 }
