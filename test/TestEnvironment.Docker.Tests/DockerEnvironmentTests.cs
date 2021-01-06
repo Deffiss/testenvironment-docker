@@ -400,7 +400,6 @@ namespace TestEnvironment.Docker.Tests
             var metaData = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
             _testOutput.WriteLine($"Kafka version: {metaData.Brokers.FirstOrDefault().ToString()}");
         }
-
         private async Task PrintOracleVersion(OracleContainer oracle)
         {
             using (var connection = new OracleConnection(oracle.GetConnectionString()))
@@ -432,7 +431,6 @@ namespace TestEnvironment.Docker.Tests
                 _testOutput.WriteLine($"Firebird Version: {reader.GetString(0)}");
             }
         }
-
         private async Task PrintElasticsearchVersion(ElasticsearchContainer elastic)
         {
             var elasticClient = new ElasticClient(new Uri(elastic.GetUrl()));
