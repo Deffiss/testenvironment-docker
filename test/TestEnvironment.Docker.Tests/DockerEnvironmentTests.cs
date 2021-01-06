@@ -42,6 +42,8 @@ namespace TestEnvironment.Docker.Tests
             _logger = new XUnitLogger(testOutput);
         }
 
+        /*
+
         [Fact]
         public async Task AddKafkaContainer_WhenContainerIsUp_ShouldPrintKafkaVersion()
         {
@@ -112,6 +114,7 @@ namespace TestEnvironment.Docker.Tests
 
             await DisposeEnvironment(environment);
         }
+        */
 
         [Fact]
         public async Task AddOracleContainer_WhenContainerIsUp_ShouldPrintOracleVersion()
@@ -137,6 +140,7 @@ namespace TestEnvironment.Docker.Tests
             await DisposeEnvironment(environment);
         }
 
+        /*
         [Fact]
         public async Task AddFirebirdContainer_WhenContainerIsUp_ShouldPrintFirebirdVersion()
         {
@@ -373,6 +377,7 @@ namespace TestEnvironment.Docker.Tests
 
             await DisposeEnvironment(environment);
         }
+        */
 
         private async Task PrintMssqlVersion(MssqlContainer mssql)
         {
