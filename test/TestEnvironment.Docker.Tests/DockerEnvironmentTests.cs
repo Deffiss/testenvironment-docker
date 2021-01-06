@@ -120,16 +120,14 @@ namespace TestEnvironment.Docker.Tests
         [Fact]
         public async Task AddOracleContainer_WhenContainerIsUp_ShouldPrintOracleVersion()
         {
-            Environment.SetEnvironmentVariable("TZ", "UTC");
-
             // Arrange
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
+                .AddOracleContainer("my-oracle", reuseContainer: false, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
 #else
-                .AddOracleContainer("my-oracle")
+                .AddOracleContainer("my-oracle", ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
 #endif
                 .Build();
 
