@@ -116,6 +116,7 @@ namespace TestEnvironment.Docker.Tests
         }
         */
 
+        // Uploaded new oracle-test image
         [Fact]
         public async Task AddOracleContainer_WhenContainerIsUp_ShouldPrintOracleVersion()
         {
