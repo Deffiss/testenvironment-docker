@@ -120,6 +120,8 @@ namespace TestEnvironment.Docker.Tests
         [Fact]
         public async Task AddOracleContainer_WhenContainerIsUp_ShouldPrintOracleVersion()
         {
+            Environment.SetEnvironmentVariable("TZ", "UTC");
+
             // Arrange
             var environment = new DockerEnvironmentBuilder()
                 .UseDefaultNetwork()

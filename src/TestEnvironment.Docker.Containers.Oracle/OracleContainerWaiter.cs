@@ -16,9 +16,10 @@ namespace TestEnvironment.Docker.Containers.Oracle
         protected override async Task<bool> PerformCheck(OracleContainer container, CancellationToken cancellationToken)
         {
             using var connection = new OracleConnection(container.GetConnectionString());
-            using var command = new OracleCommand("alter session set time_zone = '+2:00'; SELECT * FROM V$VERSION", connection);
+            using var command = new OracleCommand("SELECT * FROM V$VERSION", connection);
 
             await connection.OpenAsync(cancellationToken);
+            await new OracleCommand("alter session set time_zone = '+2:00'", connection).ExecuteNonQueryAsync();
 
             OracleGlobalization info = connection.GetSessionInfo();
             info.TimeZone = "UTC";
