@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0359202F-09AB-459C-BF5E-87FE733CDC6A}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker", "src\TestEnvironment.Docker\TestEnvironment.Docker.csproj", "{F13EE11D-54D2-41E0-B112-3268F2D266AC}"
 EndProject

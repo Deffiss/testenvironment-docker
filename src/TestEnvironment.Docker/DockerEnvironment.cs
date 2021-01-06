@@ -236,7 +236,6 @@ namespace TestEnvironment.Docker
                                 Tag = container.Tag
                             },
                             null,
-
                             new Progress<JSONMessage>(m => _logger.LogInformation($"Pulling image {container.ImageName}:{container.Tag}:\n{m.ProgressMessage}")),
                             token);
                     }
