@@ -127,7 +127,7 @@ namespace TestEnvironment.Docker.Tests
 #if DEBUG
                 .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
 #else
-                .AddOracleContainer("my-oracle", entrypoint: new List<string> { "/bin/bash -c 'export TZ=UTC; /usr/sbin/startup.sh && tail -f /dev/null'" })
+                .AddOracleContainer("my-oracle")
 #endif
                 .Build();
 
