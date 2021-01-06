@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.OracleClient;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,7 +17,6 @@ using MongoDB.Driver;
 using MySql.Data.MySqlClient;
 using Nest;
 using Npgsql;
-using Oracle.ManagedDataAccess.Client;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Firebird;
 using TestEnvironment.Docker.Containers.Ftp;
@@ -415,20 +416,14 @@ namespace TestEnvironment.Docker.Tests
 
         private async Task PrintOracleVersion(OracleContainer oracle)
         {
-            using (var connection = new OracleConnection(oracle.GetConnectionString()))
-            using (var command = new OracleCommand("SELECT * FROM V$VERSION", connection))
-            {
-                await connection.OpenAsync();
+            using var connection = new OracleConnection(oracle.GetConnectionString());
+            using var command = new OracleCommand("SELECT * FROM V$VERSION", connection);
+            await connection.OpenAsync();
 
-                var info = connection.GetSessionInfo();
-                info.TimeZone = "UTC";
-                connection.SetSessionInfo(info);
+            var reader = await command.ExecuteReaderAsync();
+            await reader.ReadAsync();
 
-                var reader = await command.ExecuteReaderAsync();
-                await reader.ReadAsync();
-
-                _testOutput.WriteLine($"Oracle Version: {reader.GetString(0)}");
-            }
+            _testOutput.WriteLine($"Oracle Version: {reader.GetString(0)}");
         }
 
         private async Task PrintFirebirdVersion(FirebirdContainer firebird)
@@ -534,15 +529,11 @@ namespace TestEnvironment.Docker.Tests
             }
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-
         private async Task DisposeEnvironment(DockerEnvironment environment)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-#if !DEBUG
             await environment.Down();
+
             await environment.DisposeAsync();
-#endif
         }
     }
 }

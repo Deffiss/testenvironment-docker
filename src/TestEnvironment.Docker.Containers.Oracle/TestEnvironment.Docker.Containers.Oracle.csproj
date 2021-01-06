@@ -14,11 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.31" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.90" />
+    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
   </ItemGroup>
 
 </Project>

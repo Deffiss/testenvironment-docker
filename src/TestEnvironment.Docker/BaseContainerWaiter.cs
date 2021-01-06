@@ -42,7 +42,7 @@ namespace TestEnvironment.Docker
                 }
                 catch (Exception exception) when (IsRetryable(exception))
                 {
-                    Logger?.LogError(exception, $"{container.Name} check failed with exception {exception.Message}");
+                    Logger?.LogInformation(exception, $"{container.Name} check failed with exception {exception.Message}");
                 }
 
                 attempts--;
