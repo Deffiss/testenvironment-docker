@@ -125,7 +125,7 @@ namespace TestEnvironment.Docker.Tests
                 .UseDefaultNetwork()
                 .SetName("test-env")
 #if DEBUG
-                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 }, entrypoint: new List<string> { "/bin/bash -c 'export TZ=UTC; /usr/sbin/startup.sh && tail -f /dev/null'" })
+                .AddOracleContainer("my-oracle", reuseContainer: true, ports: new Dictionary<ushort, ushort> { [1521] = 1521 })
 #else
                 .AddOracleContainer("my-oracle", entrypoint: new List<string> { "/bin/bash -c 'export TZ=UTC; /usr/sbin/startup.sh && tail -f /dev/null'" })
 #endif
