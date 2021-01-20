@@ -4,13 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Mssql</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mssql</RootNamespace>
-    <Version>1.0.10</Version>
+    <Version>1.1.0</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mssql</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add MSSQL container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>docker tests mssql container</PackageTags>
-    <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to new Microsoft docker images.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
