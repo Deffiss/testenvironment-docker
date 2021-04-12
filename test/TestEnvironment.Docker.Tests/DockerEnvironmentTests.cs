@@ -11,7 +11,7 @@ using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using Nest;
 using Npgsql;
 using TestEnvironment.Docker.Containers.Elasticsearch;
