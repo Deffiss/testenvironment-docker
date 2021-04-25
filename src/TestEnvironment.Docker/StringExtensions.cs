@@ -1,4 +1,4 @@
-﻿namespace TestEnvironment.Docker
+﻿namespace TestEnvironment.Docker123
 {
     public static class StringExtensions
     {

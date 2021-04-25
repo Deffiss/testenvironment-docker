@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker123
 {
     public static class DictionaryExtensions
     {

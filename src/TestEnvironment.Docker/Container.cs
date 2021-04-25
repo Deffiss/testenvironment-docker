@@ -7,7 +7,7 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker123
 {
     public class Container : IDependency
     {

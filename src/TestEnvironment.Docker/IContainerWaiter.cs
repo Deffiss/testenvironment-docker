@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker123
 {
     public interface IContainerWaiter
     {

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using SharpCompress.Common;
 using SharpCompress.Writers;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker123
 {
     public class DockerEnvironment : ITestEnvironment
     {

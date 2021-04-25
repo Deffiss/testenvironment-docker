@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker123
 {
     /// <summary>
     /// Represents test environment dependency.

@@ -2,7 +2,7 @@
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 
-namespace TestEnvironment.Docker
+namespace TestEnvironment.Docker123
 {
     public class ContainerFromDockerfile : Container
     {

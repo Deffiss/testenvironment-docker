@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using TestEnvironment.Docker.Vnext.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Vnext
 {
@@ -25,5 +22,8 @@ namespace TestEnvironment.Docker.Vnext
         public IContainerCleaner? ContainerCleaner { get; init; }
 
         public IList<string>? Entrypoint { get; init; }
+
+        public void Deconstruct(out IContainerInitializer? containerInitializer, out IContainerWaiter? containerWaiter, out IContainerCleaner? containerCleaner) =>
+            (containerInitializer, containerWaiter, containerCleaner) = (ContainerInitializer, ContainerWaiter, ContainerCleaner);
     }
 }
