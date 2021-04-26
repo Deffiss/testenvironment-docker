@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,11 +11,16 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
 {
     public class ContainerApi : IContainerApi
     {
-        private readonly DockerClient _dockerClient;
+        private readonly IDockerClient _dockerClient;
         private readonly ILogger? _logger;
 
         public ContainerApi()
             : this(CreateDefaultDockerClient(), null)
+        {
+        }
+
+        public ContainerApi(IDockerClient dockerClient)
+            : this(dockerClient, null)
         {
         }
 
@@ -25,73 +29,39 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
         {
         }
 
-        public ContainerApi(DockerClient dockerClient, ILogger? logger)
+        public ContainerApi(IDockerClient dockerClient, ILogger? logger)
         {
             _dockerClient = dockerClient;
             _logger = logger;
         }
 
-        public async Task RunContainerAsync(Container container, CancellationToken cancellationToken = default)
+        public async Task<ContainerRuntimeInfo> RunContainerAsync(ContainerParameters containerParameters, CancellationToken cancellationToken = default)
         {
-            var parameters = container.Parameters;
-
-            await RunContainerSafely(container, cancellationToken);
-
-            var (initializer, waiter, cleaner) = parameters;
-
-            if (waiter is not null)
-            {
-                var isStarted = await waiter.WaitAsync(container, cancellationToken);
-                if (!isStarted)
-                {
-                    _logger.LogError($"Container {parameters.Name} didn't start.");
-                    throw new TimeoutException($"Container {parameters.Name} didn't start.");
-                }
-            }
-
-            if (initializer is not null)
-            {
-                await initializer.InitializeAsync(container, cancellationToken);
-            }
-
-            if (parameters.Reusable && cleaner is not null)
-            {
-                await cleaner.CleanupAsync(container, cancellationToken);
-            }
-        }
-
-        public Task StopContainerAsync(string id, CancellationToken token = default)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private async Task RunContainerSafely(Container container, CancellationToken cancellationToken)
-        {
-            var parameters = container.Parameters;
+            var (name, reusable) = (containerParameters.Name, containerParameters.Reusable);
 
             // Try to find container in docker session
-            var startedContainer = await GetContainerAsync(parameters.Name, cancellationToken);
+            var startedContainer = await GetContainerAsync(name, cancellationToken);
 
             // If container already exist - remove that
             if (startedContainer != null)
             {
                 // TODO: check status and network
-                if (!parameters.Reusable)
+                if (!reusable)
                 {
                     await _dockerClient.Containers.RemoveContainerAsync(
                         startedContainer.ID,
                         new ContainerRemoveParameters { Force = true },
                         cancellationToken);
 
-                    startedContainer = await CreateContainer(stringifiedVariables, cancellationToken);
+                    startedContainer = await CreateContainer(containerParameters, cancellationToken);
                 }
             }
             else
             {
-                startedContainer = await CreateContainer(stringifiedVariables, cancellationToken);
+                startedContainer = await CreateContainer(containerParameters, cancellationToken);
             }
 
-            _logger?.LogInformation($"Container '{parameters.Name}' has been run.");
+            _logger?.LogInformation($"Container '{name}' has been run.");
             _logger?.LogDebug($"Container state: {startedContainer.State}");
             _logger?.LogDebug($"Container status: {startedContainer.Status}");
             _logger?.LogDebug(
@@ -99,13 +69,17 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
 
             var ipAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
             var ports = startedContainer.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
-            container.SetRuntimeInfo(startedContainer.ID, ipAddress, ports);
+
+            return new (startedContainer.ID, ipAddress, ports);
         }
 
-        private async Task<ContainerListResponse> CreateContainer(Container container, CancellationToken cancellationToken)
+        public Task StopContainerAsync(string id, CancellationToken token = default) =>
+            _dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters { }, token);
+
+        private async Task<ContainerListResponse> CreateContainer(ContainerParameters containerParameters, CancellationToken cancellationToken)
         {
             // Create new container
-            var createParams = GetCreateContainerParameters(container);
+            var createParams = GetCreateContainerParameters(containerParameters);
 
             var containerInstance = await _dockerClient.Containers.CreateContainerAsync(createParams, cancellationToken);
 
@@ -113,7 +87,9 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
             await _dockerClient.Containers.StartContainerAsync(containerInstance.ID, new ContainerStartParameters(), cancellationToken);
 
             // Try to find container in docker session
-            return await GetContainerAsync(container.Parameters.Name, cancellationToken);
+#pragma warning disable CS8603 // Possible null reference return.
+            return await GetContainerAsync(containerParameters.Name, cancellationToken);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         private async Task<ContainerListResponse?> GetContainerAsync(string name, CancellationToken cancellationToken)
@@ -136,42 +112,46 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
             return containers?.FirstOrDefault(x => x.Names.Contains(containerName));
         }
 
-        private CreateContainerParameters GetCreateContainerParameters(Container container)
+        private CreateContainerParameters GetCreateContainerParameters(ContainerParameters containerParameters)
         {
-            var parameters = container.Parameters;
+            var (name, imageName, tag, environmentVariables, ports, entrypoint, exposedPorts) =
+                (containerParameters.Name, containerParameters.ImageName, containerParameters.Tag, containerParameters.EnvironmentVariables, containerParameters.Ports, containerParameters.Entrypoint, containerParameters.ExposedPorts);
 
             // Make sure that we don't try to add the same var twice.
-            var stringifiedVariables = parameters.EnvironmentVariables
+            var stringifiedVariables = environmentVariables
                 .Select(p => $"{p.Key}={p.Value}").ToArray();
 
             var createParams = new CreateContainerParameters
             {
-                Name = parameters.Name,
-                Image = $"{parameters.ImageName}:{parameters.Tag}",
+                Name = name,
+                Image = $"{imageName}:{tag}",
                 AttachStdout = true,
                 Env = stringifiedVariables,
-                Hostname = parameters.Name,
+                Hostname = name,
                 HostConfig = new HostConfig
                 {
-                    PublishAllPorts = parameters.Ports == null
+                    PublishAllPorts = ports == null
                 }
             };
 
-            if (parameters.Ports is not null)
+            if (ports is not null)
             {
-                createParams.HostConfig.PortBindings = parameters.Ports
+                createParams.HostConfig.PortBindings = ports
                     .ToDictionary(
                         p => $"{p.Key}/tcp",
                         p => (IList<PortBinding>)new List<PortBinding>
                             { new PortBinding { HostPort = p.Value.ToString() } });
             }
 
-            if (parameters.Entrypoint is not null && parameters.Entrypoint.Any())
+            if (entrypoint is not null && entrypoint.Any())
             {
-                createParams.Entrypoint = parameters.Entrypoint;
+                createParams.Entrypoint = entrypoint;
             }
 
-            // Exposed ports
+            if (exposedPorts is not null && exposedPorts.Any())
+            {
+                createParams.ExposedPorts = exposedPorts.ToDictionary(p => $"{p}/tcp", p => default(EmptyStruct));
+            }
 
             return createParams;
         }

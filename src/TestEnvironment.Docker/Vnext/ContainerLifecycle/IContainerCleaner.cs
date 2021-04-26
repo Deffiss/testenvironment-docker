@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker.Vnext.ContainerLifecycle
         Task CleanupAsync(Container container, CancellationToken token = default);
     }
 
-    public interface IContainerCleaner<TContainer> : IContainerCleaner
+    public interface IContainerCleaner<in TContainer> : IContainerCleaner
     {
         Task CleanupAsync(TContainer container, CancellationToken token = default);
     }

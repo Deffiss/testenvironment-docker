@@ -13,7 +13,7 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
 {
     public class ImageApi : IImageApi
     {
-        private readonly DockerClient _dockerClient;
+        private readonly IDockerClient _dockerClient;
         private readonly IArchiver _archiver;
         private readonly ILogger? _logger;
 
@@ -22,12 +22,17 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
         {
         }
 
+        public ImageApi(IDockerClient dockerClient)
+            : this(dockerClient, new Archiver(), null)
+        {
+        }
+
         public ImageApi(ILogger logger)
             : this(CreateDefaultDockerClient(), new Archiver(logger), null)
         {
         }
 
-        public ImageApi(DockerClient dockerClient, IArchiver archiver, ILogger? logger)
+        public ImageApi(IDockerClient dockerClient, IArchiver archiver, ILogger? logger)
         {
             _dockerClient = dockerClient;
             _archiver = archiver;
