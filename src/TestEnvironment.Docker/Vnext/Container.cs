@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 using TestEnvironment.Docker.Vnext.ContainerLifecycle;
 using TestEnvironment.Docker.Vnext.ContainerOperations;
 using TestEnvironment.Docker.Vnext.ImageOperations;
+using static TestEnvironment.Docker.Vnext.DockerClientExtentions;
 
 namespace TestEnvironment.Docker.Vnext
 {
@@ -12,83 +15,101 @@ namespace TestEnvironment.Docker.Vnext
     {
         private readonly IContainerApi _containerApi;
         private readonly IImageApi _imageApi;
-        private readonly
+        private readonly ContainerParameters _containerParameters;
+        private readonly ILogger? _logger;
 
-        public string Name { get; init; }
+        public string Name => _containerParameters.Name;
 
-        public string ImageName { get; init; }
+        public string ImageName => _containerParameters.ImageName;
 
-        public string Tag { get; init; }
+        public string Tag => _containerParameters.Tag;
 
-        public IDictionary<string, string> EnvironmentVariables { get; init; }
+        public IDictionary<string, string>? EnvironmentVariables => _containerParameters.EnvironmentVariables;
 
-        public IDictionary<ushort, ushort> Ports { get; private set; }
+        public IDictionary<ushort, ushort>? Ports { get; private set; }
 
-        public bool Reusable { get; init; } = false;
+        public bool Reusable => _containerParameters.Reusable;
 
-        public IList<string>? Entrypoint { get; init; }
+        public IList<string>? Entrypoint => _containerParameters.Entrypoint;
 
-        public IList<ushort>? ExposedPorts { get; init; }
+        public IList<ushort>? ExposedPorts => _containerParameters.ExposedPorts;
 
-        public IContainerInitializer? ContainerInitializer { get; init; }
+        public IContainerInitializer? ContainerInitializer => _containerParameters.ContainerInitializer;
 
-        public IContainerWaiter? ContainerWaiter { get; init; }
+        public IContainerWaiter? ContainerWaiter => _containerParameters.ContainerWaiter;
 
-        public IContainerCleaner? ContainerCleaner { get; init; }
+        public IContainerCleaner? ContainerCleaner => _containerParameters.ContainerCleaner;
 
         public string? Id { get; private set; }
 
         public string? IPAddress { get; private set; }
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
-        public Container(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi)
+        public Container(ContainerParameters containerParameters)
+            : this(containerParameters, CreateDefaultDockerClient())
         {
-#pragma warning restore SA1201 // Elements should appear in the correct order
-            (Name, ImageName, Tag, EnvironmentVariables, Ports, Reusable, Entrypoint, ExposedPorts,
-            ContainerInitializer, ContainerWaiter, ContainerCleaner) = containerParameters;
-            (_containerApi, _imageApi) = (containerApi, imageApi);
         }
+
+        public Container(ContainerParameters containerParameters, IDockerClient dockerClient)
+            : this(containerParameters, new ContainerApi(dockerClient), new ImageApi(dockerClient), null)
+        {
+        }
+
+        public Container(ContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
+            : this(containerParameters, new ContainerApi(dockerClient), new ImageApi(dockerClient), logger)
+        {
+        }
+
+        public Container(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger) =>
+#pragma warning restore SA1201 // Elements should appear in the correct order
+            (_containerParameters, _containerApi, _imageApi, _logger, Ports) =
+            (containerParameters, containerApi, imageApi, logger, containerParameters.Ports);
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            var runtimeInfo = _containerApi.RunContainerAsync()
+            var runtimeInfo = await _containerApi.RunContainerAsync(_containerParameters, cancellationToken);
+            (Id, IPAddress, Ports) = runtimeInfo;
 
-            if (waiter is not null)
+            if (ContainerWaiter is not null)
             {
-                var isStarted = await waiter.WaitAsync(container, cancellationToken);
+                var isStarted = await ContainerWaiter.WaitAsync(this, cancellationToken);
                 if (!isStarted)
                 {
-                    _logger.LogError($"Container {name} didn't start.");
-                    throw new TimeoutException($"Container {name} didn't start.");
+                    _logger.LogError($"Container {Name} didn't start.");
+                    throw new TimeoutException($"Container {Name} didn't start.");
                 }
             }
 
-            if (initializer is not null)
+            if (ContainerInitializer is not null)
             {
-                await initializer.InitializeAsync(container, cancellationToken);
+                await ContainerInitializer.InitializeAsync(this, cancellationToken);
             }
 
-            if (reusable && cleaner is not null)
+            if (Reusable && ContainerCleaner is not null)
             {
-                await cleaner.CleanupAsync(container, cancellationToken);
+                await ContainerCleaner.CleanupAsync(this, cancellationToken);
             }
-            throw new NotImplementedException();
         }
 
-        public Task StopAsync(CancellationToken cancellationToken = default)
+        public async Task StopAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            if (Id is null)
+            {
+                throw new InvalidOperationException("Container is not run.");
+            }
+
+            await _containerApi.StopContainerAsync(Id, cancellationToken);
         }
 
         public async virtual Task EnsureImageAvailableAsync(CancellationToken cancellationToken = default) =>
             await _imageApi.PullImageAsync(ImageName, Tag, cancellationToken);
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
-            throw new NotImplementedException();
+            if (Id is not null)
+            {
+                await _containerApi.RemoveContainerAsync(Id);
+            }
         }
-
-        internal void SetRuntimeInfo(string? id, string? ipAddress, IDictionary<ushort, ushort> ports) =>
-            (Id, IPAddress, Ports) = (id, ipAddress, ports);
     }
 }

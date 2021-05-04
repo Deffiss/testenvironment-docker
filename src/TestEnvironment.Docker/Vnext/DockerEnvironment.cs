@@ -14,28 +14,33 @@ namespace TestEnvironment.Docker.Vnext
 {
     public class DockerEnvironment : IDockerEnvironment
     {
+        private readonly IImageApi _imageApi;
+        private readonly IContainerApi _containerApi;
+        private readonly ILogger? _logger;
+
+        public Container[] Containers { get; init; }
+
 #pragma warning disable SA1201 // Elements should appear in the correct order
-        public DockerEnvironment()
+        public DockerEnvironment(Container[] containers)
 #pragma warning restore SA1201 // Elements should appear in the correct order
-            : this(CreateDefaultDockerClient())
+            : this(containers, CreateDefaultDockerClient())
         {
         }
 
-        public DockerEnvironment(ILogger logger)
-            : this(new ImageApi(logger), new ContainerApi(logger), logger)
+        public DockerEnvironment(Container[] containers, ILogger logger)
+            : this(containers, new ImageApi(logger), new ContainerApi(logger), logger)
         {
         }
 
-        public DockerEnvironment(IDockerClient dockerClient)
-            : this(new ImageApi(dockerClient), new ContainerApi(dockerClient), null)
+        public DockerEnvironment(Container[] containers, IDockerClient dockerClient)
+            : this(containers, new ImageApi(dockerClient), new ContainerApi(dockerClient), null)
         {
         }
 
-        public DockerEnvironment(IImageApi imageApi, IContainerApi containerApi, ILogger? logger)
-        {
-        }
+        public DockerEnvironment(Container[] containers, IImageApi imageApi, IContainerApi containerApi, ILogger? logger) =>
+            (Containers, _imageApi, _containerApi, _logger) = (containers, imageApi, containerApi, logger);
 
-        public ValueTask DisposeAsync()
+        public Task Up(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
@@ -45,7 +50,7 @@ namespace TestEnvironment.Docker.Vnext
             throw new NotImplementedException();
         }
 
-        public Task Up(CancellationToken cancellationToken = default)
+        public ValueTask DisposeAsync()
         {
             throw new NotImplementedException();
         }

@@ -8,5 +8,7 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
         Task<ContainerRuntimeInfo> RunContainerAsync(ContainerParameters containerParameters, CancellationToken token = default);
 
         Task StopContainerAsync(string id, CancellationToken token = default);
+
+        Task RemoveContainerAsync(string id, CancellationToken token = default);
     }
 }

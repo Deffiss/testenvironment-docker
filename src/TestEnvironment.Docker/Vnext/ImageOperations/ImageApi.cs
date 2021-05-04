@@ -39,17 +39,19 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
             _logger = logger;
         }
 
-        public async Task BuildImageAsync(string dockerfile, string imageName, string tag = "latest", string context = ".", IDictionary<string, string>? buildArgs = null, CancellationToken cancellationToken = default)
+#pragma warning disable SA1011 // Closing square brackets should be spaced correctly
+        public async Task BuildImageAsync(string dockerfile, string imageName, string tag = "latest", string context = ".", IDictionary<string, string>? buildArgs = null, string[]? ignoredFiles = default, CancellationToken cancellationToken = default)
+#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
         {
             var tarFileName = Guid.NewGuid().ToString();
 
             try
             {
                 // In order to pass the context we have to create tar file and use it as an argument.
-                await _archiver.CreateTarArchiveAsync(tarFileName, context, cancellationToken);
+                await _archiver.CreateTarArchiveAsync(tarFileName, context, ignoredFiles, cancellationToken);
 
                 // Now call docker api.
-                await CreateImageAsync(dockerfile, imageName, tag, tarFileName, buildArgs, cancellationToken);
+                await CreateNewImageAsync(dockerfile, imageName, tag, tarFileName, buildArgs, cancellationToken);
             }
             catch (Exception exc)
             {
@@ -108,7 +110,7 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
             }
         }
 
-        private async Task CreateImageAsync(string dockerfile, string imageName, string tag, string contextTarFile, IDictionary<string, string>? buildArgs, CancellationToken cancellationToken)
+        private async Task CreateNewImageAsync(string dockerfile, string imageName, string tag, string contextTarFile, IDictionary<string, string>? buildArgs, CancellationToken cancellationToken)
         {
             using var tarContextStream = new FileStream(contextTarFile, FileMode.Open);
             var image = await _dockerClient.Images.BuildImageFromDockerfileAsync(

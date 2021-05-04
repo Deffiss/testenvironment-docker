@@ -9,6 +9,7 @@ namespace TestEnvironment.Docker.Vnext.ContainerLifecycle
     }
 
     public interface IContainerWaiter<in TContainer> : IContainerWaiter
+        where TContainer : Container
     {
         Task<bool> WaitAsync(TContainer container, CancellationToken cancellationToken = default);
     }

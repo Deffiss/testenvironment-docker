@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,8 +74,11 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
             return new (startedContainer.ID, ipAddress, ports);
         }
 
-        public Task StopContainerAsync(string id, CancellationToken token = default) =>
-            _dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters { }, token);
+        public async Task StopContainerAsync(string id, CancellationToken token = default) =>
+            await _dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters { }, token);
+
+        public async Task RemoveContainerAsync(string id, CancellationToken token = default) =>
+            await _dockerClient.Containers.RemoveContainerAsync(id, new ContainerRemoveParameters { Force = true });
 
         private async Task<ContainerListResponse> CreateContainer(ContainerParameters containerParameters, CancellationToken cancellationToken)
         {
@@ -117,9 +121,8 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
             var (name, imageName, tag, environmentVariables, ports, entrypoint, exposedPorts) =
                 (containerParameters.Name, containerParameters.ImageName, containerParameters.Tag, containerParameters.EnvironmentVariables, containerParameters.Ports, containerParameters.Entrypoint, containerParameters.ExposedPorts);
 
-            // Make sure that we don't try to add the same var twice.
-            var stringifiedVariables = environmentVariables
-                .Select(p => $"{p.Key}={p.Value}").ToArray();
+            var stringifiedVariables = environmentVariables?.Select(p => $"{p.Key}={p.Value}")?.ToArray()
+                ?? Array.Empty<string>();
 
             var createParams = new CreateContainerParameters
             {

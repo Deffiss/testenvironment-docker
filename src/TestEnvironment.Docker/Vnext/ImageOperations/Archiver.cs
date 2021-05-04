@@ -11,29 +11,18 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
 {
     public class Archiver : IArchiver
     {
-#pragma warning disable SA1011 // Closing square brackets should be spaced correctly
-        private readonly string[]? _ignoredFiles;
-#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
         private readonly ILogger? _logger;
 
         public Archiver()
         {
         }
 
-        public Archiver(ILogger logger)
-            : this(null, logger)
-        {
-        }
+        public Archiver(ILogger logger) =>
+            _logger = logger;
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
-        public Archiver(string[]? ignoredFiles, ILogger? logger)
+        public Task CreateTarArchiveAsync(string fileName, string directiry, string[]? ignoredFiles = default, CancellationToken token = default)
 #pragma warning restore SA1011 // Closing square brackets should be spaced correctly
-        {
-            _ignoredFiles = ignoredFiles;
-            _logger = logger;
-        }
-
-        public Task CreateTarArchiveAsync(string fileName, string directiry, CancellationToken token = default)
         {
             using var stream = File.OpenWrite(fileName);
             using var writer = WriterFactory.Open(stream, ArchiveType.Tar, CompressionType.None);
@@ -44,9 +33,11 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
         }
 
         // Adds recuresively files to tar archive.
-        private void AddDirectoryFilesToTar(IWriter writer, string archiveFileName, string rootDirectory, string sourceDirectory, bool recurse)
+#pragma warning disable SA1011 // Closing square brackets should be spaced correctly
+        private void AddDirectoryFilesToTar(IWriter writer, string archiveFileName, string rootDirectory, string sourceDirectory, bool recurse, string[]? ignoredFiles = default)
+#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
         {
-            if (_ignoredFiles?.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))) == true)
+            if (ignoredFiles?.Any(excl => excl.Equals(Path.GetFileName(sourceDirectory))) == true)
             {
                 return;
             }
@@ -95,7 +86,7 @@ namespace TestEnvironment.Docker.Vnext.ImageOperations
                 var directories = Directory.GetDirectories(sourceDirectory);
                 foreach (var directory in directories)
                 {
-                    AddDirectoryFilesToTar(writer, archiveFileName, rootDirectory, directory, recurse);
+                    AddDirectoryFilesToTar(writer, archiveFileName, rootDirectory, directory, recurse, ignoredFiles);
                 }
             }
         }
