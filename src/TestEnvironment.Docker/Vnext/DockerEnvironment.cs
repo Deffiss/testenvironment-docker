@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using TestEnvironment.Docker.Vnext.ContainerOperations;
 using TestEnvironment.Docker.Vnext.ImageOperations;
 using static TestEnvironment.Docker.Vnext.DockerClientExtentions;
+using static TestEnvironment.Docker.Vnext.StringExtensions;
 
 namespace TestEnvironment.Docker.Vnext
 {
@@ -18,41 +19,66 @@ namespace TestEnvironment.Docker.Vnext
         private readonly IContainerApi _containerApi;
         private readonly ILogger? _logger;
 
+        public string Name { get; init; }
+
         public Container[] Containers { get; init; }
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
-        public DockerEnvironment(Container[] containers)
+        public DockerEnvironment(string name, Container[] containers)
 #pragma warning restore SA1201 // Elements should appear in the correct order
-            : this(containers, CreateDefaultDockerClient())
+            : this(name, containers, CreateDefaultDockerClient())
         {
         }
 
-        public DockerEnvironment(Container[] containers, ILogger logger)
-            : this(containers, new ImageApi(logger), new ContainerApi(logger), logger)
+        public DockerEnvironment(string name, Container[] containers, ILogger logger)
+            : this(name, containers, new ImageApi(logger), new ContainerApi(logger), logger)
         {
         }
 
-        public DockerEnvironment(Container[] containers, IDockerClient dockerClient)
-            : this(containers, new ImageApi(dockerClient), new ContainerApi(dockerClient), null)
+        public DockerEnvironment(string name, Container[] containers, IDockerClient dockerClient)
+            : this(name, containers, new ImageApi(dockerClient), new ContainerApi(dockerClient), null)
         {
         }
 
-        public DockerEnvironment(Container[] containers, IImageApi imageApi, IContainerApi containerApi, ILogger? logger) =>
-            (Containers, _imageApi, _containerApi, _logger) = (containers, imageApi, containerApi, logger);
-
-        public Task Up(CancellationToken cancellationToken = default)
+        public DockerEnvironment(string name, Container[] containers, IDockerClient dockerClient, ILogger? logger)
+            : this(name, containers, new ImageApi(dockerClient), new ContainerApi(dockerClient), logger)
         {
-            throw new NotImplementedException();
         }
 
-        public Task Down(CancellationToken cancellationToken = default)
+        public DockerEnvironment(string name, Container[] containers, IImageApi imageApi, IContainerApi containerApi, ILogger? logger) =>
+            (Name, Containers, _imageApi, _containerApi, _logger) = (name, containers, imageApi, containerApi, logger);
+
+        public async Task UpAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            // Pull/build all required images.
+            var ensureTasks = Containers.Select(c => c.EnsureImageAvailableAsync(cancellationToken));
+            await Task.WhenAll(ensureTasks);
+
+            // Run all containers.
+            var runTasks = Containers.Select(c => c.RunAsync(cancellationToken));
+            await Task.WhenAll(runTasks);
         }
 
-        public ValueTask DisposeAsync()
+        public async Task DownAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var stopTasks = Containers.Select(c => c.StopAsync(cancellationToken));
+            await Task.WhenAll(stopTasks);
+        }
+
+        public Container? GetContainer<TContainer>(string name)
+            where TContainer : Container
+        {
+            var containerName = GetContainerName(Name, name);
+            return Containers.FirstOrDefault(container => container is TContainer c && c.Name == containerName) as TContainer;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            var disposeTasks = Containers.Select(c => c.DisposeAsync());
+            foreach (var disposeTask in disposeTasks)
+            {
+                await disposeTask;
+            }
         }
     }
 }

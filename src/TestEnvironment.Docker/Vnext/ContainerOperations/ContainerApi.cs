@@ -74,10 +74,10 @@ namespace TestEnvironment.Docker.Vnext.ContainerOperations
             return new (startedContainer.ID, ipAddress, ports);
         }
 
-        public async Task StopContainerAsync(string id, CancellationToken token = default) =>
-            await _dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters { }, token);
+        public async Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            await _dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters { }, cancellationToken);
 
-        public async Task RemoveContainerAsync(string id, CancellationToken token = default) =>
+        public async Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default) =>
             await _dockerClient.Containers.RemoveContainerAsync(id, new ContainerRemoveParameters { Force = true });
 
         private async Task<ContainerListResponse> CreateContainer(ContainerParameters containerParameters, CancellationToken cancellationToken)

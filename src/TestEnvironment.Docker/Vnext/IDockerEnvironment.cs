@@ -6,8 +6,15 @@ namespace TestEnvironment.Docker.Vnext
 {
     public interface IDockerEnvironment : IAsyncDisposable
     {
-        Task Up(CancellationToken cancellationToken = default);
+        string Name { get; }
 
-        Task Down(CancellationToken cancellationToken = default);
+        Container[] Containers { get; }
+
+        Task UpAsync(CancellationToken cancellationToken = default);
+
+        Task DownAsync(CancellationToken cancellationToken = default);
+
+        Container? GetContainer<TContainer>(string name)
+            where TContainer : Container;
     }
 }

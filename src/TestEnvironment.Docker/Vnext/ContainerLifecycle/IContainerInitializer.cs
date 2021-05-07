@@ -9,6 +9,7 @@ namespace TestEnvironment.Docker.Vnext.ContainerLifecycle
     }
 
     public interface IContainerInitializer<in TContainer> : IContainerInitializer
+        where TContainer : Container
     {
         Task<bool> InitializeAsync(TContainer container, CancellationToken cancellationToken = default);
     }

@@ -13,10 +13,7 @@ namespace TestEnvironment.Docker.Vnext
 {
     public class Container : IAsyncDisposable
     {
-        private readonly IContainerApi _containerApi;
-        private readonly IImageApi _imageApi;
         private readonly ContainerParameters _containerParameters;
-        private readonly ILogger? _logger;
 
         public string Name => _containerParameters.Name;
 
@@ -34,6 +31,8 @@ namespace TestEnvironment.Docker.Vnext
 
         public IList<ushort>? ExposedPorts => _containerParameters.ExposedPorts;
 
+        public bool IsDockerInDocker => _containerParameters.IsDockerInDocker;
+
         public IContainerInitializer? ContainerInitializer => _containerParameters.ContainerInitializer;
 
         public IContainerWaiter? ContainerWaiter => _containerParameters.ContainerWaiter;
@@ -43,6 +42,12 @@ namespace TestEnvironment.Docker.Vnext
         public string? Id { get; private set; }
 
         public string? IPAddress { get; private set; }
+
+        protected IContainerApi ContainerApi { get; init; }
+
+        protected IImageApi ImageApi { get; init; }
+
+        protected ILogger? Logger { get; init; }
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
         public Container(ContainerParameters containerParameters)
@@ -62,12 +67,12 @@ namespace TestEnvironment.Docker.Vnext
 
         public Container(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger) =>
 #pragma warning restore SA1201 // Elements should appear in the correct order
-            (_containerParameters, _containerApi, _imageApi, _logger, Ports) =
+            (_containerParameters, ContainerApi, ImageApi, Logger, Ports) =
             (containerParameters, containerApi, imageApi, logger, containerParameters.Ports);
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            var runtimeInfo = await _containerApi.RunContainerAsync(_containerParameters, cancellationToken);
+            var runtimeInfo = await ContainerApi.RunContainerAsync(_containerParameters, cancellationToken);
             (Id, IPAddress, Ports) = runtimeInfo;
 
             if (ContainerWaiter is not null)
@@ -75,7 +80,7 @@ namespace TestEnvironment.Docker.Vnext
                 var isStarted = await ContainerWaiter.WaitAsync(this, cancellationToken);
                 if (!isStarted)
                 {
-                    _logger.LogError($"Container {Name} didn't start.");
+                    Logger.LogError($"Container {Name} didn't start.");
                     throw new TimeoutException($"Container {Name} didn't start.");
                 }
             }
@@ -98,17 +103,17 @@ namespace TestEnvironment.Docker.Vnext
                 throw new InvalidOperationException("Container is not run.");
             }
 
-            await _containerApi.StopContainerAsync(Id, cancellationToken);
+            await ContainerApi.StopContainerAsync(Id, cancellationToken);
         }
 
         public async virtual Task EnsureImageAvailableAsync(CancellationToken cancellationToken = default) =>
-            await _imageApi.PullImageAsync(ImageName, Tag, cancellationToken);
+            await ImageApi.PullImageAsync(ImageName, Tag, cancellationToken);
 
         public async ValueTask DisposeAsync()
         {
             if (Id is not null)
             {
-                await _containerApi.RemoveContainerAsync(Id);
+                await ContainerApi.RemoveContainerAsync(Id);
             }
         }
     }

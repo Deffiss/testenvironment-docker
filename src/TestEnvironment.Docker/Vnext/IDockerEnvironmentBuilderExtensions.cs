@@ -20,8 +20,7 @@ namespace TestEnvironment.Docker.Vnext
             this IDockerEnvironmentBuilder builder,
             Func<ContainerFromDockerfileParameters, IDockerClient, ILogger?, ContainerFromDockerfileParameters> paramsBuilder)
         {
-            var parameters = paramsBuilder(new ContainerFromDockerfileParameters("hello", "Dockerfile"), );
-            builder.AddContainer()
+            var parameters = paramsBuilder(new ContainerFromDockerfileParameters("hello", "Dockerfile"), builder.DockerClient, builder.Logger);
             builder.AddContainer(parameters, (p, d, l) => new ContainerFromDockerfile(p, d, l));
 
             return builder;
