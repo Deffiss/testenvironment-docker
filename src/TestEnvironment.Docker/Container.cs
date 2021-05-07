@@ -207,7 +207,7 @@ namespace TestEnvironment.Docker
 
             Id = startedContainer.ID;
             IPAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
-            Ports = startedContainer.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
+            Ports = startedContainer.Ports.DistinctBy(x => x.PrivatePort).ToDictionary(p => p.PrivatePort, p => p.PublicPort);
         }
 
         private async Task<ContainerListResponse> CreateContainer(string[] environmentVariables, CancellationToken token)
