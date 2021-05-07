@@ -1,38 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace TestEnvironment.Docker123
+namespace TestEnvironment.Docker.ContainerLifecycle
 {
     public abstract class BaseContainerWaiter<TContainer> : IContainerWaiter<TContainer>
         where TContainer : Container
     {
-        protected BaseContainerWaiter(ILogger logger)
-        {
-            Logger = logger;
-        }
-
-        protected ILogger Logger { get; }
+        protected ILogger? Logger { get; init; }
 
         protected virtual int AttemptsCount => 60;
 
         protected virtual TimeSpan DelayTime => TimeSpan.FromSeconds(1);
 
-        public async Task<bool> Wait(TContainer container, CancellationToken cancellationToken)
+#pragma warning disable SA1201 // Elements should appear in the correct order
+        public BaseContainerWaiter()
+#pragma warning restore SA1201 // Elements should appear in the correct order
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException(nameof(container));
-            }
+        }
 
+        public BaseContainerWaiter(ILogger logger) =>
+            Logger = logger;
+
+        public async Task<bool> WaitAsync(TContainer container, CancellationToken cancellationToken)
+        {
             var attempts = AttemptsCount;
             do
             {
                 try
                 {
                     Logger?.LogInformation($"{container.Name}: checking container state...");
-                    var isAlive = await PerformCheck(container, cancellationToken);
+                    var isAlive = await PerformCheckAsync(container, cancellationToken);
 
                     if (isAlive)
                     {
@@ -54,10 +56,10 @@ namespace TestEnvironment.Docker123
             return false;
         }
 
-        public Task<bool> Wait(Container container, CancellationToken cancellationToken) =>
-            Wait(container as TContainer, cancellationToken);
+        public Task<bool> WaitAsync(Container container, CancellationToken cancellationToken) =>
+            WaitAsync((TContainer)container, cancellationToken);
 
-        protected abstract Task<bool> PerformCheck(TContainer container, CancellationToken cancellationToken);
+        protected abstract Task<bool> PerformCheckAsync(TContainer container, CancellationToken cancellationToken);
 
         protected virtual bool IsRetryable(Exception exception) => true;
     }

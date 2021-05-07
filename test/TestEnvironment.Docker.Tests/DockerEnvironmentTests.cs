@@ -42,23 +42,25 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddKafkaContainer_WhenContainerIsUp_ShouldPrintKafkaVersion()
         {
             // Arrange
+#if DEBUG
+            await using var environment = new DockerEnvironmentBuilder()
+#else
             var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddKafkaContainer("my-kafka", reuseContainer: true)
+                .AddKafkaContainer(p => p with { Name = "my-kafka", Reusable = true })
 #else
-                .AddKafkaContainer("my-kafka")
+                .AddKafkaContainer(p => p with { Name = "my-kafka" })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var kafka = environment.GetContainer<KafkaContainer>("my-kafka");
             PrintKafkaVersion(kafka);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -443,7 +445,6 @@ namespace TestEnvironment.Docker.Tests
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
 #if !DEBUG
-            await environment.Down();
             await environment.DisposeAsync();
 #endif
         }

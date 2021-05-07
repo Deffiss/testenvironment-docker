@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace TestEnvironment.Docker.Vnext.ContainerLifecycle
+namespace TestEnvironment.Docker.ContainerLifecycle
 {
     public class HttpContainerWaiter : BaseContainerWaiter<Container>
     {

@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker.Vnext.ContainerOperations
+namespace TestEnvironment.Docker.ContainerOperations
 {
     public interface IContainerApi
     {

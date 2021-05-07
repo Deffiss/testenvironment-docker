@@ -10,11 +10,12 @@
         <Description>Add Kafka container specific functionality.</Description>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>docker tests kafka container</PackageTags>
+        <Nullable>enable</Nullable>
         <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Confluent.Kafka" Version="1.6.3" />
+        <PackageReference Include="Confluent.Kafka" Version="1.6.3" />
     </ItemGroup>
 
     <ItemGroup>

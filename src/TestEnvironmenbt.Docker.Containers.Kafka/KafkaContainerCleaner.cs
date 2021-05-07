@@ -3,12 +3,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Kafka
 {
     public class KafkaContainerCleaner : IContainerCleaner<KafkaContainer>
     {
-        public async Task Cleanup(KafkaContainer container, CancellationToken token = default)
+        public async Task CleanupAsync(KafkaContainer container, CancellationToken token = default)
         {
             if (container == null)
             {
@@ -30,6 +31,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
             await adminClient.DeleteTopicsAsync(topicNames);
         }
 
-        public Task Cleanup(TestEnvironment.Docker.Container container, CancellationToken token = default) => Cleanup((KafkaContainer)container, token);
+        public Task CleanupAsync(Container container, CancellationToken token = default) =>
+            CleanupAsync((KafkaContainer)container, token);
     }
 }

@@ -1,8 +1,8 @@
-﻿namespace TestEnvironment.Docker123
+﻿namespace TestEnvironment.Docker
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
-        public static string GetContainerName(this string containerName, string environmentName) =>
+        public static string GetContainerName(string environmentName, string containerName) =>
             $"{environmentName}-{containerName}";
     }
 }

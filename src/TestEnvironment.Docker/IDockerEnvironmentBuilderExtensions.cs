@@ -2,7 +2,7 @@
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 
-namespace TestEnvironment.Docker.Vnext
+namespace TestEnvironment.Docker
 {
     public static class IDockerEnvironmentBuilderExtensions
     {

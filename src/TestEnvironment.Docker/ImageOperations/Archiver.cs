@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using SharpCompress.Common;
 using SharpCompress.Writers;
 
-namespace TestEnvironment.Docker.Vnext.ImageOperations
+namespace TestEnvironment.Docker.ImageOperations
 {
     public class Archiver : IArchiver
     {

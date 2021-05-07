@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker.Vnext.ContainerLifecycle
+namespace TestEnvironment.Docker.ContainerLifecycle
 {
     public interface IContainerWaiter
     {

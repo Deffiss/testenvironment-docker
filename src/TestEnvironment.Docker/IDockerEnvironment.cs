@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestEnvironment.Docker.Vnext
+namespace TestEnvironment.Docker
 {
     public interface IDockerEnvironment : IAsyncDisposable
     {
@@ -14,7 +14,7 @@ namespace TestEnvironment.Docker.Vnext
 
         Task DownAsync(CancellationToken cancellationToken = default);
 
-        Container? GetContainer<TContainer>(string name)
+        TContainer? GetContainer<TContainer>(string name)
             where TContainer : Container;
     }
 }

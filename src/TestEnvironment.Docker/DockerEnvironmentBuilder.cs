@@ -1,150 +1,95 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.ImageOperations;
+using static TestEnvironment.Docker.DockerClientExtentions;
+using static TestEnvironment.Docker.StringExtensions;
 
-namespace TestEnvironment.Docker123
+namespace TestEnvironment.Docker
 {
     public class DockerEnvironmentBuilder : IDockerEnvironmentBuilder
     {
-        private readonly List<IDependency> _dependencies = new List<IDependency>();
-        private IDictionary<string, string> _variables = new Dictionary<string, string>();
+        private readonly Dictionary<ContainerParameters, Func<Container>> _containerFactories = new ();
+        private IDictionary<string, string> _environmentVariables = new Dictionary<string, string>();
+        private bool _isDockerInDocker = false;
+        private string _environmentName = Guid.NewGuid().ToString().Substring(0, 10);
 
+        public IDockerClient DockerClient { get; init; }
+
+        public ILogger? Logger { get; init; }
+
+#pragma warning disable SA1201 // Elements should appear in the correct order
         public DockerEnvironmentBuilder()
-            : this(CreateDefaultDockerClient())
+#pragma warning restore SA1201 // Elements should appear in the correct order
+            : this(CreateDefaultDockerClient(), null)
         {
         }
 
-        public DockerEnvironmentBuilder(DockerClient dockerClient)
+        public DockerEnvironmentBuilder(IDockerClient dockerClient)
+            : this(dockerClient, null)
         {
-            DockerClient = dockerClient;
         }
 
-        public DockerClient DockerClient { get; }
+        public DockerEnvironmentBuilder(IDockerClient dockerClient, ILogger? logger) =>
+            (DockerClient, Logger) = (dockerClient, logger);
 
-        public ILogger Logger { get; private set; } = LoggerFactory.Create(lb => lb.AddConsole().AddDebug()).CreateLogger<DockerEnvironment>();
-
-        public bool IsDockerInDocker { get; private set; } = false;
-
-        public bool DefaultNetwork { get; private set; } = false;
-
-        public string EnvironmentName { get; private set; } = Guid.NewGuid().ToString().Substring(0, 10);
-
-        public string[] IgnoredFolders { get; private set; } = new[] { ".vs", ".vscode", "obj", "bin", ".git" };
-
-        public IDockerEnvironmentBuilder AddDependency(IDependency dependency)
+        public IDockerEnvironmentBuilder DockerInDocker(bool isDockerInDocker = true)
         {
-            if (dependency == null)
-            {
-                throw new ArgumentNullException(nameof(dependency));
-            }
-
-            _dependencies.Add(dependency);
-
+            _isDockerInDocker = isDockerInDocker;
             return this;
         }
 
         public IDockerEnvironmentBuilder SetName(string environmentName)
         {
-            if (string.IsNullOrEmpty(environmentName))
+            _environmentName = environmentName;
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder SetEnvironmentVariables(IDictionary<string, string> environmentVariables)
+        {
+            _environmentVariables = environmentVariables;
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder AddContainer(Func<ContainerParameters, ContainerParameters> paramsBuilder)
+        {
+            var parameters = paramsBuilder(new ContainerParameters("hello", "docker/getting-started"));
+            AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder AddContainer(Func<ContainerParameters, IDockerClient, ILogger?, ContainerParameters> paramsBuilder)
+        {
+            var parameters = paramsBuilder(new ContainerParameters("hello", "docker/getting-started"), DockerClient, Logger);
+            AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IDockerClient, ILogger?, Container> containerFactory)
+            where TParams : ContainerParameters
+        {
+            _containerFactories.Add(containerParameters, () =>
             {
-                throw new ArgumentNullException(nameof(environmentName));
-            }
+                var envParameters = containerParameters with
+                {
+                    Name = GetContainerName(_environmentName, containerParameters.Name),
+                    EnvironmentVariables = _environmentVariables.MergeDictionaries(containerParameters.EnvironmentVariables),
+                    IsDockerInDocker = _isDockerInDocker,
+                };
 
-            EnvironmentName = environmentName;
-
+                return containerFactory(envParameters, DockerClient, Logger);
+            });
             return this;
         }
 
-        public IDockerEnvironmentBuilder SetVariable(IDictionary<string, string> variables)
+        public IDockerEnvironment Build()
         {
-            _variables = variables ?? throw new ArgumentNullException(nameof(variables));
+            var containers = _containerFactories.Values.Select(cf => cf()).ToArray();
 
-            return this;
-        }
-
-        public IDockerEnvironmentBuilder AddContainer(string name, string imageName, string tag = "latest", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            if (string.IsNullOrEmpty(imageName))
-            {
-                throw new ArgumentNullException(nameof(imageName));
-            }
-
-            var container = new Container(DockerClient, name.GetContainerName(EnvironmentName), imageName, tag, environmentVariables, ports, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
-            AddDependency(container);
-
-            return this;
-        }
-
-        public IDockerEnvironmentBuilder UseDefaultNetwork()
-        {
-            DefaultNetwork = true;
-            return this;
-        }
-
-        public IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true)
-        {
-            IsDockerInDocker = dockerInDocker;
-            return this;
-        }
-
-        public IDockerEnvironmentBuilder WithLogger(ILogger logger)
-        {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            return this;
-        }
-
-        public IDockerEnvironmentBuilder AddFromCompose(Stream composeFileStream) => throw new NotImplementedException();
-
-        public IDockerEnvironmentBuilder AddFromDockerfile(string name, string dockerfile, IDictionary<string, string> buildArgs = null, string context = ".", IDictionary<string, string> environmentVariables = null, IDictionary<ushort, ushort> ports = null, bool reuseContainer = false, IContainerWaiter containerWaiter = null, IContainerCleaner containerCleaner = null)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            if (string.IsNullOrEmpty(dockerfile))
-            {
-                throw new ArgumentNullException(nameof(dockerfile));
-            }
-
-            var container = new ContainerFromDockerfile(DockerClient, name.GetContainerName(EnvironmentName), dockerfile, buildArgs, context, environmentVariables, ports, IsDockerInDocker, reuseContainer, containerWaiter, containerCleaner, Logger);
-            AddDependency(container);
-
-            return this;
-        }
-
-        public IDockerEnvironmentBuilder IgnoreFolders(params string[] ignoredFolders)
-        {
-            if (ignoredFolders is null)
-            {
-                throw new ArgumentNullException(nameof(ignoredFolders));
-            }
-
-            IgnoredFolders = ignoredFolders;
-
-            return this;
-        }
-
-        public DockerEnvironment Build() => new DockerEnvironment(EnvironmentName, _variables, _dependencies.ToArray(), DockerClient, IgnoredFolders, Logger);
-
-        private static DockerClient CreateDefaultDockerClient()
-        {
-            var dockerHostVar = Environment.GetEnvironmentVariable("DOCKER_HOST");
-            var defaultDockerUrl = !string.IsNullOrEmpty(dockerHostVar)
-                ? dockerHostVar
-                : !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? "unix:///var/run/docker.sock"
-                    : "npipe://./pipe/docker_engine";
-
-            return new DockerClientConfiguration(new Uri(defaultDockerUrl)).CreateClient();
+            return new DockerEnvironment(_environmentName, containers, DockerClient, Logger);
         }
     }
 }

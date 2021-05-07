@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using TestEnvironment.Docker.Vnext.ContainerLifecycle;
+using TestEnvironment.Docker.ContainerLifecycle;
 
-namespace TestEnvironment.Docker.Vnext
+namespace TestEnvironment.Docker
 {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
     public record ContainerParameters(string Name, string ImageName)

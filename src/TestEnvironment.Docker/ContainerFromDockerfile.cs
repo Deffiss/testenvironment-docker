@@ -1,35 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.ImageOperations;
 
-namespace TestEnvironment.Docker123
+namespace TestEnvironment.Docker
 {
     public class ContainerFromDockerfile : Container
     {
-        public ContainerFromDockerfile(
-            DockerClient dockerClient,
-            string name,
-            string dockerfile,
-            IDictionary<string, string> buildArgs = null,
-            string context = ".",
-            IDictionary<string, string> environmentVariables = null,
-            IDictionary<ushort, ushort> ports = null,
-            bool isDockerInDocker = false,
-            bool reuseContainer = false,
-            IContainerWaiter containerWaiter = null,
-            IContainerCleaner containerCleaner = null,
-            ILogger logger = null)
-            : base(dockerClient, name, name, "dev", environmentVariables, ports, isDockerInDocker, reuseContainer, containerWaiter, containerCleaner, logger)
-        {
-            Dockerfile = dockerfile;
-            BuildArgs = buildArgs;
-            Context = context;
-        }
+        private readonly ContainerFromDockerfileParameters _parameters;
 
-        public string Dockerfile { get; }
+        public ContainerFromDockerfile(ContainerFromDockerfileParameters containerParameters)
+            : base(containerParameters) =>
+            _parameters = containerParameters;
 
-        public IDictionary<string, string> BuildArgs { get; }
+        public ContainerFromDockerfile(ContainerFromDockerfileParameters containerParameters, IDockerClient dockerClient)
+            : base(containerParameters, dockerClient) =>
+            _parameters = containerParameters;
 
-        public string Context { get; }
+        public ContainerFromDockerfile(ContainerFromDockerfileParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
+            : base(containerParameters, dockerClient, logger) =>
+            _parameters = containerParameters;
+
+        public ContainerFromDockerfile(ContainerFromDockerfileParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger)
+            : base(containerParameters, containerApi, imageApi, logger) =>
+            _parameters = containerParameters;
+
+        public override async Task EnsureImageAvailableAsync(CancellationToken cancellationToken = default) =>
+            await ImageApi.BuildImageAsync(_parameters.Dockerfile, ImageName, Tag, _parameters.Context, _parameters.BuildArgs, _parameters.IgnoredContextFiles, cancellationToken);
     }
 }

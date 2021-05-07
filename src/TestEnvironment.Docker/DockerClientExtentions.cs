@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Docker.DotNet;
 
-namespace TestEnvironment.Docker.Vnext
+namespace TestEnvironment.Docker
 {
     public static class DockerClientExtentions
     {

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
-using static TestEnvironment.Docker.Vnext.DockerClientExtentions;
+using static TestEnvironment.Docker.DockerClientExtentions;
 
-namespace TestEnvironment.Docker.Vnext.ImageOperations
+namespace TestEnvironment.Docker.ImageOperations
 {
     public class ImageApi : IImageApi
     {
