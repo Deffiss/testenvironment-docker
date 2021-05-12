@@ -14,6 +14,7 @@ using MongoDB.Driver;
 using MySqlConnector;
 using Nest;
 using Npgsql;
+using TestEnvironment.Docker;
 using TestEnvironment.Docker.ContainerLifecycle;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
@@ -122,24 +123,34 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddMariaDbContainer_WhenContainerIsUp_ShouldPrintMariaDbVersion()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddMariaDBContainer("my-maria", "my-secret-pw", reuseContainer: true)
+                .AddMariaDBContainer(p => p with
+                {
+                    Name = "my-maria",
+                    RootPassword = "my-secret-pw",
+                    Reusable = true
+                })
 #else
-                .AddMariaDBContainer("my-maria", "my-secret-pw")
+                .AddMariaDBContainer(p => p with
+                {
+                    Name = "my-maria",
+                    RootPassword = "my-secret-pw"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var maria = environment.GetContainer<MariaDBContainer>("my-maria");
             await PrintMariaDBVersion(maria);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -198,61 +209,70 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddMailContainer_WhenContainerIsUp_ShouldPrintSmtpCapabilities()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddMailContainer("my-mail", reuseContainer: true)
+                .AddMailContainer(p => p with
+                {
+                    Name = "my-mail",
+                    Reusable = true
+                })
 #else
-                .AddMailContainer("my-mail")
+                .AddMailContainer(p => p with
+                {
+                    Name = "my-mail"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mail = environment.GetContainer<MailContainer>("my-mail");
             await PrintSmtpCapabilities(mail);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddFtpContainer_WhenContainerIsUp_ShouldPrintFtpServerType()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddFtpContainer(
-                    "my-ftp",
-                    "superuser",
-                    "test",
-                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }),
-                    reuseContainer: true)
+                .AddFtpContainer(p => p with
+                {
+                    Name = "my-ftp",
+                    FtpUserName = "superuser",
+                    FtpPassword = "test",
+                    Ports = Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }),
+                    Reusable = true
+                })
 #else
-                .AddFtpContainer(
-                    "my-ftp",
-                    "superuser",
-                    "test",
-                    ports: Enumerable.Range(30000, 10)
-                        .ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort>
-                        {
-                            [21] = 21
-                        }))
+                .AddFtpContainer(p => p with
+                {
+                    Name = "my-ftp",
+                    FtpUserName = "superuser",
+                    FtpPassword = "test",
+                    Ports = Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 })
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var ftp = environment.GetContainer<FtpContainer>("my-ftp");
             await PrintFtpServerType(ftp);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]

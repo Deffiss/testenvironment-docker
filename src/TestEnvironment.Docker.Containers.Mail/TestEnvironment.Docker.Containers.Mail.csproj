@@ -6,6 +6,7 @@
     <RootNamespace>TestEnvironment.Docker.Containers.Mail</RootNamespace>
     <Version>1.0.8</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mail</PackageId>
+    <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add SMTP container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

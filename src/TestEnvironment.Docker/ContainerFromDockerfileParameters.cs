@@ -7,7 +7,7 @@ namespace TestEnvironment.Docker
         : ContainerParameters(Name, Name)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
     {
-        public IDictionary<string, string> BuildArgs { get; init; } = new Dictionary<string, string>();
+        public IDictionary<string, string>? BuildArgs { get; init; } = new Dictionary<string, string>();
 
         public string Context { get; init; } = ".";
 

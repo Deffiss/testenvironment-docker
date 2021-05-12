@@ -23,7 +23,7 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
             Func<ContainerParameters, ContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters());
-            builder.AddContainer(builder.GetDefaultParameters(), (p, d, l) => new Container(p, d, l));
+            builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
 
             return builder;
         }
@@ -34,6 +34,29 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters(), builder.DockerClient, builder.Logger);
             builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+
+            return builder;
+        }
+
+        [Obsolete("This method is depricated and will be removed in upcoming versions.")]
+        public static IDockerEnvironmentBuilder AddElasticsearchContainer(
+            this IDockerEnvironmentBuilder builder,
+            string name,
+            string imageName = "docker.elastic.co/elasticsearch/elasticsearch-oss",
+            string tag = "7.0.1",
+            IDictionary<string, string>? environmentVariables = null,
+            IDictionary<ushort, ushort>? ports = null,
+            bool reuseContainer = false)
+        {
+            builder.AddElasticsearchContainer(p => p with
+            {
+                Name = name,
+                ImageName = imageName,
+                Tag = tag,
+                EnvironmentVariables = environmentVariables,
+                Ports = ports,
+                Reusable = reuseContainer
+            });
 
             return builder;
         }

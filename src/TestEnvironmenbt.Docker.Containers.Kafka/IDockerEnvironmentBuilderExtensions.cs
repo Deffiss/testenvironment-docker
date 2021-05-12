@@ -27,7 +27,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
             Func<ContainerParameters, ContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters());
-            builder.AddContainer(builder.GetDefaultParameters(), (p, d, l) => new Container(p, d, l));
+            builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
 
             return builder;
         }
@@ -38,6 +38,29 @@ namespace TestEnvironment.Docker.Containers.Kafka
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters(), builder.DockerClient, builder.Logger);
             builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+
+            return builder;
+        }
+
+        [Obsolete("This method is depricated and will be removed in upcoming versions.")]
+        public static IDockerEnvironmentBuilder AddKafkaContainer(
+            this IDockerEnvironmentBuilder builder,
+            string name,
+            string imageName = "johnnypark/kafka-zookeeper",
+            string tag = "latest",
+            IDictionary<string, string>? environmentVariables = null,
+            IDictionary<ushort, ushort>? ports = null,
+            bool reuseContainer = false)
+        {
+            builder.AddKafkaContainer(p => p with
+            {
+                Name = name,
+                ImageName = imageName,
+                Tag = tag,
+                EnvironmentVariables = environmentVariables,
+                Ports = ports,
+                Reusable = reuseContainer
+            });
 
             return builder;
         }

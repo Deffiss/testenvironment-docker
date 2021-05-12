@@ -15,10 +15,8 @@ namespace TestEnvironment.Docker.Containers.Ftp
         {
         }
 
-        public FtpContainerCleaner(ILogger logger)
-        {
+        public FtpContainerCleaner(ILogger logger) =>
             _logger = logger;
-        }
 
         public async Task CleanupAsync(FtpContainer container, CancellationToken cancellationToken = default)
         {
