@@ -2,7 +2,7 @@
 
 namespace TestEnvironment.Docker.Containers.Ftp
 {
-    public static class DockerEnvironmentBuilderExtensions
+    public static class IDockerEnvironmentBuilderExtensions
     {
         public static IDockerEnvironmentBuilder AddFtpContainer(
             this IDockerEnvironmentBuilder builder,

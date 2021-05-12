@@ -6,6 +6,7 @@
     <RootNamespace>TestEnvironment.Docker.Containers.Ftp</RootNamespace>
     <Version>1.0.8</Version>
     <PackageId>TestEnvironment.Docker.Containers.Ftp</PackageId>
+    <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add FTP container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

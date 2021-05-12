@@ -14,6 +14,7 @@ using MongoDB.Driver;
 using MySqlConnector;
 using Nest;
 using Npgsql;
+using TestEnvironment.Docker.ContainerLifecycle;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
 using TestEnvironment.Docker.Containers.Kafka;
@@ -43,9 +44,9 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            await using var environment = new DockerEnvironmentBuilder()
-#else
             var environment = new DockerEnvironmentBuilder()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
 #endif
                 .SetName("test-env")
 #if DEBUG
@@ -67,24 +68,30 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddElasticSearchContainer_WhenContainerIsUp_ShouldPrintElasticSearchVersion()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
+                .AddElasticsearchContainer(p => p with
+                {
+                    Name = "my-elastic",
+                    Ports = new Dictionary<ushort, ushort> { [9200] = 9200 },
+                    Reusable = true
+                })
 #else
-                .AddElasticsearchContainer("my-elastic")
+                .AddElasticsearchContainer(p => p with { Name = "my-elastic" })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
             await PrintElasticsearchVersion(elastic);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -252,24 +259,36 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddFromDockerFileContainer_WhenContainerIsUp_ShouldPrintReturnedHtml()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
+                .AddContainerFromDockerfile(p => p with
+                {
+                    Name = "from-file",
+                    Dockerfile = "Dockerfile",
+                    ContainerWaiter = new HttpContainerWaiter("/", port: 8080),
+                    Reusable = true
+                })
 #else
-                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
+                .AddContainerFromDockerfile(p => p with
+                {
+                    Name = "from-file",
+                    Dockerfile = "Dockerfile",
+                    ContainerWaiter = new HttpContainerWaiter("/", port: 8080)
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var staticFilesContainer = environment.GetContainer("from-file");
             await PrintReturnedHtml(staticFilesContainer);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]

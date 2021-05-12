@@ -3,26 +3,22 @@ using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 
-namespace TestEnvironment.Docker.Containers.Kafka
+namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static ContainerParameters DefaultParameters => new ("kafka", "johnnypark/kafka-zookeeper")
+        public static ContainerParameters DefaultParameters => new ("elastic", "docker.elastic.co/elasticsearch/elasticsearch-oss")
         {
+            Tag = "7.0.1",
             EnvironmentVariables = new Dictionary<string, string>
             {
-                ["ADVERTISED_HOST"] = "localhost",
+                ["discovery.type"] = "single-node",
             },
-            Ports = new Dictionary<ushort, ushort>
-            {
-                [9092] = 9092,
-                [2181] = 2181,
-            },
-            ContainerCleaner = new KafkaContainerCleaner(),
-            ContainerWaiter = new KafkaContainerWaiter()
+            ContainerCleaner = new ElasticsearchContainerCleaner(),
+            ContainerWaiter = new ElasticsearchContainerWaiter()
         };
 
-        public static IDockerEnvironmentBuilder AddKafkaContainer(
+        public static IDockerEnvironmentBuilder AddElasticsearchContainer(
             this IDockerEnvironmentBuilder builder,
             Func<ContainerParameters, ContainerParameters> paramsBuilder)
         {
@@ -32,7 +28,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
             return builder;
         }
 
-        public static IDockerEnvironmentBuilder AddKafkaContainer(
+        public static IDockerEnvironmentBuilder AddElasticsearchContainer(
             this IDockerEnvironmentBuilder builder,
             Func<ContainerParameters, IDockerClient, ILogger?, ContainerParameters> paramsBuilder)
         {
@@ -47,7 +43,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
             {
                 { } => DefaultParameters with
                 {
-                    ContainerWaiter = new KafkaContainerWaiter(builder.Logger)
+                    ContainerWaiter = new ElasticsearchContainerWaiter(builder.Logger)
                 },
                 null => DefaultParameters
             };

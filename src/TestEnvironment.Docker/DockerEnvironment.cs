@@ -65,7 +65,10 @@ namespace TestEnvironment.Docker
             await Task.WhenAll(stopTasks);
         }
 
-        public Container? GetContainer<TContainer>(string name)
+        public Container? GetContainer(string name) =>
+            GetContainer<Container>(name);
+
+        public TContainer? GetContainer<TContainer>(string name)
             where TContainer : Container
         {
             var containerName = GetContainerName(Name, name);

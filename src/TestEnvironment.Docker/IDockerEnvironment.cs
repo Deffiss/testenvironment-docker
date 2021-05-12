@@ -14,6 +14,8 @@ namespace TestEnvironment.Docker
 
         Task DownAsync(CancellationToken cancellationToken = default);
 
+        Container? GetContainer(string name);
+
         TContainer? GetContainer<TContainer>(string name)
             where TContainer : Container;
     }

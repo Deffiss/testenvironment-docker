@@ -6,6 +6,7 @@
     <RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
     <Version>1.1.10</Version>
     <PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
+    <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add Elasticsearch container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
