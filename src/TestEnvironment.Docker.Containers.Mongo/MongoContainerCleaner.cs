@@ -4,35 +4,34 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
-    public class MongoContainerCleaner : IContainerCleaner<MongoContainer>,
+    public class MongoContainerCleaner
+        : IContainerCleaner<MongoContainer>,
         IContainerCleaner<MongoSingleReplicaSetContainer>
     {
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
-        public MongoContainerCleaner(ILogger logger = null)
+        public MongoContainerCleaner()
         {
-            _logger = logger;
         }
 
-        public Task Cleanup(MongoContainer container, CancellationToken token = default) =>
-            Cleanup((IMongoContainer)container, token);
+        public MongoContainerCleaner(ILogger logger) =>
+            _logger = logger;
 
-        public Task Cleanup(MongoSingleReplicaSetContainer container, CancellationToken token = default) =>
-            Cleanup((IMongoContainer)container, token);
+        public Task CleanupAsync(MongoContainer container, CancellationToken cancellationToken = default) =>
+            CleanupAsync((IMongoContainer)container, cancellationToken);
 
-        public Task Cleanup(Container container, CancellationToken token = default) =>
-            Cleanup((IMongoContainer)container, token);
+        public Task CleanupAsync(MongoSingleReplicaSetContainer container, CancellationToken cancellationToken = default) =>
+            CleanupAsync((IMongoContainer)container, cancellationToken);
 
-        private async Task Cleanup(IMongoContainer container, CancellationToken cancellationToken)
+        public Task CleanupAsync(Container container, CancellationToken cancellationToken = default) =>
+            CleanupAsync((IMongoContainer)container, cancellationToken);
+
+        private async Task CleanupAsync(IMongoContainer container, CancellationToken cancellationToken)
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException(nameof(container));
-            }
-
             var client = new MongoClient(container.GetConnectionString());
             var databaseNames = (await client.ListDatabasesAsync(cancellationToken))
                 .ToList()

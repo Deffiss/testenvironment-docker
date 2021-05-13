@@ -20,7 +20,7 @@ namespace TestEnvironment.Docker.Containers.Mail
             Func<MailContainerParameters, MailContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters());
-            builder.AddContainer(builder.GetDefaultParameters(), (p, d, l) => new MailContainer(FixEnvironmentVariables(p), d, l));
+            builder.AddContainer(parameters, (p, d, l) => new MailContainer(FixEnvironmentVariables(p), d, l));
 
             return builder;
         }

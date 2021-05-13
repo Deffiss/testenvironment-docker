@@ -19,7 +19,7 @@ namespace TestEnvironment.Docker.Containers.MariaDB
             Func<MariaDBContainerParameters, MariaDBContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters());
-            builder.AddContainer(builder.GetDefaultParameters(), (p, d, l) => new MariaDBContainer(FixEnvironmentVariables(p), d, l));
+            builder.AddContainer(parameters, (p, d, l) => new MariaDBContainer(FixEnvironmentVariables(p), d, l));
 
             return builder;
         }

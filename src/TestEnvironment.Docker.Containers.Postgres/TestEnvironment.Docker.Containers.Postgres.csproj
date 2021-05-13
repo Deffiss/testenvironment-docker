@@ -6,6 +6,7 @@
     <RootNamespace>TestEnvironment.Docker.Containers.Postgres</RootNamespace>
     <Version>1.0.9</Version>
     <PackageId>TestEnvironment.Docker.Containers.Postgres</PackageId>
+    <Nullable>enable</Nullable>
     <Authors>Kiryl Kiryanchykau</Authors>
     <Description>Add Postgres container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

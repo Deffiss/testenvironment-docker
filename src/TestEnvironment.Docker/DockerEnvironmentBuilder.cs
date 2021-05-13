@@ -33,6 +33,11 @@ namespace TestEnvironment.Docker
         {
         }
 
+        public DockerEnvironmentBuilder(ILogger logger)
+            : this(CreateDefaultDockerClient(), logger)
+        {
+        }
+
         public DockerEnvironmentBuilder(IDockerClient dockerClient, ILogger? logger) =>
             (DockerClient, Logger) = (dockerClient, logger);
 

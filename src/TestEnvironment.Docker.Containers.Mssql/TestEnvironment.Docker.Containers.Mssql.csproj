@@ -6,6 +6,7 @@
     <RootNamespace>TestEnvironment.Docker.Containers.Mssql</RootNamespace>
     <Version>1.1.0</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mssql</PackageId>
+    <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add MSSQL container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

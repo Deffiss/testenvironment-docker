@@ -3,35 +3,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
     public class MongoSingleReplicaSetContainerInitializer : IContainerInitializer<MongoSingleReplicaSetContainer>
     {
-        private readonly string _replicaSetName;
-
-        public MongoSingleReplicaSetContainerInitializer(string replicaSetName)
-        {
-            if (string.IsNullOrWhiteSpace(replicaSetName))
-            {
-                throw new ArgumentException("The value must be specified", nameof(replicaSetName));
-            }
-
-            _replicaSetName = replicaSetName;
-        }
-
-        public async Task<bool> Initialize(
+        public async Task<bool> InitializeAsync(
             MongoSingleReplicaSetContainer container,
             CancellationToken cancellationToken)
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException(nameof(container));
-            }
-
             var mongoClient = new MongoClient(container.GetDirectNodeConnectionString());
 
-            if (await IsInitialized(mongoClient, cancellationToken))
+            if (await IsInitialized(container, mongoClient, cancellationToken))
             {
                 return true;
             }
@@ -43,7 +27,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                         "replSetInitiate",
                         new BsonDocument
                         {
-                            { "_id", _replicaSetName },
+                            { "_id", container.ReplicaSetName },
                             {
                                 "members",
                                 new BsonArray
@@ -65,10 +49,10 @@ namespace TestEnvironment.Docker.Containers.Mongo
             return true;
         }
 
-        public Task<bool> Initialize(Container container, CancellationToken cancellationToken) =>
-            Initialize(container as MongoSingleReplicaSetContainer, cancellationToken);
+        public Task<bool> InitializeAsync(Container container, CancellationToken cancellationToken) =>
+            InitializeAsync((MongoSingleReplicaSetContainer)container, cancellationToken);
 
-        private async Task<bool> IsInitialized(IMongoClient mongoClient, CancellationToken cancellationToken)
+        private async Task<bool> IsInitialized(MongoSingleReplicaSetContainer container, IMongoClient mongoClient, CancellationToken cancellationToken)
         {
             try
             {
@@ -77,7 +61,7 @@ namespace TestEnvironment.Docker.Containers.Mongo
                         new BsonDocumentCommand<BsonDocument>(new BsonDocument { { "replSetGetConfig", 1 } }),
                         cancellationToken: cancellationToken);
 
-                return configuration["config"]["_id"].AsString == _replicaSetName &&
+                return configuration["config"]["_id"].AsString == container.ReplicaSetName &&
                        configuration["config"]["members"].AsBsonArray.Count == 1 &&
                        configuration["config"]["members"].AsBsonArray[0]["_id"] == 0 &&
                        configuration["config"]["members"].AsBsonArray[0]["host"] ==

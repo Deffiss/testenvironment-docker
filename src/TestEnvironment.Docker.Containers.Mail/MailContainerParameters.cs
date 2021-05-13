@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TestEnvironment.Docker.Containers.Mail
+﻿namespace TestEnvironment.Docker.Containers.Mail
 {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
     public record MailContainerParameters(string Name)

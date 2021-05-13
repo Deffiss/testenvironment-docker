@@ -99,24 +99,42 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddMsSqlContainer_WhenContainerIsUp_ShouldPrintMsSqlVersion()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssql",
+                    SAPassword = "HelloK11tt_0",
+                    EnvironmentVariables = new Dictionary<string, string>
+                    {
+                        ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS"
+                    },
+                    Reusable = true
+                })
 #else
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0")
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssql",
+                    SAPassword = "HelloK11tt_0",
+                    EnvironmentVariables = new Dictionary<string, string>
+                    {
+                        ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS"
+                    }
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
             await PrintMssqlVersion(mssql);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -157,52 +175,69 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddMongoContainer_WhenContainerIsUp_ShouldPrintMongoVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
-                .SetName("test-env")
-                .WithLogger(_logger)
 #if DEBUG
-                .AddMongoContainer("my-mongo", reuseContainer: true)
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
-                .AddMongoContainer("my-mongo")
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+#if DEBUG
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo",
+                    Reusable = true
+                })
+#else
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mongo = environment.GetContainer<MongoContainer>("my-mongo");
             PrintMongoVersion(mongo);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddMongoSingleReplicaSetContainer_WhenContainerIsUp_ShouldPrintMongoReplicaSetConfiguration()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+
+#endif
                 .SetName("test-env")
-                .WithLogger(_logger)
 
                 // 27017 port is busy in AppVeyor
 #if DEBUG
-                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", reuseContainer: true, port: 37017)
+                .AddMongoSingleReplicaSetContainer(p => p with
+                {
+                    Name = "my-mongo-replicaSet",
+                    CustomReplicaSetPort = 37017,
+                    Reusable = true
+                })
 #else
-                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", port: 37017)
+                .AddMongoSingleReplicaSetContainer(p => p with
+                {
+                    Name = "my-mongo-replicaSet",
+                    CustomReplicaSetPort = 37017
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mongo = environment.GetContainer<MongoSingleReplicaSetContainer>("my-mongo-replicaSet");
             await PrintMongoReplicaSetConfiguration(mongo);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
@@ -315,52 +350,78 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddPostgresContainer_WhenContainerIsUp_ShouldPrintPostgresDbVersion()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddPostgresContainer("my-postgres", reuseContainer: true)
+                .AddPostgresContainer(p => p with
+                {
+                    Name = "my-postgres",
+                    Reusable = true
+                })
 #else
-                .AddPostgresContainer("my-postgres")
+                .AddPostgresContainer(p => p with
+                {
+                    Name = "my-postgres"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var postgres = environment.GetContainer<PostgresContainer>("my-postgres");
             await PrintPostgresDbVersion(postgres);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task TwoContainersWithSimilarNames_ShouldStartCorrectly()
         {
             // Arrange
+#if DEBUG
             var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#else
+            await using var environment = new DockerEnvironmentBuilder()
+#endif
                 .SetName("test-env-similar-names")
 #if DEBUG
-                .AddMongoContainer("my-mongo-2", reuseContainer: true)
-                .AddMongoContainer("my-mongo", tag: "4.0", reuseContainer: true)
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo-2",
+                    Reusable = true
+                })
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo",
+                    Tag = "4.0",
+                    Reusable = true
+                })
 #else
-                .AddMongoContainer("my-mongo-2")
-                .AddMongoContainer("my-mongo", tag: "4.0")
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo-2"
+                })
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo",
+                    Tag = "4.0"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mongo = environment.GetContainer<MongoContainer>("my-mongo");
             var mongo2 = environment.GetContainer<MongoContainer>("my-mongo-2");
             PrintMongoVersion(mongo);
             PrintMongoVersion(mongo2);
-
-            await DisposeEnvironment(environment);
         }
 
         private async Task PrintMssqlVersion(MssqlContainer mssql)

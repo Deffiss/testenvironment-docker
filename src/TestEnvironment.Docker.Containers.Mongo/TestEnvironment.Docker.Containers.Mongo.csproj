@@ -6,6 +6,7 @@
     <RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
     <Version>1.2.2</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
+    <Nullable>enable</Nullable>
     <Authors>Uladzimir Lashkevich, Aliaksei Harshkalep, vhatsura</Authors>
     <Description>Add MongoDB container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

@@ -8,11 +8,13 @@ namespace TestEnvironment.Docker
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
+        public static ContainerFromDockerfileParameters DefaultParameters => new ("hello", "Dockerfile");
+
         public static IDockerEnvironmentBuilder AddContainerFromDockerfile(
             this IDockerEnvironmentBuilder builder,
             Func<ContainerFromDockerfileParameters, ContainerFromDockerfileParameters> paramsBuilder)
         {
-            var parameters = paramsBuilder(new ContainerFromDockerfileParameters("hello", "Dockerfile"));
+            var parameters = paramsBuilder(DefaultParameters);
             builder.AddContainer(parameters, (p, d, l) => new ContainerFromDockerfile(p, d, l));
 
             return builder;
@@ -22,7 +24,7 @@ namespace TestEnvironment.Docker
             this IDockerEnvironmentBuilder builder,
             Func<ContainerFromDockerfileParameters, IDockerClient, ILogger?, ContainerFromDockerfileParameters> paramsBuilder)
         {
-            var parameters = paramsBuilder(new ContainerFromDockerfileParameters("hello", "Dockerfile"), builder.DockerClient, builder.Logger);
+            var parameters = paramsBuilder(DefaultParameters, builder.DockerClient, builder.Logger);
             builder.AddContainer(parameters, (p, d, l) => new ContainerFromDockerfile(p, d, l));
 
             return builder;
