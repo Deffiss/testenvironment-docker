@@ -7,14 +7,14 @@ namespace TestEnvironment.Docker.Containers.Mongo
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static MongoContainerParameters DefaultMongoContainerParameters => new ("mongo", "root", "example")
+        public static MongoContainerParameters DefaultMongoContainerParameters => new("mongo", "root", "example")
         {
             ImageName = "mongo",
             ContainerCleaner = new MongoContainerCleaner(),
             ContainerWaiter = new MongoContainerWaiter()
         };
 
-        public static MongoSingleReplicaSetContainerParameters DefaultMongoSingleReplicaSetContainerParameters => new ("replica", "rs0")
+        public static MongoSingleReplicaSetContainerParameters DefaultMongoSingleReplicaSetContainerParameters => new("replica", "rs0")
         {
             ImageName = "mongo",
             ContainerCleaner = new MongoContainerCleaner(),

@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static ContainerFromDockerfileParameters DefaultParameters => new ("hello", "Dockerfile");
+        public static ContainerFromDockerfileParameters DefaultParameters => new("hello", "Dockerfile");
 
         public static IDockerEnvironmentBuilder AddContainerFromDockerfile(
             this IDockerEnvironmentBuilder builder,

@@ -7,7 +7,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static ContainerParameters DefaultParameters => new ("kafka", "johnnypark/kafka-zookeeper")
+        public static ContainerParameters DefaultParameters => new("kafka", "johnnypark/kafka-zookeeper")
         {
             EnvironmentVariables = new Dictionary<string, string>
             {

@@ -7,7 +7,7 @@ namespace TestEnvironment.Docker.Containers.Postgres
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static PostgresContainerParameters DefaultParameters => new ("postgres", "root", "securepass")
+        public static PostgresContainerParameters DefaultParameters => new("postgres", "root", "securepass")
         {
             ImageName = "postgres",
             ContainerCleaner = new PostgresContainerCleaner(),

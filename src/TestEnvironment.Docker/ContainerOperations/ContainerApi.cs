@@ -71,7 +71,7 @@ namespace TestEnvironment.Docker.ContainerOperations
             var ipAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
             var ports = startedContainer.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
 
-            return new (startedContainer.ID, ipAddress, ports);
+            return new(startedContainer.ID, ipAddress, ports);
         }
 
         public async Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -111,7 +111,8 @@ namespace TestEnvironment.Docker.ContainerOperations
                             [containerName] = true
                         }
                     }
-                }, cancellationToken);
+                },
+                cancellationToken);
 
             return containers?.FirstOrDefault(x => x.Names.Contains(containerName));
         }

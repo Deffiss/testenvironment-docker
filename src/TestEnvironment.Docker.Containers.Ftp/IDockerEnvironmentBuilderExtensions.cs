@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker.Containers.Ftp
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static FtpContainerParameters DefaultParameters => new ("ftp", "admin", "admin")
+        public static FtpContainerParameters DefaultParameters => new("ftp", "admin", "admin")
         {
             ImageName = "stilliard/pure-ftpd",
             Tag = "hardened",

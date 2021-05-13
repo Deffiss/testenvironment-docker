@@ -44,7 +44,8 @@ namespace TestEnvironment.Docker.Containers.Mongo
                             }
                         }
                     }
-                }), cancellationToken: cancellationToken);
+                }),
+                cancellationToken: cancellationToken);
 
             return true;
         }

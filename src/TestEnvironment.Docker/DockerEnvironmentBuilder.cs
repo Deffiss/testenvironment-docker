@@ -12,7 +12,7 @@ namespace TestEnvironment.Docker
 {
     public class DockerEnvironmentBuilder : IDockerEnvironmentBuilder
     {
-        private readonly Dictionary<ContainerParameters, Func<Container>> _containerFactories = new ();
+        private readonly Dictionary<ContainerParameters, Func<Container>> _containerFactories = new();
         private IDictionary<string, string> _environmentVariables = new Dictionary<string, string>();
         private bool _isDockerInDocker = false;
         private string _environmentName = Guid.NewGuid().ToString().Substring(0, 10);

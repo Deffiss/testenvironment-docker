@@ -7,7 +7,7 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static ContainerParameters DefaultParameters => new ("elastic", "docker.elastic.co/elasticsearch/elasticsearch-oss")
+        public static ContainerParameters DefaultParameters => new("elastic", "docker.elastic.co/elasticsearch/elasticsearch-oss")
         {
             Tag = "7.0.1",
             EnvironmentVariables = new Dictionary<string, string>

@@ -7,7 +7,7 @@ namespace TestEnvironment.Docker.Containers.MariaDB
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static MariaDBContainerParameters DefaultParameters => new ("maria", "password")
+        public static MariaDBContainerParameters DefaultParameters => new("maria", "password")
         {
             ImageName = "mariadb",
             ContainerCleaner = new MariaDBContainerCleaner(),

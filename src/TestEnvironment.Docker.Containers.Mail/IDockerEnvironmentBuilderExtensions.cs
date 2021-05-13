@@ -8,7 +8,7 @@ namespace TestEnvironment.Docker.Containers.Mail
 {
     public static class IDockerEnvironmentBuilderExtensions
     {
-        public static MailContainerParameters DefaultParameters => new ("mail")
+        public static MailContainerParameters DefaultParameters => new("mail")
         {
             ImageName = "mailhog/mailhog",
             ContainerCleaner = new MailContainerCleaner(),
