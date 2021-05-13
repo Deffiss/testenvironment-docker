@@ -61,7 +61,7 @@ namespace TestEnvironment.Docker
         }
 
         public Container(ContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
-            : this(containerParameters, new ContainerApi(dockerClient), new ImageApi(dockerClient), logger)
+            : this(containerParameters, new ContainerApi(dockerClient, logger), new ImageApi(dockerClient, logger), logger)
         {
         }
 

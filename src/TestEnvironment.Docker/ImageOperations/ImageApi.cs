@@ -27,6 +27,11 @@ namespace TestEnvironment.Docker.ImageOperations
         {
         }
 
+        public ImageApi(IDockerClient dockerClient, ILogger? logger)
+            : this(dockerClient, new Archiver(), logger)
+        {
+        }
+
         public ImageApi(ILogger logger)
             : this(CreateDefaultDockerClient(), new Archiver(logger), null)
         {
@@ -87,7 +92,7 @@ namespace TestEnvironment.Docker.ImageOperations
 
             if (!images.Any())
             {
-                _logger.LogInformation($"Pulling the image {imageName}:{tag}");
+                _logger?.LogInformation($"Pulling the image {imageName}:{tag}");
 
                 // Pull the image.
                 try
@@ -99,7 +104,7 @@ namespace TestEnvironment.Docker.ImageOperations
                             Tag = tag
                         },
                         null,
-                        new Progress<JSONMessage>(m => _logger.LogDebug($"Pulling image {imageName}:{tag}:\n{m.ProgressMessage}")),
+                        new Progress<JSONMessage>(m => _logger?.LogDebug($"Pulling image {imageName}:{tag}:\n{m.ProgressMessage}")),
                         cancellationToken);
                 }
                 catch (Exception exc)

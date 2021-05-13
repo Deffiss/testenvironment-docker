@@ -19,12 +19,12 @@ namespace TestEnvironment.Docker.Containers.Kafka
         {
         }
 
-        public KafkaContainer(ContainerParameters containerParameters, IDockerClient dockerClient, ILogger logger)
+        public KafkaContainer(ContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
             : base(containerParameters, dockerClient, logger)
         {
         }
 
-        public KafkaContainer(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger logger)
+        public KafkaContainer(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger)
             : base(containerParameters, containerApi, imageApi, logger)
         {
         }

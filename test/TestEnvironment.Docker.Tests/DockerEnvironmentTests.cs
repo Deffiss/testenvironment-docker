@@ -37,7 +37,8 @@ namespace TestEnvironment.Docker.Tests
         public DockerEnvironmentTests(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
-            _logger = new XUnitLogger(testOutput);
+            _logger = LoggerFactory.Create(lb => lb.AddConsole().AddDebug())
+                .CreateLogger<DockerEnvironment>();
         }
 
         [Fact]
@@ -45,7 +46,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -70,7 +71,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -100,7 +101,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -142,7 +143,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -245,7 +246,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -277,7 +278,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -315,7 +316,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif
@@ -351,7 +352,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 
@@ -384,7 +385,7 @@ namespace TestEnvironment.Docker.Tests
         {
             // Arrange
 #if DEBUG
-            var environment = new DockerEnvironmentBuilder()
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
             await using var environment = new DockerEnvironmentBuilder()
 #endif

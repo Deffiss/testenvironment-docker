@@ -9,7 +9,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
     {
         public static MssqlContainerParameters DefaultParameters => new("mssql", "password")
         {
-            ImageName = "mariadb",
+            ImageName = "mcr.microsoft.com/mssql/server",
             ContainerCleaner = new MssqlContainerCleaner(),
             ContainerWaiter = new MssqlContainerWaiter()
         };

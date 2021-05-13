@@ -27,7 +27,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
             Func<ContainerParameters, ContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters());
-            builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+            builder.AddContainer(parameters, (p, d, l) => new KafkaContainer(p, d, l));
 
             return builder;
         }
@@ -37,7 +37,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
             Func<ContainerParameters, IDockerClient, ILogger?, ContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters(), builder.DockerClient, builder.Logger);
-            builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+            builder.AddContainer(parameters, (p, d, l) => new KafkaContainer(p, d, l));
 
             return builder;
         }

@@ -19,12 +19,12 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
         {
         }
 
-        public ElasticsearchContainer(ContainerParameters containerParameters, IDockerClient dockerClient, ILogger logger)
+        public ElasticsearchContainer(ContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
             : base(containerParameters, dockerClient, logger)
         {
         }
 
-        public ElasticsearchContainer(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger logger)
+        public ElasticsearchContainer(ContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger)
             : base(containerParameters, containerApi, imageApi, logger)
         {
         }

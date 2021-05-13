@@ -69,7 +69,7 @@ namespace TestEnvironment.Docker.ContainerOperations
                 $"Container IPAddress: {startedContainer.NetworkSettings.Networks.FirstOrDefault().Key} - {startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress}");
 
             var ipAddress = startedContainer.NetworkSettings.Networks.FirstOrDefault().Value.IPAddress;
-            var ports = startedContainer.Ports.ToDictionary(p => p.PrivatePort, p => p.PublicPort);
+            var ports = startedContainer.Ports.DistinctBy(p => p.PrivatePort).ToDictionary(p => p.PrivatePort, p => p.PublicPort);
 
             return new(startedContainer.ID, ipAddress, ports);
         }

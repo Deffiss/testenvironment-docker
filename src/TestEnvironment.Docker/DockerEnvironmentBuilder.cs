@@ -39,7 +39,7 @@ namespace TestEnvironment.Docker
         }
 
         public DockerEnvironmentBuilder(IDockerClient dockerClient, ILogger? logger) =>
-            (DockerClient, Logger) = (dockerClient, logger);
+            (DockerClient, Logger) = (dockerClient, logger ?? Logger);
 
         public IDockerEnvironmentBuilder DockerInDocker(bool isDockerInDocker = true)
         {

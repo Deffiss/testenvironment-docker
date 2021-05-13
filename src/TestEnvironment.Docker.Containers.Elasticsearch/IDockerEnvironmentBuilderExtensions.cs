@@ -23,7 +23,7 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
             Func<ContainerParameters, ContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters());
-            builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+            builder.AddContainer(parameters, (p, d, l) => new ElasticsearchContainer(p, d, l));
 
             return builder;
         }
@@ -33,7 +33,7 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
             Func<ContainerParameters, IDockerClient, ILogger?, ContainerParameters> paramsBuilder)
         {
             var parameters = paramsBuilder(builder.GetDefaultParameters(), builder.DockerClient, builder.Logger);
-            builder.AddContainer(parameters, (p, d, l) => new Container(p, d, l));
+            builder.AddContainer(parameters, (p, d, l) => new ElasticsearchContainer(p, d, l));
 
             return builder;
         }
