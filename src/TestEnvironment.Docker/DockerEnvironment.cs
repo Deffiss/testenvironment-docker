@@ -41,7 +41,7 @@ namespace TestEnvironment.Docker
         }
 
         public DockerEnvironment(string name, Container[] containers, IDockerClient dockerClient, ILogger? logger)
-            : this(name, containers, new ImageApi(dockerClient), new ContainerApi(dockerClient), logger)
+            : this(name, containers, new ImageApi(dockerClient, logger), new ContainerApi(dockerClient, logger), logger)
         {
         }
 
