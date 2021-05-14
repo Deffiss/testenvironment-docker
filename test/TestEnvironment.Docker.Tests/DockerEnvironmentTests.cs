@@ -37,8 +37,7 @@ namespace TestEnvironment.Docker.Tests
         public DockerEnvironmentTests(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
-            _logger = LoggerFactory.Create(lb => lb.AddConsole().AddDebug())
-                .CreateLogger<DockerEnvironment>();
+            _logger = new XUnitLogger(testOutput);
         }
 
         [Fact]

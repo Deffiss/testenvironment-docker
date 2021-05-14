@@ -1,32 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <AssemblyName>TestEnvironment.Docker.Containers.Kafka</AssemblyName>
-        <RootNamespace>TestEnvironment.Docker.Containers.Kafka</RootNamespace>
-        <Version>1.0.2</Version>
-        <PackageId>TestEnvironment.Docker.Containers.Kafka</PackageId>
-        <Authors>Oğuzhan Eren</Authors>
-        <Description>Add Kafka container specific functionality.</Description>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <PackageTags>docker tests kafka container</PackageTags>
-        <Nullable>enable</Nullable>
-        <PackageReleaseNotes>Update to the latest nugets.</PackageReleaseNotes>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>TestEnvironment.Docker.Containers.Kafka</AssemblyName>
+    <RootNamespace>TestEnvironment.Docker.Containers.Kafka</RootNamespace>
+    <Version>2.0.3</Version>
+    <PackageId>TestEnvironment.Docker.Containers.Kafka</PackageId>
+    <Authors>Oğuzhan Eren</Authors>
+    <Description>Add Kafka container specific functionality.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>docker tests kafka container</PackageTags>
+    <Nullable>enable</Nullable>
+    <PackageReleaseNotes>Update to net5.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Confluent.Kafka" Version="1.6.3" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="1.6.3" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+      <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.333">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>none</IncludeAssets>
-      </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.333">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>none</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>

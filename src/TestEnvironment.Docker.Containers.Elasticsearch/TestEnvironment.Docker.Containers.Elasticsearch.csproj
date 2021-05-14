@@ -4,14 +4,14 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Elasticsearch</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
-    <Version>1.1.10</Version>
+    <Version>2.1.11</Version>
     <PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
     <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Add Elasticsearch container specific functionality.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>docker tests elasticsearch container</PackageTags>
-    <PackageReleaseNotes>Update to the latest version of NEST client. Please consider using lower versions of this package if you are on NEST 6.x.x.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to net5.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
