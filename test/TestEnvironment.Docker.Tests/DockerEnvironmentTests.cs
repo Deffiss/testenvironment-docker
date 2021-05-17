@@ -330,7 +330,7 @@ namespace TestEnvironment.Docker.Tests
                     Reusable = true
                 })
 #else
-                .AddContainerFromDockerfile(p => p with
+                .AddFromDockerfile(p => p with
                 {
                     Name = "from-file",
                     Dockerfile = "Dockerfile",
