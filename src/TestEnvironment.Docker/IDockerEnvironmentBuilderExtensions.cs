@@ -10,7 +10,7 @@ namespace TestEnvironment.Docker
     {
         public static ContainerFromDockerfileParameters DefaultParameters => new("hello", "Dockerfile");
 
-        public static IDockerEnvironmentBuilder AddContainerFromDockerfile(
+        public static IDockerEnvironmentBuilder AddFromDockerfile(
             this IDockerEnvironmentBuilder builder,
             Func<ContainerFromDockerfileParameters, ContainerFromDockerfileParameters> paramsBuilder)
         {
@@ -20,7 +20,7 @@ namespace TestEnvironment.Docker
             return builder;
         }
 
-        public static IDockerEnvironmentBuilder AddContainerFromDockerfile(
+        public static IDockerEnvironmentBuilder AddFromDockerfile(
             this IDockerEnvironmentBuilder builder,
             Func<ContainerFromDockerfileParameters, IDockerClient, ILogger?, ContainerFromDockerfileParameters> paramsBuilder)
         {
@@ -43,7 +43,7 @@ namespace TestEnvironment.Docker
             IContainerWaiter? containerWaiter = null,
             IContainerCleaner? containerCleaner = null)
         {
-            builder.AddContainerFromDockerfile(p => p with
+            builder.AddFromDockerfile(p => p with
             {
                 Name = name,
                 Dockerfile = dockerfile,

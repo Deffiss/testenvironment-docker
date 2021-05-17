@@ -322,7 +322,7 @@ namespace TestEnvironment.Docker.Tests
 #endif
                 .SetName("test-env")
 #if DEBUG
-                .AddContainerFromDockerfile(p => p with
+                .AddFromDockerfile(p => p with
                 {
                     Name = "from-file",
                     Dockerfile = "Dockerfile",
