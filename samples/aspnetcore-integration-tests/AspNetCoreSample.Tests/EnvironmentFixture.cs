@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using TestEnvironment.Docker;
 using TestEnvironment.Docker.Containers.Mongo;
 using Xunit;
@@ -19,10 +19,10 @@ namespace AspNetCoreSample.Tests
 
         public HttpClient TestClient { get; private set; }
 
-        public EnvironmentFixture(string environmentName)
-        {
+#pragma warning disable SA1201 // Elements should appear in the correct order
+        public EnvironmentFixture(string environmentName) =>
+#pragma warning restore SA1201 // Elements should appear in the correct order
             _environmentName = environmentName;
-        }
 
         public async Task InitializeAsync()
         {
@@ -38,7 +38,9 @@ namespace AspNetCoreSample.Tests
             await OnInitialized(mongoContainer);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task DisposeAsync()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             TestClient.Dispose();
             _host.Dispose();
@@ -62,7 +64,8 @@ namespace AspNetCoreSample.Tests
         private IHostBuilder CreateHostBuilder(MongoContainer mongoContainer)
         {
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new[] {
+                .AddInMemoryCollection(new[]
+                {
                     new KeyValuePair<string, string>("MongoDbConnectionString", mongoContainer.GetConnectionString())
                 });
 
