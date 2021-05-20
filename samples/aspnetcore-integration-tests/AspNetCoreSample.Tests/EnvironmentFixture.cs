@@ -14,7 +14,7 @@ namespace AspNetCoreSample.Tests
     public class EnvironmentFixture : IAsyncLifetime
     {
         private readonly string _environmentName;
-        private DockerEnvironment _environment;
+        private IDockerEnvironment _environment;
         private IHost _host;
 
         public HttpClient TestClient { get; private set; }
@@ -28,7 +28,7 @@ namespace AspNetCoreSample.Tests
         {
             // Docker environment seutup.
             _environment = CreateTestEnvironmentBuilder().Build();
-            await _environment.Up();
+            await _environment.UpAsync();
 
             // API Test host setup
             var mongoContainer = _environment.GetContainer<MongoContainer>("mongo");
@@ -56,9 +56,16 @@ namespace AspNetCoreSample.Tests
             new DockerEnvironmentBuilder()
                 .SetName(_environmentName)
 #if DEBUG
-                .AddMongoContainer("mongo", reuseContainer: true);
+                .AddMongoContainer(p => p with
+                {
+                    Name = "mongo",
+                    Reusable = true
+                });
 #else
-                .AddMongoContainer("mongo");
+                .AddMongoContainer(p => p with
+                {
+                    Name = "mongo"
+                });
 #endif
 
         private IHostBuilder CreateHostBuilder(MongoContainer mongoContainer)
