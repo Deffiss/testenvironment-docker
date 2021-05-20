@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Elasticsearch</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
-    <Version>2.1.11</Version>
+    <Version>2.1.11-alpha</Version>
     <PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
     <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
