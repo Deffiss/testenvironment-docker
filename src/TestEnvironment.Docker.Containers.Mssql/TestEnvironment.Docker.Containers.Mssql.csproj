@@ -22,11 +22,4 @@
     <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.333">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>none</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
 </Project>
