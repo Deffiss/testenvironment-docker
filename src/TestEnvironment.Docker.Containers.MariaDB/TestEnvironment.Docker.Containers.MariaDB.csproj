@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.MariaDB</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.MariaDB</RootNamespace>
-    <Version>2.1.1-alpha</Version>
+    <Version>2.1.1-alpha1</Version>
     <PackageId>TestEnvironment.Docker.Containers.MariaDB</PackageId>
     <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>
