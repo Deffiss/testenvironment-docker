@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Ftp</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Ftp</RootNamespace>
-    <Version>2.0.9-alpha</Version>
+    <Version>2.0.9-alpha1</Version>
     <PackageId>TestEnvironment.Docker.Containers.Ftp</PackageId>
     <Nullable>enable</Nullable>
     <Authors>Aliaksei Harshkalep</Authors>

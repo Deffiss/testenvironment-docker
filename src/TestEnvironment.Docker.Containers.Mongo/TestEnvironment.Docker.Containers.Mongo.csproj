@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>TestEnvironment.Docker.Containers.Mongo</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
-    <Version>2.2.3-alpha</Version>
+    <Version>2.2.3-alpha1</Version>
     <PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
     <Nullable>enable</Nullable>
     <Authors>Uladzimir Lashkevich, Aliaksei Harshkalep, vhatsura</Authors>
