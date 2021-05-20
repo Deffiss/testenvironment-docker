@@ -2,12 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Nest;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Elasticsearch
 {
     public class ElasticsearchContainerCleaner : IContainerCleaner<ElasticsearchContainer>
     {
-        public async Task Cleanup(ElasticsearchContainer container, CancellationToken token = default)
+        public async Task CleanupAsync(ElasticsearchContainer container, CancellationToken cancellationToken = default)
         {
             if (container == null)
             {
@@ -16,10 +17,11 @@ namespace TestEnvironment.Docker.Containers.Elasticsearch
 
             var elastic = new ElasticClient(new Uri(container.GetUrl()));
 
-            await elastic.Indices.DeleteTemplateAsync("*", ct: token);
-            await elastic.Indices.DeleteAsync("*", ct: token);
+            await elastic.Indices.DeleteTemplateAsync("*", ct: cancellationToken);
+            await elastic.Indices.DeleteAsync("*", ct: cancellationToken);
         }
 
-        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((ElasticsearchContainer)container, token);
+        public Task CleanupAsync(Container container, CancellationToken cancellationToken = default) =>
+            CleanupAsync((ElasticsearchContainer)container, cancellationToken);
     }
 }

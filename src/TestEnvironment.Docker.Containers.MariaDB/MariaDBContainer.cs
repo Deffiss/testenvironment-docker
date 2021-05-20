@@ -1,31 +1,33 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.ImageOperations;
 using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.MariaDB
 {
     public class MariaDBContainer : Container
     {
-        private readonly string _rootPassowrd;
+        private readonly MariaDBContainerParameters _parameters;
 
-        public MariaDBContainer(
-            DockerClient dockerClient,
-            string name,
-            string rootPassword,
-            string imageName = "mariadb",
-            string tag = "latest",
-            IDictionary<string, string> environmentVariables = null,
-            IDictionary<ushort, ushort> ports = null,
-            bool isDockerInDocker = false,
-            bool reuseContainer = false,
-            ILogger logger = null)
-            : base(dockerClient, name, imageName, tag, new Dictionary<string, string> { ["MYSQL_ROOT_PASSWORD"] = rootPassword }.MergeDictionaries(environmentVariables), ports, isDockerInDocker, reuseContainer, new MariaDBContainerWaiter(logger), new MariaDBContainerCleaner(logger), logger)
-        {
-            _rootPassowrd = rootPassword;
-        }
+        public MariaDBContainer(MariaDBContainerParameters containerParameters)
+            : base(containerParameters) =>
+            _parameters = containerParameters;
+
+        public MariaDBContainer(MariaDBContainerParameters containerParameters, IDockerClient dockerClient)
+            : base(containerParameters, dockerClient) =>
+            _parameters = containerParameters;
+
+        public MariaDBContainer(MariaDBContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
+            : base(containerParameters, dockerClient, logger) =>
+            _parameters = containerParameters;
+
+        public MariaDBContainer(MariaDBContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger)
+            : base(containerParameters, containerApi, imageApi, logger) =>
+            _parameters = containerParameters;
 
         public string GetConnectionString() =>
-            $"server={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())};user=root;password={_rootPassowrd};port={(IsDockerInDocker ? 3306 : Ports[3306])};allow user variables=true";
+            $"server={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())};user=root;password={_parameters.RootPassword};port={(IsDockerInDocker ? 3306 : Ports![3306])};allow user variables=true";
     }
 }

@@ -3,56 +3,40 @@ using System.Collections.Generic;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.ImageOperations;
 using IP = System.Net.IPAddress;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
     public class MongoSingleReplicaSetContainer : Container, IMongoContainer
     {
-        private readonly string _replicaSetName;
-        private readonly ushort? _port;
+        private readonly MongoSingleReplicaSetContainerParameters _parameters;
 
-        public MongoSingleReplicaSetContainer(
-            DockerClient dockerClient,
-            string name,
-            string replicaSetName,
-            string imageName,
-            string tag = "latest",
-            ushort? port = null,
-            IDictionary<string, string> environmentVariables = null,
-            bool isDockerInDocker = false,
-            bool reuseContainer = false,
-            IContainerWaiter containerWaiter = null,
-            IContainerCleaner containerCleaner = null,
-            ILogger logger = null)
-            : base(
-                dockerClient,
-                name,
-                imageName,
-                tag,
-                environmentVariables,
-                port == null ? new Dictionary<ushort, ushort> { { 27017, 27017 } } : new Dictionary<ushort, ushort> { { port.Value, port.Value } },
-                isDockerInDocker,
-                reuseContainer,
-                containerWaiter,
-                containerCleaner,
-                logger,
-                port == null ? new List<string> { "/usr/bin/mongod", "--bind_ip_all", "--replSet", replicaSetName } : new List<string> { "/usr/bin/mongod", "--bind_ip_all", "--replSet", replicaSetName, "--port", port.Value.ToString() },
-                new MongoSingleReplicaSetContainerInitializer(replicaSetName))
-        {
-            if (string.IsNullOrWhiteSpace(replicaSetName))
-            {
-                throw new ArgumentException("The value must be specified", nameof(replicaSetName));
-            }
+        public string ReplicaSetName => _parameters.ReplicaSetName;
 
-            _replicaSetName = replicaSetName;
-            _port = port;
-        }
+#pragma warning disable SA1201 // Elements should appear in the correct order
+        public MongoSingleReplicaSetContainer(MongoSingleReplicaSetContainerParameters containerParameters)
+#pragma warning restore SA1201 // Elements should appear in the correct order
+            : base(containerParameters) =>
+            _parameters = containerParameters;
+
+        public MongoSingleReplicaSetContainer(MongoSingleReplicaSetContainerParameters containerParameters, IDockerClient dockerClient)
+            : base(containerParameters, dockerClient) =>
+            _parameters = containerParameters;
+
+        public MongoSingleReplicaSetContainer(MongoSingleReplicaSetContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
+            : base(containerParameters, dockerClient, logger) =>
+            _parameters = containerParameters;
+
+        public MongoSingleReplicaSetContainer(MongoSingleReplicaSetContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger)
+            : base(containerParameters, containerApi, imageApi, logger) =>
+            _parameters = containerParameters;
 
         public string GetDirectNodeConnectionString()
         {
             var hostname = IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
-            var port = _port ?? (IsDockerInDocker ? 27017 : Ports[27017]);
+            var port = _parameters.CustomReplicaSetPort ?? (IsDockerInDocker ? 27017 : Ports![27017]);
 
             return $@"mongodb://{hostname}:{port}/?connect=direct";
         }
@@ -60,22 +44,9 @@ namespace TestEnvironment.Docker.Containers.Mongo
         public string GetConnectionString()
         {
             var hostname = IsDockerInDocker ? IPAddress : IP.Loopback.ToString();
-            var port = _port ?? (IsDockerInDocker ? 27017 : Ports[27017]);
+            var port = _parameters.CustomReplicaSetPort ?? (IsDockerInDocker ? 27017 : Ports![27017]);
 
-            return $@"mongodb://{hostname}:{port}/?replicaSet={_replicaSetName}";
-        }
-
-        protected override CreateContainerParameters GetCreateContainerParameters(string[] environmentVariables)
-        {
-            var createParams = base.GetCreateContainerParameters(environmentVariables);
-
-            if (_port != null)
-            {
-                // custom mongo port isn't exposed by default from docker container
-                createParams.ExposedPorts = new Dictionary<string, EmptyStruct> { { $"{_port.Value}/tcp", default } };
-            }
-
-            return createParams;
+            return $@"mongodb://{hostname}:{port}/?replicaSet={_parameters.ReplicaSetName}";
         }
     }
 }

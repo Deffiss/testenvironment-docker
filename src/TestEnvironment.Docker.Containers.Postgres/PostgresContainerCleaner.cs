@@ -3,44 +3,38 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Postgres
 {
     public class PostgresContainerCleaner : IContainerCleaner<PostgresContainer>
     {
-        private readonly ILogger _logger;
-        private readonly string _userName;
+        private readonly ILogger? _logger;
 
-        public PostgresContainerCleaner(ILogger logger, string userName)
+        public PostgresContainerCleaner()
         {
+        }
+
+        public PostgresContainerCleaner(ILogger logger) =>
             _logger = logger;
-            _userName = userName;
-        }
 
-        public async Task Cleanup(PostgresContainer container, CancellationToken token = default)
+        public async Task CleanupAsync(PostgresContainer container, CancellationToken token = default)
         {
-            if (container == null)
+            var cleanUpQuery = $"DROP OWNED BY {container.UserName}";
+
+            using var connection = new NpgsqlConnection(container.GetConnectionString());
+            using var cleanUpCommand = new NpgsqlCommand(cleanUpQuery, connection);
+            try
             {
-                throw new ArgumentNullException(nameof(container));
+                await connection.OpenAsync();
+                await cleanUpCommand.ExecuteNonQueryAsync();
             }
-
-            var cleanUpQuery = $"DROP OWNED BY {_userName}";
-
-            using (var connection = new NpgsqlConnection(container.GetConnectionString()))
-            using (var cleanUpCommand = new NpgsqlCommand(cleanUpQuery, connection))
+            catch (Exception ex)
             {
-                try
-                {
-                    await connection.OpenAsync();
-                    await cleanUpCommand.ExecuteNonQueryAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogError($"Postgres cleanup issue: {ex.Message}");
-                }
+                _logger?.LogError($"Postgres cleanup issue: {ex.Message}");
             }
         }
 
-        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((PostgresContainer)container, token);
+        public Task CleanupAsync(Container container, CancellationToken token = default) => CleanupAsync((PostgresContainer)container, token);
     }
 }

@@ -14,6 +14,8 @@ using MongoDB.Driver;
 using MySqlConnector;
 using Nest;
 using Npgsql;
+using TestEnvironment.Docker;
+using TestEnvironment.Docker.ContainerLifecycle;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
 using TestEnvironment.Docker.Containers.Kafka;
@@ -35,291 +37,392 @@ namespace TestEnvironment.Docker.Tests
         public DockerEnvironmentTests(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
-            _logger = new XUnitLogger(testOutput);
+            _logger = LoggerFactory.Create(lb => lb.AddConsole().AddDebug())
+                .CreateLogger<DockerEnvironment>();
         }
 
         [Fact]
         public async Task AddKafkaContainer_WhenContainerIsUp_ShouldPrintKafkaVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddKafkaContainer("my-kafka", reuseContainer: true)
+                .AddKafkaContainer(p => p with { Name = "my-kafka", Reusable = true })
 #else
-                .AddKafkaContainer("my-kafka")
+                .AddKafkaContainer(p => p with { Name = "my-kafka" })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var kafka = environment.GetContainer<KafkaContainer>("my-kafka");
             PrintKafkaVersion(kafka);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddElasticSearchContainer_WhenContainerIsUp_ShouldPrintElasticSearchVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddElasticsearchContainer("my-elastic", ports: new Dictionary<ushort, ushort> { [9200] = 9200 }, reuseContainer: true)
+                .AddElasticsearchContainer(p => p with
+                {
+                    Name = "my-elastic",
+                    Ports = new Dictionary<ushort, ushort> { [9200] = 9200 },
+                    Reusable = true
+                })
 #else
-                .AddElasticsearchContainer("my-elastic")
+                .AddElasticsearchContainer(p => p with { Name = "my-elastic" })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var elastic = environment.GetContainer<ElasticsearchContainer>("my-elastic");
             await PrintElasticsearchVersion(elastic);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddMsSqlContainer_WhenContainerIsUp_ShouldPrintMsSqlVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0", environmentVariables: new Dictionary<string, string> { ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS" }, reuseContainer: true)
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssql",
+                    SAPassword = "HelloK11tt_0",
+                    EnvironmentVariables = new Dictionary<string, string>
+                    {
+                        ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS"
+                    },
+                    Reusable = true
+                })
 #else
-                .AddMssqlContainer("my-mssql", "HelloK11tt_0")
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssql",
+                    SAPassword = "HelloK11tt_0",
+                    EnvironmentVariables = new Dictionary<string, string>
+                    {
+                        ["MSSQL_COLLATION"] = "SQL_Latin1_General_CP1_CS_AS"
+                    }
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
             await PrintMssqlVersion(mssql);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddMariaDbContainer_WhenContainerIsUp_ShouldPrintMariaDbVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddMariaDBContainer("my-maria", "my-secret-pw", reuseContainer: true)
+                .AddMariaDBContainer(p => p with
+                {
+                    Name = "my-maria",
+                    RootPassword = "my-secret-pw",
+                    Reusable = true
+                })
 #else
-                .AddMariaDBContainer("my-maria", "my-secret-pw")
+                .AddMariaDBContainer(p => p with
+                {
+                    Name = "my-maria",
+                    RootPassword = "my-secret-pw"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var maria = environment.GetContainer<MariaDBContainer>("my-maria");
             await PrintMariaDBVersion(maria);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddMongoContainer_WhenContainerIsUp_ShouldPrintMongoVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
-                .SetName("test-env")
-                .WithLogger(_logger)
 #if DEBUG
-                .AddMongoContainer("my-mongo", reuseContainer: true)
+            var environment = new DockerEnvironmentBuilder(_logger)
 #else
-                .AddMongoContainer("my-mongo")
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+#if DEBUG
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo",
+                    Reusable = true
+                })
+#else
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mongo = environment.GetContainer<MongoContainer>("my-mongo");
             PrintMongoVersion(mongo);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddMongoSingleReplicaSetContainer_WhenContainerIsUp_ShouldPrintMongoReplicaSetConfiguration()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+
+#endif
                 .SetName("test-env")
-                .WithLogger(_logger)
 
                 // 27017 port is busy in AppVeyor
 #if DEBUG
-                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", reuseContainer: true, port: 37017)
+                .AddMongoSingleReplicaSetContainer(p => p with
+                {
+                    Name = "my-mongo-replicaSet",
+                    CustomReplicaSetPort = 37017,
+                    Reusable = true
+                })
 #else
-                .AddMongoSingleReplicaSetContainer("my-mongo-replicaSet", port: 37017)
+                .AddMongoSingleReplicaSetContainer(p => p with
+                {
+                    Name = "my-mongo-replicaSet",
+                    CustomReplicaSetPort = 37017
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mongo = environment.GetContainer<MongoSingleReplicaSetContainer>("my-mongo-replicaSet");
             await PrintMongoReplicaSetConfiguration(mongo);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddMailContainer_WhenContainerIsUp_ShouldPrintSmtpCapabilities()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddMailContainer("my-mail", reuseContainer: true)
+                .AddMailContainer(p => p with
+                {
+                    Name = "my-mail",
+                    Reusable = true
+                })
 #else
-                .AddMailContainer("my-mail")
+                .AddMailContainer(p => p with
+                {
+                    Name = "my-mail"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mail = environment.GetContainer<MailContainer>("my-mail");
             await PrintSmtpCapabilities(mail);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddFtpContainer_WhenContainerIsUp_ShouldPrintFtpServerType()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddFtpContainer(
-                    "my-ftp",
-                    "superuser",
-                    "test",
-                    ports: Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }),
-                    reuseContainer: true)
+                .AddFtpContainer(p => p with
+                {
+                    Name = "my-ftp",
+                    FtpUserName = "superuser",
+                    FtpPassword = "test",
+                    Ports = Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 }),
+                    Reusable = true
+                })
 #else
-                .AddFtpContainer(
-                    "my-ftp",
-                    "superuser",
-                    "test",
-                    ports: Enumerable.Range(30000, 10)
-                        .ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort>
-                        {
-                            [21] = 21
-                        }))
+                .AddFtpContainer(p => p with
+                {
+                    Name = "my-ftp",
+                    FtpUserName = "superuser",
+                    FtpPassword = "test",
+                    Ports = Enumerable.Range(30000, 10).ToDictionary(p => (ushort)p, p => (ushort)p).MergeDictionaries(new Dictionary<ushort, ushort> { [21] = 21 })
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var ftp = environment.GetContainer<FtpContainer>("my-ftp");
             await PrintFtpServerType(ftp);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddFromDockerFileContainer_WhenContainerIsUp_ShouldPrintReturnedHtml()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080), reuseContainer: true)
+                .AddFromDockerfile(p => p with
+                {
+                    Name = "from-file",
+                    Dockerfile = "Dockerfile",
+                    ContainerWaiter = new HttpContainerWaiter("/", port: 8080),
+                    Reusable = true
+                })
 #else
-                .AddFromDockerfile("from-file", "Dockerfile", containerWaiter: new HttpContainerWaiter("/", httpPort: 8080))
+                .AddFromDockerfile(p => p with
+                {
+                    Name = "from-file",
+                    Dockerfile = "Dockerfile",
+                    ContainerWaiter = new HttpContainerWaiter("/", port: 8080)
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var staticFilesContainer = environment.GetContainer("from-file");
             await PrintReturnedHtml(staticFilesContainer);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task AddPostgresContainer_WhenContainerIsUp_ShouldPrintPostgresDbVersion()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+
+#endif
                 .SetName("test-env")
 #if DEBUG
-                .AddPostgresContainer("my-postgres", reuseContainer: true)
+                .AddPostgresContainer(p => p with
+                {
+                    Name = "my-postgres",
+                    Reusable = true
+                })
 #else
-                .AddPostgresContainer("my-postgres")
+                .AddPostgresContainer(p => p with
+                {
+                    Name = "my-postgres"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var postgres = environment.GetContainer<PostgresContainer>("my-postgres");
             await PrintPostgresDbVersion(postgres);
-
-            await DisposeEnvironment(environment);
         }
 
         [Fact]
         public async Task TwoContainersWithSimilarNames_ShouldStartCorrectly()
         {
             // Arrange
-            var environment = new DockerEnvironmentBuilder()
-                .UseDefaultNetwork()
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
                 .SetName("test-env-similar-names")
 #if DEBUG
-                .AddMongoContainer("my-mongo-2", reuseContainer: true)
-                .AddMongoContainer("my-mongo", tag: "4.0", reuseContainer: true)
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo-2",
+                    Reusable = true
+                })
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo",
+                    Tag = "4.0",
+                    Reusable = true
+                })
 #else
-                .AddMongoContainer("my-mongo-2")
-                .AddMongoContainer("my-mongo", tag: "4.0")
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo-2"
+                })
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo",
+                    Tag = "4.0"
+                })
 #endif
                 .Build();
 
             // Act
-            await environment.Up();
+            await environment.UpAsync();
 
             // Assert
             var mongo = environment.GetContainer<MongoContainer>("my-mongo");
             var mongo2 = environment.GetContainer<MongoContainer>("my-mongo-2");
             PrintMongoVersion(mongo);
             PrintMongoVersion(mongo2);
-
-            await DisposeEnvironment(environment);
         }
 
         private async Task PrintMssqlVersion(MssqlContainer mssql)
@@ -443,7 +546,6 @@ namespace TestEnvironment.Docker.Tests
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
 #if !DEBUG
-            await environment.Down();
             await environment.DisposeAsync();
 #endif
         }

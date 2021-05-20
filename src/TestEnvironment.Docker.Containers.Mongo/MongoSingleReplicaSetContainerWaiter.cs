@@ -4,17 +4,22 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Mongo
 {
     public class MongoSingleReplicaSetContainerWaiter : BaseContainerWaiter<MongoSingleReplicaSetContainer>
     {
+        public MongoSingleReplicaSetContainerWaiter()
+        {
+        }
+
         public MongoSingleReplicaSetContainerWaiter(ILogger logger)
             : base(logger)
         {
         }
 
-        protected override async Task<bool> PerformCheck(
+        protected override async Task<bool> PerformCheckAsync(
             MongoSingleReplicaSetContainer container,
             CancellationToken cancellationToken)
         {

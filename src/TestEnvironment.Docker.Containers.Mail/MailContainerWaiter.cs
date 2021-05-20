@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Mail
 {
@@ -10,19 +11,20 @@ namespace TestEnvironment.Docker.Containers.Mail
     {
         private readonly ushort _smtpPort;
 
-        public MailContainerWaiter(ushort smtpPort = 1025, ILogger logger = null)
-            : base(logger)
-        {
+        public MailContainerWaiter(ushort smtpPort = 1025) =>
             _smtpPort = smtpPort;
-        }
 
-        protected override async Task<bool> PerformCheck(MailContainer container, CancellationToken cancellationToken)
+        public MailContainerWaiter(ILogger logger, ushort smtpPort = 1025)
+            : base(logger) =>
+            _smtpPort = smtpPort;
+
+        protected override async Task<bool> PerformCheckAsync(MailContainer container, CancellationToken cancellationToken)
         {
             using var client = new SmtpClient();
 
             await client.ConnectAsync(
                 container.IsDockerInDocker ? container.IPAddress : IPAddress.Loopback.ToString(),
-                container.IsDockerInDocker ? _smtpPort : container.Ports[_smtpPort],
+                container.IsDockerInDocker ? _smtpPort : container.Ports![_smtpPort],
                 cancellationToken: cancellationToken);
 
             return true;

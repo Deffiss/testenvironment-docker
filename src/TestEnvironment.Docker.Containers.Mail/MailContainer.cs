@@ -1,36 +1,30 @@
 ﻿using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.ImageOperations;
 
 namespace TestEnvironment.Docker.Containers.Mail
 {
     public class MailContainer : Container
     {
-        public MailContainer(
-            DockerClient dockerClient,
-            string name,
-            string imageName = "mailhog/mailhog",
-            string tag = "latest",
-            ushort smptPort = 1025,
-            ushort apiPort = 8025,
-            string deleteEndpoint = "api/v1/messages",
-            IDictionary<string, string> environmentVariables = null,
-            IDictionary<ushort, ushort> ports = null,
-            bool isDockerInDocker = false,
-            bool reuseContainer = false,
-            ILogger logger = null)
-            : base(
-                  dockerClient,
-                  name,
-                  imageName,
-                  tag,
-                  environmentVariables,
-                  ports,
-                  isDockerInDocker,
-                  reuseContainer,
-                  new MailContainerWaiter(smptPort, logger),
-                  new MailContainerCleaner(apiPort, deleteEndpoint, logger: logger),
-                  logger)
+        public MailContainer(MailContainerParameters containerParameters)
+            : base(containerParameters)
+        {
+        }
+
+        public MailContainer(MailContainerParameters containerParameters, IDockerClient dockerClient)
+            : base(containerParameters, dockerClient)
+        {
+        }
+
+        public MailContainer(MailContainerParameters containerParameters, IDockerClient dockerClient, ILogger? logger)
+            : base(containerParameters, dockerClient, logger)
+        {
+        }
+
+        public MailContainer(MailContainerParameters containerParameters, IContainerApi containerApi, ImageApi imageApi, ILogger? logger)
+            : base(containerParameters, containerApi, imageApi, logger)
         {
         }
     }
