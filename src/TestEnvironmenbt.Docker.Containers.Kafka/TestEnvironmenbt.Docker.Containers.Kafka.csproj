@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>TestEnvironment.Docker.Containers.Kafka</AssemblyName>
         <RootNamespace>TestEnvironment.Docker.Containers.Kafka</RootNamespace>
-        <Version>1.0.3</Version>
+        <Version>1.0.4</Version>
         <PackageId>TestEnvironment.Docker.Containers.Kafka</PackageId>
         <Authors>Oğuzhan Eren</Authors>
         <Description>Add Kafka container specific functionality.</Description>
