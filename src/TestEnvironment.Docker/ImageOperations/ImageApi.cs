@@ -118,20 +118,23 @@ namespace TestEnvironment.Docker.ImageOperations
         private async Task CreateNewImageAsync(string dockerfile, string imageName, string tag, string contextTarFile, IDictionary<string, string>? buildArgs, CancellationToken cancellationToken)
         {
             using var tarContextStream = new FileStream(contextTarFile, FileMode.Open);
-            var image = await _dockerClient.Images.BuildImageFromDockerfileAsync(
-                tarContextStream,
-                new ImageBuildParameters
-                {
-                    Dockerfile = dockerfile,
-                    BuildArgs = buildArgs ?? new Dictionary<string, string>(),
-                    Tags = new[] { $"{imageName}:{tag}" },
-                    PullParent = true,
-                    Remove = true,
-                    ForceRemove = true,
-                },
-                cancellationToken);
 
-            await new StreamReader(image).ReadToEndAsync();
+            await _dockerClient.Images
+                .BuildImageFromDockerfileAsync(
+                    new ImageBuildParameters
+                    {
+                        Dockerfile = dockerfile,
+                        BuildArgs = buildArgs ?? new Dictionary<string, string>(),
+                        Tags = new[] { $"{imageName}:{tag}" },
+                        PullParent = true,
+                        Remove = true,
+                        ForceRemove = true,
+                    },
+                    tarContextStream,
+                    null,
+                    null,
+                    new Progress<JSONMessage>(m => _logger?.LogDebug($"Building image {imageName}:{tag}:\n{m.ProgressMessage}")),
+                    cancellationToken);
         }
     }
 }
