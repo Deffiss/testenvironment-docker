@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Kafka
 {
@@ -13,12 +14,17 @@ namespace TestEnvironment.Docker.Containers.Kafka
     {
         private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
 
-        public KafkaContainerWaiter(ILogger logger = null)
+        public KafkaContainerWaiter()
+            : base()
+        {
+        }
+
+        public KafkaContainerWaiter(ILogger logger)
             : base(logger)
         {
         }
 
-        protected override async Task<bool> PerformCheck(KafkaContainer container, CancellationToken cancellationToken)
+        protected override async Task<bool> PerformCheckAsync(KafkaContainer container, CancellationToken cancellationToken)
         {
             using var adminClient = new AdminClientBuilder(new AdminClientConfig
                 {
@@ -50,8 +56,8 @@ namespace TestEnvironment.Docker.Containers.Kafka
             {
                 BootstrapServers = container.GetUrl()
             };
-            using var p = new ProducerBuilder<string, string>(producerConfig).Build();
-            await p.ProduceAsync(topicName, new Message<string, string> { Value = "test-message", Key = null }, cancellationToken);
+            using var p = new ProducerBuilder<string?, string?>(producerConfig).Build();
+            await p.ProduceAsync(topicName, new Message<string?, string?> { Value = "test-message", Key = null }, cancellationToken);
         }
     }
 }

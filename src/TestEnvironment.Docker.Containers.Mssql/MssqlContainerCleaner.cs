@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.Mssql
 {
@@ -14,35 +15,30 @@ namespace TestEnvironment.Docker.Containers.Mssql
                 DROP DATABASE [?]
             END'";
 
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
-        public MssqlContainerCleaner(ILogger logger = null)
+        public MssqlContainerCleaner()
         {
+        }
+
+        public MssqlContainerCleaner(ILogger logger) =>
             _logger = logger;
-        }
 
-        public async Task Cleanup(MssqlContainer container, CancellationToken token = default)
+        public async Task CleanupAsync(MssqlContainer container, CancellationToken cancellationToken = default)
         {
-            if (container == null)
+            using var connection = new SqlConnection(container.GetConnectionString());
+            using var command = new SqlCommand(CleanupCommand, connection);
+            try
             {
-                throw new ArgumentNullException(nameof(container));
+                await connection.OpenAsync();
+                await command.ExecuteNonQueryAsync();
             }
-
-            using (var connection = new SqlConnection(container.GetConnectionString()))
-            using (var command = new SqlCommand(CleanupCommand, connection))
+            catch (SqlException e)
             {
-                try
-                {
-                    await connection.OpenAsync();
-                    await command.ExecuteNonQueryAsync();
-                }
-                catch (SqlException e)
-                {
-                    _logger?.LogInformation($"Cleanup issue: {e.Message}");
-                }
+                _logger?.LogInformation($"Cleanup issue: {e.Message}");
             }
         }
 
-        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((MssqlContainer)container, token);
+        public Task CleanupAsync(Container container, CancellationToken cancellationToken = default) => CleanupAsync((MssqlContainer)container, cancellationToken);
     }
 }

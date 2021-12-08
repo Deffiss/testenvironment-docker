@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker.Containers.MariaDB
 {
@@ -14,50 +15,47 @@ namespace TestEnvironment.Docker.Containers.MariaDB
 
         private static readonly string[] SystemDatabases = { "information_schema", "mysql", "performance_schema" };
 
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
-        public MariaDBContainerCleaner(ILogger logger = null)
+        public MariaDBContainerCleaner()
         {
-            _logger = logger;
         }
 
-        public async Task Cleanup(MariaDBContainer container, CancellationToken token = default)
+        public MariaDBContainerCleaner(ILogger logger) =>
+            _logger = logger;
+
+        public async Task CleanupAsync(MariaDBContainer container, CancellationToken cancellationToken = default)
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException(nameof(container));
-            }
+            using var connection = new MySqlConnection(container.GetConnectionString());
+            using var getDatabasesCommand = new MySqlCommand(GetAllDatabasesCommand, connection);
 
-            using (var connection = new MySqlConnection(container.GetConnectionString()))
-            using (var getDatabasesCommand = new MySqlCommand(GetAllDatabasesCommand, connection))
-            {
-                await getDatabasesCommand.Connection.OpenAsync();
+            await getDatabasesCommand.Connection!.OpenAsync();
 
-                try
+            try
+            {
+                var reader = await getDatabasesCommand.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
                 {
-                    var reader = await getDatabasesCommand.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        var databaseName = reader.GetString(0);
+                    var databaseName = reader.GetString(0);
 
-                        if (SystemDatabases.All(dn => !dn.Equals(databaseName, StringComparison.OrdinalIgnoreCase)))
+                    if (SystemDatabases.All(dn => !dn.Equals(databaseName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        using (var dropConnection = new MySqlConnection(container.GetConnectionString()))
+                        using (var dropCommand = new MySqlCommand(string.Format(DropDatabaseCommand, databaseName), dropConnection))
                         {
-                            using (var dropConnection = new MySqlConnection(container.GetConnectionString()))
-                            using (var dropCommand = new MySqlCommand(string.Format(DropDatabaseCommand, databaseName), dropConnection))
-                            {
-                                await dropConnection.OpenAsync();
-                                await dropCommand.ExecuteNonQueryAsync();
-                            }
+                            await dropConnection.OpenAsync();
+                            await dropCommand.ExecuteNonQueryAsync();
                         }
                     }
                 }
-                catch (MySqlException e)
-                {
-                    _logger?.LogWarning($"Cleanup issue: {e.Message}");
-                }
+            }
+            catch (MySqlException e)
+            {
+                _logger?.LogWarning($"Cleanup issue: {e.Message}");
             }
         }
 
-        public Task Cleanup(Container container, CancellationToken token = default) => Cleanup((MariaDBContainer)container, token);
+        public Task CleanupAsync(Container container, CancellationToken cancellationToken = default)
+            => CleanupAsync((MariaDBContainer)container, cancellationToken);
     }
 }

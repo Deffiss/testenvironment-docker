@@ -8,7 +8,7 @@ namespace BLLTests
 {
     public class TestBase
     {
-        private DockerEnvironment _dockerEnvironment;
+        private IDockerEnvironment _dockerEnvironment;
 
         protected PizzaContext DbContext { get; set; }
 
@@ -17,7 +17,7 @@ namespace BLLTests
         {
             var environmentBuilder = new DockerEnvironmentBuilder();
             _dockerEnvironment = PrepareDockerEnvironment(environmentBuilder);
-            await _dockerEnvironment.Up();
+            await _dockerEnvironment.UpAsync();
 
             var connectionString = _dockerEnvironment.GetContainer<MssqlContainer>("testDb").GetConnectionString();
 
@@ -41,9 +41,16 @@ namespace BLLTests
             await DbContext.SaveChangesAsync();
         }
 
-        private DockerEnvironment PrepareDockerEnvironment(DockerEnvironmentBuilder environmentBuilder)
+        private IDockerEnvironment PrepareDockerEnvironment(DockerEnvironmentBuilder environmentBuilder)
         {
-            return environmentBuilder.UseDefaultNetwork().SetName("nunit-tests").AddMssqlContainer("testDb", "HelloK11tt_0").Build();
+            return environmentBuilder
+                .SetName("nunit-tests")
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "testDb",
+                    SAPassword = "HelloK11tt_0"
+                })
+                .Build();
         }
     }
 }

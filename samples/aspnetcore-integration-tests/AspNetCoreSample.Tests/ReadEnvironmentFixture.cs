@@ -1,13 +1,14 @@
-﻿using MongoDB.Driver;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 using TestEnvironment.Docker.Containers.Mongo;
 
 namespace AspNetCoreSample.Tests
 {
     public class ReadEnvironmentFixture : EnvironmentFixture
     {
-        public ReadEnvironmentFixture() : base("env2")
+        public ReadEnvironmentFixture()
+            : base("env2")
         {
         }
 
