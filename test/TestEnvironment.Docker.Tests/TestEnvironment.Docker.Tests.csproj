@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;WSL2_Debug;WSL2_Release</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='WSL2_Debug'">
+    <DefineConstants>$(DefineConstants)TRACE;DEBUG;WSL2</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='WSL2_Release'">
+    <DefineConstants>$(DefineConstants)TRACE;RELEASE;WSL2</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

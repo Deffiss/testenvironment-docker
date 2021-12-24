@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.DockerOperations;
 using TestEnvironment.Docker.ImageOperations;
 using static TestEnvironment.Docker.DockerClientExtentions;
 using static TestEnvironment.Docker.StringExtensions;
@@ -17,6 +18,7 @@ namespace TestEnvironment.Docker
     {
         private readonly IImageApi _imageApi;
         private readonly IContainerApi _containerApi;
+        private readonly IDockerInitializer? _dockerInitializer;
         private readonly ILogger? _logger;
 
         public string Name { get; init; }
@@ -45,11 +47,24 @@ namespace TestEnvironment.Docker
         {
         }
 
+        public DockerEnvironment(string name, Container[] containers, IDockerClient dockerClient, IDockerInitializer? dockerInitializer, ILogger? logger)
+            : this(name, containers, new ImageApi(dockerClient, logger), new ContainerApi(dockerClient, logger), dockerInitializer, logger)
+        {
+        }
+
         public DockerEnvironment(string name, Container[] containers, IImageApi imageApi, IContainerApi containerApi, ILogger? logger) =>
             (Name, Containers, _imageApi, _containerApi, _logger) = (name, containers, imageApi, containerApi, logger);
 
+        public DockerEnvironment(string name, Container[] containers, IImageApi imageApi, IContainerApi containerApi, IDockerInitializer? dockerInitializer, ILogger? logger) =>
+            (Name, Containers, _imageApi, _containerApi, _dockerInitializer, _logger) = (name, containers, imageApi, containerApi, dockerInitializer, logger);
+
         public async Task UpAsync(CancellationToken cancellationToken = default)
         {
+            if (_dockerInitializer is not null)
+            {
+                await _dockerInitializer.InitializeDockerAsync(cancellationToken);
+            }
+
             // Pull/build all required images.
             var ensureTasks = Containers.Select(c => c.EnsureImageAvailableAsync(cancellationToken));
             await Task.WhenAll(ensureTasks);
@@ -81,6 +96,11 @@ namespace TestEnvironment.Docker
             foreach (var disposeTask in disposeTasks)
             {
                 await disposeTask;
+            }
+
+            if (_dockerInitializer is not null)
+            {
+                await _dockerInitializer.DisposeAsync();
             }
         }
     }

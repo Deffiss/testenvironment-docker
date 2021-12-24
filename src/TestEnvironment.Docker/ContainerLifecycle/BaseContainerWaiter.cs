@@ -28,32 +28,21 @@ namespace TestEnvironment.Docker.ContainerLifecycle
 
         public async Task<bool> WaitAsync(TContainer container, CancellationToken cancellationToken)
         {
-            var attempts = AttemptsCount;
-            do
+            Logger?.LogInformation($"{container.Name}: checking container state...");
+
+            var policy = PolicyFactory.CreateWaitPolicy(AttemptsCount, DelayTime, IsRetryable, e => Logger?.LogError(e, $"{container.Name} check failed with exception {e.Message}"));
+            var result = await policy.ExecuteAndCaptureAsync(async () => await PerformCheckAsync(container, cancellationToken));
+
+            if (result.Outcome == Polly.OutcomeType.Successful)
             {
-                try
-                {
-                    Logger?.LogInformation($"{container.Name}: checking container state...");
-                    var isAlive = await PerformCheckAsync(container, cancellationToken);
-
-                    if (isAlive)
-                    {
-                        Logger?.LogInformation($"{container.Name}: container is Up!");
-                        return true;
-                    }
-                }
-                catch (Exception exception) when (IsRetryable(exception))
-                {
-                    Logger?.LogError(exception, $"{container.Name} check failed with exception {exception.Message}");
-                }
-
-                attempts--;
-                await Task.Delay(DelayTime, cancellationToken);
+                Logger?.LogInformation($"{container.Name}: container is Up!");
             }
-            while (attempts != 0);
+            else
+            {
+                Logger?.LogError($"Container {container.Name} didn't start.");
+            }
 
-            Logger?.LogError($"Container {container.Name} didn't start.");
-            return false;
+            return result.Result;
         }
 
         public Task<bool> WaitAsync(Container container, CancellationToken cancellationToken) =>

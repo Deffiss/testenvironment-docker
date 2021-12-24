@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
 using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.DockerOperations;
 using TestEnvironment.Docker.ImageOperations;
 using static TestEnvironment.Docker.DockerClientExtentions;
 using static TestEnvironment.Docker.StringExtensions;
@@ -14,10 +16,11 @@ namespace TestEnvironment.Docker
     {
         private readonly Dictionary<ContainerParameters, Func<Container>> _containerFactories = new();
         private IDictionary<string, string> _environmentVariables = new Dictionary<string, string>();
+        private bool _isWsl2 = false;
         private bool _isDockerInDocker = false;
         private string _environmentName = Guid.NewGuid().ToString().Substring(0, 10);
 
-        public IDockerClient DockerClient { get; init; }
+        public IDockerClient DockerClient { get; private set; }
 
         public ILogger? Logger { get; init; }
 
@@ -41,9 +44,18 @@ namespace TestEnvironment.Docker
         public DockerEnvironmentBuilder(IDockerClient dockerClient, ILogger? logger) =>
             (DockerClient, Logger) = (dockerClient, logger ?? Logger);
 
-        public IDockerEnvironmentBuilder DockerInDocker(bool isDockerInDocker = true)
+        public IDockerEnvironmentBuilder DockerInDocker()
         {
-            _isDockerInDocker = isDockerInDocker;
+            _isDockerInDocker = true;
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder UseWsl2(int port = 2375)
+        {
+            _isWsl2 = true;
+
+            // Use loopback address to connect to Docker daemon in WSL2.
+            DockerClient = CreateWSL2DockerClient();
             return this;
         }
 
@@ -94,7 +106,9 @@ namespace TestEnvironment.Docker
         {
             var containers = _containerFactories.Values.Select(cf => cf()).ToArray();
 
-            return new DockerEnvironment(_environmentName, containers, DockerClient, Logger);
+            return _isWsl2
+                ? new DockerEnvironment(_environmentName, containers, DockerClient, new DockerInWs2Initializer(DockerClient, Logger), Logger)
+                : new DockerEnvironment(_environmentName, containers, DockerClient, Logger);
         }
     }
 }

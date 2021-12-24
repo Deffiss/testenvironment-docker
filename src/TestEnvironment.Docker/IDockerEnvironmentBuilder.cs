@@ -11,9 +11,11 @@ namespace TestEnvironment.Docker
 
         ILogger? Logger { get; }
 
-        IDockerEnvironmentBuilder DockerInDocker(bool dockerInDocker = true);
+        IDockerEnvironmentBuilder DockerInDocker();
 
         IDockerEnvironmentBuilder SetName(string environmentName);
+
+        IDockerEnvironmentBuilder UseWsl2(int port = 2375);
 
         IDockerEnvironmentBuilder SetEnvironmentVariables(IDictionary<string, string> environmentVariables);
 
