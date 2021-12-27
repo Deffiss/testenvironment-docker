@@ -71,7 +71,7 @@ var postgres = environment.GetContainer<PostgresContainer>("my-postgres");
 As you may know, Docker announced subscription [changes](https://www.docker.com/blog/updating-product-subscriptions/). So you can not use Docker Desktop for free anymore (except for personal purposes). Good news is that Docker for Linux is still [free](https://www.docker.com/blog/looking-for-a-docker-alternative-consider-this/) (including Docker Engine, Docker Daemon, Docker CLI, Docker Compose, BuildKit, libraries, etc). So we have several options:
 
 #### Option 1 - Run tests on Linux/WSL2
-You can setup [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) on your Windows machine, install [.NET](https://docs.microsoft.com/en-us/dotnet/core/install/linux) and [Docker](https://docs.docker.com/engine/install/ubuntu/). Then just navigate to your source code and simply run:
+You can setup [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) on your Windows machine, install [.NET](https://docs.microsoft.com/en-us/dotnet/core/install/linux) and [Docker](https://docs.docker.com/engine/install/ubuntu/) (also, full instruction for Docker setup could be found [here](https://gist.github.com/Guddiny/e2cac200d8100a3926777109f770228b)). Then just navigate to your source code and simply run:
 
 ```
 dotnet test
