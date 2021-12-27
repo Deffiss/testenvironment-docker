@@ -16,7 +16,7 @@ namespace TestEnvironment.Docker
                 ? Policy.Handle<Exception>()
                 : Policy.Handle<Exception>(e => exceptionFilter(e));
 
-            var withResultPb = exceptionPb.OrResult<bool>(res => !res); // if returned false from healthchek retry as well
+            var withResultPb = exceptionPb.OrResult<bool>(res => !res); // if returned false from healthcheck retry as well
 
             return onRetry is null
                 ? withResultPb.WaitAndRetryAsync(retryCount, i => retryInterval)
@@ -24,7 +24,7 @@ namespace TestEnvironment.Docker
                 {
                     if (e.Exception is not null)
                     {
-                        onRetry?.Invoke(e.Exception);
+                        onRetry.Invoke(e.Exception);
                     }
                 });
         }
