@@ -78,7 +78,7 @@ dotnet test
 ```
 
 #### Option 2 - Expose Docker Daemon from WSL2 to Windows and proceed using Visual Studio
-Ok, you still want to use Visual Studio to run and debug your tests. So this is still possible. First, you need to expose your Docker Daemon installed to WSL2. For this, go to `/ect/docker/` and create/edit `daemon.js` file:
+Ok, you still want to use Visual Studio to run and debug your tests. So this is still possible. First, you need to expose your Docker Daemon installed to WSL2. For this, go to `/etc/docker/` and create/edit `daemon.js` file:
 
 ```json
 {

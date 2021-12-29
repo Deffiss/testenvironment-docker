@@ -13,7 +13,7 @@ namespace TestEnvironment.Docker.DockerOperations
     public class DockerInWs2Initializer : IDockerInitializer
     {
         private const string DockerServiceInitCommand = @"-u root -e sh -c ""service docker status || service docker start""";
-        private const string Wsl2Executable = @"wsl.exe";
+        private const string Wsl2Executable = "wsl.exe";
         private const int DockerServicePollRetryCount = 30;
         private const int DockerServicePollRetryTimeout = 1;
 
