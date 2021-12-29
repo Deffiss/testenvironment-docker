@@ -20,8 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Docker.DotNet" Version="3.125.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="SharpCompress" Version="0.30.1" />
   </ItemGroup>
