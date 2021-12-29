@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using FluentFTP;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -51,6 +52,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddKafkaContainer(p => p with { Name = "my-kafka", Reusable = true })
 #else
@@ -76,6 +80,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddElasticsearchContainer(p => p with
                 {
@@ -106,6 +113,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddMssqlContainer(p => p with
                 {
@@ -148,6 +158,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddMariaDBContainer(p => p with
                 {
@@ -182,6 +195,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddMongoContainer(p => p with
                 {
@@ -215,6 +231,9 @@ namespace TestEnvironment.Docker.Tests
 
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 
                 // 27017 port is busy in AppVeyor
 #if DEBUG
@@ -251,6 +270,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddMailContainer(p => p with
                 {
@@ -283,6 +305,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddFtpContainer(p => p with
                 {
@@ -321,6 +346,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddFromDockerfile(p => p with
                 {
@@ -358,6 +386,9 @@ namespace TestEnvironment.Docker.Tests
 
 #endif
                 .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddPostgresContainer(p => p with
                 {
@@ -390,6 +421,9 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env-similar-names")
+#if WSL2
+                .UseWsl2()
+#endif
 #if DEBUG
                 .AddMongoContainer(p => p with
                 {

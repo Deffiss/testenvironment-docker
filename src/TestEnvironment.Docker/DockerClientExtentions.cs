@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Runtime.InteropServices;
 using Docker.DotNet;
 
@@ -17,5 +18,8 @@ namespace TestEnvironment.Docker
 
             return new DockerClientConfiguration(new Uri(defaultDockerUrl)).CreateClient();
         }
+
+        public static DockerClient CreateWSL2DockerClient(int port = 2375) =>
+            new DockerClientConfiguration(new Uri($"http://localhost:{port}")).CreateClient();
     }
 }
