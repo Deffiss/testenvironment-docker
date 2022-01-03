@@ -80,7 +80,7 @@ namespace TestEnvironment.Docker
                 var isStarted = await ContainerWaiter.WaitAsync(this, cancellationToken);
                 if (!isStarted)
                 {
-                    Logger.LogError($"Container {Name} didn't start.");
+                    Logger?.LogError($"Container {Name} didn't start.");
                     throw new TimeoutException($"Container {Name} didn't start.");
                 }
             }
