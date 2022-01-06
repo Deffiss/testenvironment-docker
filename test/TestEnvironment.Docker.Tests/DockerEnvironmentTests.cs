@@ -494,8 +494,6 @@ namespace TestEnvironment.Docker.Tests
             await environment.UpAsync();
             var mongo = environment.GetContainer<MongoContainer>("my-mongo-3");
 
-            var connectionString = $@"mongodb://{userName}:{password}@localhost:27017";
-
             // Act
             var lsres = await mongo.ExecAsync(new[] { "ls" });
             var whores = await mongo.ExecAsync(new[] { "whoami" });
