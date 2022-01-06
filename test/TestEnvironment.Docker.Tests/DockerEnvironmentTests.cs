@@ -485,12 +485,15 @@ namespace TestEnvironment.Docker.Tests
 #else
                 .AddMongoContainer(p => p with
                 {
-                    Name = "my-mongo"
+                    Name = "my-mongo-3",
+                    UserName = userName,
+                    Password = password,
                 })
 #endif
                 .Build();
             await environment.UpAsync();
             var mongo = environment.GetContainer<MongoContainer>("my-mongo-3");
+
             var connectionString = $@"mongodb://{userName}:{password}@localhost:27017";
 
             // Act
