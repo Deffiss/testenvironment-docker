@@ -74,6 +74,32 @@ namespace TestEnvironment.Docker.ContainerOperations
             return new(startedContainer.ID, ipAddress, ports);
         }
 
+        public async Task<string> ExecAsync(string containerId, string[] cmd, IDictionary<string, string>? env = null, string? user = null, string workdir = "/", CancellationToken cancellationToken = default)
+        {
+            var exec = await _dockerClient.Exec.ExecCreateContainerAsync(
+                containerId,
+                new ContainerExecCreateParameters
+                {
+                    AttachStderr = true,
+                    AttachStdout = true,
+                    Cmd = cmd,
+                    Env = env?.Select(p => $"{p.Key}={p.Value}")?.ToArray(),
+                    User = user,
+                    WorkingDir = workdir,
+                },
+                cancellationToken);
+
+            var resultStream = await _dockerClient.Exec.StartAndAttachContainerExecAsync(exec.ID, false, cancellationToken);
+            var (stdout, stderr) = await resultStream.ReadOutputToEndAsync(cancellationToken);
+
+            if (!string.IsNullOrEmpty(stderr))
+            {
+                throw new ContainerOperationException($"Failed to execute container command:\n{stderr}");
+            }
+
+            return stdout;
+        }
+
         public async Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
             await _dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters { }, cancellationToken);
 
