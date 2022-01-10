@@ -96,6 +96,16 @@ namespace TestEnvironment.Docker
             }
         }
 
+        public async Task<string> ExecAsync(string[] cmd, IDictionary<string, string>? env = null, string? user = null, string workdir = "/", CancellationToken cancellationToken = default)
+        {
+            if (Id is null)
+            {
+                throw new InvalidOperationException("Container is not run.");
+            }
+
+            return await ContainerApi.ExecAsync(Id, cmd, env, user, workdir, cancellationToken);
+        }
+
         public async Task StopAsync(CancellationToken cancellationToken = default)
         {
             if (Id is null)

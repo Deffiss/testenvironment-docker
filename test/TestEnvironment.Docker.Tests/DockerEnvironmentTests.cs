@@ -459,6 +459,52 @@ namespace TestEnvironment.Docker.Tests
             PrintMongoVersion(mongo2);
         }
 
+        [Fact]
+        public async Task AddMongoContainer_WhenExecCommand_ShouldPrintMongoVersion()
+        {
+            // Arrange
+            const string userName = "admin";
+            const string password = "password123";
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
+#if DEBUG
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo-3",
+                    UserName = userName,
+                    Password = password,
+                    Reusable = true
+                })
+#else
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo-3",
+                    UserName = userName,
+                    Password = password,
+                })
+#endif
+                .Build();
+            await environment.UpAsync();
+            var mongo = environment.GetContainer<MongoContainer>("my-mongo-3");
+
+            // Act
+            var lsres = await mongo.ExecAsync(new[] { "ls" });
+            var whores = await mongo.ExecAsync(new[] { "whoami" });
+            var mongoshres = await mongo.ExecAsync(new[] { "mongosh", "--username", userName, "--password", password, "--eval", "\"printjson(db.version())\"" });
+
+            // Assert
+            _testOutput.WriteLine($"Exec output whoami: {whores}");
+            _testOutput.WriteLine($"Exec output ls: {lsres}");
+            _testOutput.WriteLine($"Exec output mongosh: {mongoshres}");
+        }
+
         private async Task PrintMssqlVersion(MssqlContainer mssql)
         {
             using (var connection = new SqlConnection(mssql.GetConnectionString()))

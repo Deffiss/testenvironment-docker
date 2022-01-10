@@ -4,7 +4,7 @@
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <AssemblyName>TestEnvironment.Docker</AssemblyName>
     <RootNamespace>TestEnvironment.Docker</RootNamespace>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <PackageId>TestEnvironment.Docker</PackageId>
     <Authors>Aliaksei Harshkalep</Authors>
     <Description>Testing framework for setting up real dependencies as Docker containers.</Description>
