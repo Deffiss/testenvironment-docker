@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace TestEnvironment.Docker.ContainerOperations
 {
@@ -20,8 +21,8 @@ namespace TestEnvironment.Docker.ContainerOperations
         }
 
         protected ContainerOperationException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context)
+          SerializationInfo info,
+          StreamingContext context)
             : base(info, context)
         {
         }
