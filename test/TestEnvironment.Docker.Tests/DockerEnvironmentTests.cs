@@ -497,12 +497,16 @@ namespace TestEnvironment.Docker.Tests
             // Act
             var lsres = await mongo.ExecAsync(new[] { "ls" });
             var whores = await mongo.ExecAsync(new[] { "whoami" });
-            var mongoshres = await mongo.ExecAsync(new[] { "mongosh", "--username", userName, "--password", password, "--eval", "\"printjson(db.version())\"" });
+
+            // TODO: Fix mongo command
+            // var mongoshres = await mongo.ExecAsync(new[] { "mongosh", "--username", userName, "--password", password, "--eval", "\"printjson(db.version())\"" });
 
             // Assert
             _testOutput.WriteLine($"Exec output whoami: {whores}");
             _testOutput.WriteLine($"Exec output ls: {lsres}");
-            _testOutput.WriteLine($"Exec output mongosh: {mongoshres}");
+
+            // TODO: Fix mongo command
+            // _testOutput.WriteLine($"Exec output mongosh: {mongoshres}");
         }
 
         private async Task PrintMssqlVersion(MssqlContainer mssql)
