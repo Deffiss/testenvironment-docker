@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker.Cont
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker.Containers.Postgres", "src\TestEnvironment.Docker.Containers.Postgres\TestEnvironment.Docker.Containers.Postgres.csproj", "{8542AE96-7EC5-4965-98B1-95B63F7DFE6E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironmenbt.Docker.Containers.Kafka", "src\TestEnvironmenbt.Docker.Containers.Kafka\TestEnvironmenbt.Docker.Containers.Kafka.csproj", "{273B2E1E-C2A1-4A74-9BA3-0042314B133D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEnvironment.Docker.Containers.Kafka", "src\TestEnvironment.Docker.Containers.Kafka\TestEnvironment.Docker.Containers.Kafka.csproj", "{273B2E1E-C2A1-4A74-9BA3-0042314B133D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6A74E787-3882-4A9E-A9C2-F5CE35479731}"
 	ProjectSection(SolutionItems) = preProject
