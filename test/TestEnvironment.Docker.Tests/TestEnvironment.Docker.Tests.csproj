@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TestEnvironmenbt.Docker.Containers.Kafka\TestEnvironmenbt.Docker.Containers.Kafka.csproj" />
+    <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Kafka\TestEnvironment.Docker.Containers.Kafka.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Elasticsearch\TestEnvironment.Docker.Containers.Elasticsearch.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Ftp\TestEnvironment.Docker.Containers.Ftp.csproj" />
     <ProjectReference Include="..\..\src\TestEnvironment.Docker.Containers.Mail\TestEnvironment.Docker.Containers.Mail.csproj" />
