@@ -575,12 +575,12 @@ namespace TestEnvironment.Docker.Tests
             IDatabase database = redisC.GetDatabase();
 
             string key = "test_key";
-            string value = "test_value";
-            await database.StringSetAsync(key, value);
+            string expectedValue = "test_value";
+            await database.StringSetAsync(key, expectedValue);
 
-            string expectedValue = await database.StringGetAsync(key);
+            string actualValue = await database.StringGetAsync(key);
 
-            Assert.Equal(expectedValue, value);
+            Assert.Equal(expectedValue, actualValue);
 
             await redisC.CloseAsync();
         }
