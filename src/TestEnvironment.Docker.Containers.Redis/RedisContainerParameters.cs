@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TestEnvironment.Docker.Containers.Redis
 {
     public record RedisContainerParameters(string Name, string Password)
-        : ContainerParameters(Name, "redis")
+        : ContainerParameters(Name, "bitnami/redis")
     {
     }
 }

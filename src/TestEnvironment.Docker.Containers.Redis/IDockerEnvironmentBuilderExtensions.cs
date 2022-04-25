@@ -12,7 +12,7 @@ namespace TestEnvironment.Docker.Containers.Redis
     {
         public static RedisContainerParameters DefaultParameters => new("redis", "password")
         {
-            ImageName = "redis",
+            ImageName = "bitnami/redis",
             ContainerCleaner = new RedisContainerCleaner(),
             ContainerWaiter = new RedisContainerWaiter(),
         };
