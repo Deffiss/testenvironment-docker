@@ -571,6 +571,17 @@ namespace TestEnvironment.Docker.Tests
             ConnectionMultiplexer redisC = await ConnectionMultiplexer.ConnectAsync(redisConfigurationOptions);
 
             _testOutput.WriteLine($"Redis server counters {redisC.GetStatus()}");
+
+            IDatabase database = redisC.GetDatabase();
+
+            string key = "test_key";
+            string value = "test_value";
+            await database.StringSetAsync(key, value);
+
+            string expectedValue = await database.StringGetAsync(key);
+
+            Assert.Equal(expectedValue, value);
+
             await redisC.CloseAsync();
         }
 
