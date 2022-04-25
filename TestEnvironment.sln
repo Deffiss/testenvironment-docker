@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}"
 EndProject
@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEnvironment.Docker.Containers.Redis", "src\TestEnvironment.Docker.Containers.Redis\TestEnvironment.Docker.Containers.Redis.csproj", "{B95170E9-AC65-4D9C-A990-9696199C8920}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,6 +122,14 @@ Global
 		{273B2E1E-C2A1-4A74-9BA3-0042314B133D}.WSL2_Debug|Any CPU.Build.0 = Debug|Any CPU
 		{273B2E1E-C2A1-4A74-9BA3-0042314B133D}.WSL2_Release|Any CPU.ActiveCfg = Release|Any CPU
 		{273B2E1E-C2A1-4A74-9BA3-0042314B133D}.WSL2_Release|Any CPU.Build.0 = Release|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +145,7 @@ Global
 		{5F1E7192-A8D9-49B9-8F24-A29CB06B43DC} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
 		{8542AE96-7EC5-4965-98B1-95B63F7DFE6E} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
 		{273B2E1E-C2A1-4A74-9BA3-0042314B133D} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
+		{B95170E9-AC65-4D9C-A990-9696199C8920} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5DB4A55C-3900-4F7F-89FF-81D2698214C0}

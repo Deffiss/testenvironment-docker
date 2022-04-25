@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+	<AssemblyName>TestEnvironment.Docker.Containers.Redis</AssemblyName>
+	<RootNamespace>TestEnvironment.Docker.Containers.Redis</RootNamespace>
+	<Version>2.1.3</Version>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PackageId>TestEnvironment.Docker.Containers.Redis</PackageId>
+	<Authors>Manoj Kumar</Authors>
+	<Description>Add Redis container specific functionality.</Description>
+	<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+	<PackageTags>docker tests redis container</PackageTags>
+	<Nullable>enable</Nullable>
+	 <PackageReleaseNotes>Update to net5.0.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.5.61" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj"></ProjectReference>
+	</ItemGroup>
+
+</Project>
