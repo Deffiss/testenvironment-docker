@@ -30,7 +30,9 @@ namespace TestEnvironment.Docker.Containers.Redis
                 {
                     { redisConnectionConfiguration.Host, redisConnectionConfiguration.Port },
                 },
-                Password = redisConnectionConfiguration.Password
+                Password = redisConnectionConfiguration.Password,
+                ConnectTimeout = 2000,
+                ConnectRetry = 2
             };
 
             var redis = await ConnectionMultiplexer.ConnectAsync(redisConfigurationOptions);
