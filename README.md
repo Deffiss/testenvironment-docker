@@ -25,6 +25,7 @@ To add container specific functionality for MSSQL, Elasticsearch or MongoDB:
  Install-Package TestEnvironment.Docker.Containers.MariaDB
  Install-Package TestEnvironment.Docker.Containers.Postgres
  Install-Package TestEnvironment.Docker.Containers.Kafka
+ Install-Package TestEnvironment.Docker.Containers.Redis
 ```
 ### Example
 Latest version is heavily using C# 9 [records](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-9#record-types) feature. Please make sure you are targeting `net5.0` and above.
