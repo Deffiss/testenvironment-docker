@@ -37,7 +37,7 @@ namespace TestEnvironment.Docker.Containers.Redis
 
             var redis = await ConnectionMultiplexer.ConnectAsync(redisConfigurationOptions);
 
-            redis.GetStatus();
+            _ = redis.GetStatus();
 
             await redis.CloseAsync();
 
