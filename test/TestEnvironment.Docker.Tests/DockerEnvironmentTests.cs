@@ -15,6 +15,7 @@ using MongoDB.Driver;
 using MySqlConnector;
 using Nest;
 using Npgsql;
+using StackExchange.Redis;
 using TestEnvironment.Docker;
 using TestEnvironment.Docker.ContainerLifecycle;
 using TestEnvironment.Docker.Containers.Elasticsearch;
@@ -25,6 +26,7 @@ using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
 using TestEnvironment.Docker.Containers.Postgres;
+using TestEnvironment.Docker.Containers.Redis;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -40,6 +42,35 @@ namespace TestEnvironment.Docker.Tests
             _testOutput = testOutput;
             _logger = LoggerFactory.Create(lb => lb.AddConsole().AddDebug())
                 .CreateLogger<DockerEnvironment>();
+        }
+
+        [Fact]
+        public async Task AddRedisContainer_WhenContainerIsUp_ShouldPrintStats()
+        {
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
+#if DEBUG
+                .AddRedisContainer(p => p with { Name = "my-redis", Reusable = false })
+#else
+                .AddRedisContainer(p => p with { Name = "my-redis" })
+#endif
+                .Build();
+
+            // Act
+            await environment.UpAsync();
+
+            // Assert
+            var redis = environment.GetContainer<RedisContainer>("my-redis");
+            await PrintRedisStats(redis);
+
+            await environment.DownAsync();
         }
 
         [Fact]
@@ -521,6 +552,37 @@ namespace TestEnvironment.Docker.Tests
 
                 _testOutput.WriteLine($"MSSQL Version: {reader.GetString(0)}");
             }
+        }
+
+        private async Task PrintRedisStats(RedisContainer redis)
+        {
+            RedisConnectionConfiguration redisConnectionConfiguration = redis.GetConnectionConfiguration();
+
+            var redisConfigurationOptions = new ConfigurationOptions()
+            {
+                EndPoints =
+                {
+                    { redisConnectionConfiguration.Host, redisConnectionConfiguration.Port },
+                },
+                Password = redisConnectionConfiguration.Password,
+                AllowAdmin = true
+            };
+
+            ConnectionMultiplexer redisC = await ConnectionMultiplexer.ConnectAsync(redisConfigurationOptions);
+
+            _testOutput.WriteLine($"Redis server counters {redisC.GetStatus()}");
+
+            IDatabase database = redisC.GetDatabase();
+
+            string key = "test_key";
+            string expectedValue = "test_value";
+            await database.StringSetAsync(key, expectedValue);
+
+            string actualValue = await database.StringGetAsync(key);
+
+            Assert.Equal(expectedValue, actualValue);
+
+            await redisC.CloseAsync();
         }
 
         private void PrintKafkaVersion(KafkaContainer kafka)
