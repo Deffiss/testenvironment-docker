@@ -101,6 +101,11 @@ await using var environment =  new DockerEnvironmentBuilder()
 
 And that's it!
 
+### Podman support
+
+As a container engine you can use [Podman](https://podman.io/) instead of docker. It works the same and even has the same api.
+To install podman on Windows and use it follow this [instruction](https://gist.github.com/Guddiny/893555b398e86fc9c33bbeee41ff154a) (Super easy).
+
 ### Troubleshooting
 
 In case of unpredictable behaviour try to remove the containers manually via command line:
