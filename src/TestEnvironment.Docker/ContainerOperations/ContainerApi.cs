@@ -129,14 +129,7 @@ namespace TestEnvironment.Docker.ContainerOperations
             var containers = await _dockerClient.Containers.ListContainersAsync(
                 new ContainersListParameters
                 {
-                    All = true,
-                    Filters = new Dictionary<string, IDictionary<string, bool>>
-                    {
-                        ["name"] = new Dictionary<string, bool>
-                        {
-                            [containerName] = true
-                        }
-                    }
+                    All = true
                 },
                 cancellationToken);
 
