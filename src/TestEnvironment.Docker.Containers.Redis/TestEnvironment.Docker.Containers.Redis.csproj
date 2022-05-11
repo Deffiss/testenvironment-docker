@@ -4,7 +4,7 @@
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <AssemblyName>TestEnvironment.Docker.Containers.Redis</AssemblyName>
     <RootNamespace>TestEnvironment.Docker.Containers.Redis</RootNamespace>
-    <Version>2.1.3</Version>
+    <Version>2.1.4</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>TestEnvironment.Docker.Containers.Redis</PackageId>
