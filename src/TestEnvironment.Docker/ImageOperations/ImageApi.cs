@@ -126,7 +126,6 @@ namespace TestEnvironment.Docker.ImageOperations
                         Dockerfile = dockerfile,
                         BuildArgs = buildArgs ?? new Dictionary<string, string>(),
                         Tags = new[] { $"{imageName}:{tag}" },
-                        PullParent = true,
                         Remove = true,
                         ForceRemove = true,
                     },
