@@ -9,7 +9,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
     {
         public static MssqlContainerParameters DefaultParameters => new("mssql", "password")
         {
-            ImageName = "mcr.microsoft.com/mssql/server",
+            ImageName = "mcr.microsoft.com/azure-sql-edge",
             ContainerCleaner = new MssqlContainerCleaner(),
             ContainerWaiter = new MssqlContainerWaiter()
         };
@@ -39,7 +39,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
             this IDockerEnvironmentBuilder builder,
             string name,
             string saPassword,
-            string imageName = "mcr.microsoft.com/mssql/server",
+            string imageName = "mcr.microsoft.com/azure-sql-edge",
             string tag = "latest",
             IDictionary<string, string>? environmentVariables = null,
             IDictionary<ushort, ushort>? ports = null,
@@ -65,8 +65,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
                 EnvironmentVariables = new Dictionary<string, string>
                 {
                     ["ACCEPT_EULA"] = "Y",
-                    ["SA_PASSWORD"] = p.SAPassword,
-                    ["MSSQL_PID"] = "Express"
+                    ["SA_PASSWORD"] = p.SAPassword
                 }.MergeDictionaries(p.EnvironmentVariables),
             };
 
