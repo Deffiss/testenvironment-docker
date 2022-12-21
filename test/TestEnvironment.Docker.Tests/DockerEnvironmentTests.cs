@@ -4,19 +4,20 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using FluentFTP;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MySqlConnector;
 using Nest;
 using Npgsql;
+using RabbitMQ.Client;
 using StackExchange.Redis;
-using TestEnvironment.Docker;
 using TestEnvironment.Docker.ContainerLifecycle;
 using TestEnvironment.Docker.Containers.Elasticsearch;
 using TestEnvironment.Docker.Containers.Ftp;
@@ -26,6 +27,7 @@ using TestEnvironment.Docker.Containers.MariaDB;
 using TestEnvironment.Docker.Containers.Mongo;
 using TestEnvironment.Docker.Containers.Mssql;
 using TestEnvironment.Docker.Containers.Postgres;
+using TestEnvironment.Docker.Containers.RabbitMQ;
 using TestEnvironment.Docker.Containers.Redis;
 using Xunit;
 using Xunit.Abstractions;
@@ -443,6 +445,42 @@ namespace TestEnvironment.Docker.Tests
         }
 
         [Fact]
+        public async Task AddRabbitMqContainer_WhenContainerIsUp_ShouldPrintServerInformation()
+        {
+            // Arrange
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+
+#endif
+                .SetName("test-env")
+#if WSL2
+                .UseWsl2()
+#endif
+#if DEBUG
+                .AddRabbitMQContainer(p => p with
+                {
+                    Name = "my-rabbitmq",
+                    Reusable = true
+                })
+#else
+                .AddRabbitMQContainer(p => p with
+                {
+                    Name = "my-rabbitmq"
+                })
+#endif
+                .Build();
+
+            // Act
+            await environment.UpAsync();
+
+            // Assert
+            var rabbitmq = environment.GetContainer<RabbitMQContainer>("my-rabbitmq");
+            PrintServerInformationFromRabbitMq(rabbitmq);
+        }
+
+        [Fact]
         public async Task TwoContainersWithSimilarNames_ShouldStartCorrectly()
         {
             // Arrange
@@ -685,6 +723,36 @@ namespace TestEnvironment.Docker.Tests
 
                 _testOutput.WriteLine($"Postgres Version: {reader.GetString(0)}");
             }
+        }
+
+        private void PrintServerInformationFromRabbitMq(RabbitMQContainer container)
+        {
+            var factory = new ConnectionFactory
+            {
+                HostName = container.Host,
+                Port = container.Port,
+                UserName = container.UserName,
+                Password = container.Password
+            };
+
+            using var connection = factory.CreateConnection();
+
+            var infoTextBuilder = new StringBuilder();
+
+            foreach (var serverProperty in connection.ServerProperties)
+            {
+                if (serverProperty.Value is Dictionary<string, object> dict)
+                {
+                    infoTextBuilder.AppendLine($"{serverProperty.Key}: {string.Join(", ", dict.Select(x => $"{x.Key}={x.Value}"))}");
+                }
+
+                if (serverProperty.Value is byte[] bytes)
+                {
+                    infoTextBuilder.AppendLine($"{serverProperty.Key}: {Encoding.UTF8.GetString(bytes)}");
+                }
+            }
+
+            _testOutput.WriteLine($"RabbitMQ server information: {infoTextBuilder}");
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
