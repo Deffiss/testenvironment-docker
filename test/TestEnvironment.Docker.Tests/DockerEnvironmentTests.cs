@@ -445,7 +445,7 @@ namespace TestEnvironment.Docker.Tests
         }
 
         [Fact]
-        public async Task AddRabbitMqContainer_WhenContainerIsUp_Should()
+        public async Task AddRabbitMqContainer_WhenContainerIsUp_ShouldPrintServerInformation()
         {
             // Arrange
 #if DEBUG
@@ -465,7 +465,7 @@ namespace TestEnvironment.Docker.Tests
                     Reusable = true
                 })
 #else
-                .AddRabbitMqContainer(p => p with
+                .AddRabbitMQContainer(p => p with
                 {
                     Name = "my-rabbitmq"
                 })
