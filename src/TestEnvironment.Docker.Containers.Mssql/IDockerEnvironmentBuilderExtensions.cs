@@ -65,8 +65,7 @@ namespace TestEnvironment.Docker.Containers.Mssql
                 EnvironmentVariables = new Dictionary<string, string>
                 {
                     ["ACCEPT_EULA"] = "Y",
-                    ["SA_PASSWORD"] = p.SAPassword,
-                    ["MSSQL_PID"] = "Express"
+                    ["SA_PASSWORD"] = p.SAPassword
                 }.MergeDictionaries(p.EnvironmentVariables),
             };
 
