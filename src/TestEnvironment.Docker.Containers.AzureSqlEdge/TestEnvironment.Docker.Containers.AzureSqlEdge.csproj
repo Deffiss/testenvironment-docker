@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+    <AssemblyName>TestEnvironment.Docker.Containers.AzureSqlEdge</AssemblyName>
+    <RootNamespace>TestEnvironment.Docker.Containers.AzureSqlEdge</RootNamespace>
+    <Version>2.1.5</Version>
+    <PackageId>TestEnvironment.Docker.Containers.AzureSqlEdge</PackageId>
+    <Nullable>enable</Nullable>
+    <Authors>Aliaksei Harshkalep, ZaoralJ</Authors>
+    <Description>Add Azure SQL Edge container specific functionality.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>docker tests azure sql edge container</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -34,6 +34,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEnvironment.Docker.Containers.Redis", "src\TestEnvironment.Docker.Containers.Redis\TestEnvironment.Docker.Containers.Redis.csproj", "{B95170E9-AC65-4D9C-A990-9696199C8920}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEnvironment.Docker.Containers.AzureSqlEdge", "src\TestEnvironment.Docker.Containers.AzureSqlEdge\TestEnvironment.Docker.Containers.AzureSqlEdge.csproj", "{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,14 @@ Global
 		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B95170E9-AC65-4D9C-A990-9696199C8920}.WSL2_Release|Any CPU.Build.0 = Release|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.WSL2_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.WSL2_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.WSL2_Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0}.WSL2_Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -146,6 +156,7 @@ Global
 		{8542AE96-7EC5-4965-98B1-95B63F7DFE6E} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
 		{273B2E1E-C2A1-4A74-9BA3-0042314B133D} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
 		{B95170E9-AC65-4D9C-A990-9696199C8920} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
+		{6C4BAC72-AA77-4A23-83FF-C40C0336CDB0} = {9E3390D1-D6AB-48E9-8FBA-C622BCF2C54D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5DB4A55C-3900-4F7F-89FF-81D2698214C0}
