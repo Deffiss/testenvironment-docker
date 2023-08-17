@@ -208,7 +208,7 @@ namespace TestEnvironment.Docker.Tests
 #else
                 .AddMssqlContainer(p => p with
                 {
-                    Name = "my-mssql",
+                    Name = containerName,
                     SAPassword = "HelloK11tt_0"
                 })
 #endif
@@ -218,7 +218,7 @@ namespace TestEnvironment.Docker.Tests
             await environment.UpAsync();
 
             // Assert
-            var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
+            var mssql = environment.GetContainer<MssqlContainer>(containerName);
             Assert.EndsWith(mssql.Name, nameSuffix);
         }
 
