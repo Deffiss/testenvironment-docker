@@ -52,8 +52,10 @@ namespace TestEnvironment.Docker
         {
         }
 
-        public DockerEnvironment(string name, Container[] containers, IImageApi imageApi, IContainerApi containerApi, ILogger? logger) =>
-            (Name, Containers, _imageApi, _containerApi, _logger) = (name, containers, imageApi, containerApi, logger);
+        public DockerEnvironment(string name, Container[] containers, IImageApi imageApi, IContainerApi containerApi, ILogger? logger)
+            : this(name, containers, imageApi, containerApi, null, logger)
+        {
+        }
 
         public DockerEnvironment(string name, Container[] containers, IImageApi imageApi, IContainerApi containerApi, IDockerInitializer? dockerInitializer, ILogger? logger) =>
             (Name, Containers, _imageApi, _containerApi, _dockerInitializer, _logger) = (name, containers, imageApi, containerApi, dockerInitializer, logger);

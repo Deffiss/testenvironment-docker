@@ -19,6 +19,8 @@ namespace TestEnvironment.Docker
         private bool _isWsl2 = false;
         private bool _isDockerInDocker = false;
         private string _environmentName = Guid.NewGuid().ToString().Substring(0, 10);
+        private Func<IDockerClient, ILogger?, IContainerApi>? _containerApiFactory;
+        private Func<IDockerClient, ILogger?, IImageApi>? _imageApiFactory;
 
         public IDockerClient DockerClient { get; private set; }
 
@@ -102,13 +104,31 @@ namespace TestEnvironment.Docker
             return this;
         }
 
+        public IDockerEnvironmentBuilder WithContainerApi(Func<IDockerClient, ILogger?, IContainerApi> containerApiFactory)
+        {
+            _containerApiFactory = containerApiFactory;
+
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder WithImageApi(Func<IDockerClient, ILogger?, IImageApi> imageApiFactory)
+        {
+            _imageApiFactory = imageApiFactory;
+
+            return this;
+        }
+
         public IDockerEnvironment Build()
         {
             var containers = _containerFactories.Values.Select(cf => cf()).ToArray();
 
-            return _isWsl2
-                ? new DockerEnvironment(_environmentName, containers, DockerClient, new DockerInWs2Initializer(DockerClient, Logger), Logger)
-                : new DockerEnvironment(_environmentName, containers, DockerClient, Logger);
+            var containerApi = _containerApiFactory?.Invoke(DockerClient, Logger) ?? new ContainerApi(DockerClient, Logger);
+
+            var imageApi = _imageApiFactory?.Invoke(DockerClient, Logger) ?? new ImageApi(DockerClient, Logger);
+
+            var dockerInitializer = _isWsl2 ? new DockerInWs2Initializer(DockerClient, Logger) : null;
+
+            return new DockerEnvironment(_environmentName, containers, imageApi, containerApi, dockerInitializer, Logger);
         }
     }
 }

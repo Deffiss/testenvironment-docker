@@ -182,6 +182,47 @@ namespace TestEnvironment.Docker.Tests
         }
 
         [Fact]
+        public async Task AddMsSqlContainerWithCustomApi_WhenContainerIsUp_ShouldHaveCustomName()
+        {
+            // Arrange
+            const string nameSuffix = "custom";
+            const string containerName = "my-mssql";
+
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+                .WithContainerApi((api, l) => new CustomContainerApi(nameSuffix, api, l))
+#if WSL2
+                .UseWsl2()
+#endif
+#if DEBUG
+                .AddMssqlContainer(p => p with
+                {
+                    Name = containerName,
+                    SAPassword = "HelloK11tt_0",
+                    Reusable = true
+                })
+#else
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssql",
+                    SAPassword = "HelloK11tt_0"
+                })
+#endif
+                .Build();
+
+            // Act
+            await environment.UpAsync();
+
+            // Assert
+            var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
+            Assert.EndsWith(mssql.Name, nameSuffix);
+        }
+
+        [Fact]
         public async Task AddMariaDbContainer_WhenContainerIsUp_ShouldPrintMariaDbVersion()
         {
             // Arrange
