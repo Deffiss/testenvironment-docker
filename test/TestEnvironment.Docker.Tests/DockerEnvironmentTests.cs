@@ -182,7 +182,7 @@ namespace TestEnvironment.Docker.Tests
         }
 
         [Fact]
-        public async Task AddMsSqlContainerWithCustomApi_WhenContainerIsUp_ShouldHaveCustomName()
+        public async Task AddMongoContainerWithCustomApi_WhenContainerIsUp_ShouldHaveCustomVar()
         {
             // Arrange
             const string key = "hello";
@@ -218,7 +218,7 @@ namespace TestEnvironment.Docker.Tests
 
             // Assert
             var mongo = environment.GetContainer<MongoContainer>(containerName);
-            var varValue = await mongo.ExecAsync(new[] { $"echo {key}" });
+            var varValue = await mongo.ExecAsync(new[] { $"echo ${key}" });
             Assert.EndsWith(val, varValue);
         }
 
