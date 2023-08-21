@@ -12,19 +12,22 @@ namespace TestEnvironment.Docker.Tests
 {
     internal class CustomContainerApi : ContainerApi
     {
-        private readonly string _namePrefix;
+        private readonly string _key;
+        private readonly string _val;
 
-        public CustomContainerApi(string namePrefix, IDockerClient dockerClient, ILogger logger)
+        public CustomContainerApi(string key, string val, IDockerClient dockerClient, ILogger logger)
             : base(dockerClient, logger)
         {
-            _namePrefix = namePrefix;
+            _key = key;
+            _val = val;
         }
 
         protected override CreateContainerParameters GetCreateContainerParameters(ContainerParameters containerParameters)
         {
             var createParams = base.GetCreateContainerParameters(containerParameters);
 
-            createParams.Name = $"{createParams.Name}-{_namePrefix}";
+            createParams.Name = $"{createParams.Name}-{_key}";
+            createParams.Env.Add($"{_key}={_val}");
 
             return createParams;
         }

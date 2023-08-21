@@ -185,8 +185,9 @@ namespace TestEnvironment.Docker.Tests
         public async Task AddMsSqlContainerWithCustomApi_WhenContainerIsUp_ShouldHaveCustomName()
         {
             // Arrange
-            const string nameSuffix = "custom";
-            const string containerName = "my-mssql";
+            const string key = "hello";
+            const string val = "world";
+            const string containerName = "my-mongo-cust";
 
 #if DEBUG
             var environment = new DockerEnvironmentBuilder(_logger)
@@ -194,22 +195,20 @@ namespace TestEnvironment.Docker.Tests
             await using var environment = new DockerEnvironmentBuilder(_logger)
 #endif
                 .SetName("test-env")
-                .WithContainerApi((api, l) => new CustomContainerApi(nameSuffix, api, l))
+                .WithContainerApi((api, l) => new CustomContainerApi(key, val, api, l))
 #if WSL2
                 .UseWsl2()
 #endif
 #if DEBUG
-                .AddMssqlContainer(p => p with
+                .AddMongoContainer(p => p with
                 {
                     Name = containerName,
-                    SAPassword = "HelloK11tt_0",
                     Reusable = true
                 })
 #else
-                .AddMssqlContainer(p => p with
+                .AddMongoContainer(p => p with
                 {
-                    Name = containerName,
-                    SAPassword = "HelloK11tt_0"
+                    Name = "my-mongo"
                 })
 #endif
                 .Build();
@@ -218,8 +217,9 @@ namespace TestEnvironment.Docker.Tests
             await environment.UpAsync();
 
             // Assert
-            var mssql = environment.GetContainer<MssqlContainer>(containerName);
-            Assert.EndsWith(mssql.Name, nameSuffix);
+            var mongo = environment.GetContainer<MongoContainer>(containerName);
+            var varValue = await mongo.ExecAsync(new[] { $"echo {key}" });
+            Assert.EndsWith(val, varValue);
         }
 
         [Fact]
