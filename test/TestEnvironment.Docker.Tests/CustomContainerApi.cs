@@ -26,7 +26,6 @@ namespace TestEnvironment.Docker.Tests
         {
             var createParams = base.GetCreateContainerParameters(containerParameters);
 
-            createParams.Name = $"{createParams.Name}-{_key}";
             createParams.Env.Add($"{_key}={_val}");
 
             return createParams;
