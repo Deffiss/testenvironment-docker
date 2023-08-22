@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using TestEnvironment.Docker.ContainerLifecycle;
 
 namespace TestEnvironment.Docker
@@ -18,6 +19,8 @@ namespace TestEnvironment.Docker
         public IList<string>? Entrypoint { get; init; }
 
         public IList<ushort>? ExposedPorts { get; init; }
+
+        public IList<string>? Binds { get; init; }
 
         public IContainerInitializer? ContainerInitializer { get; init; }
 
