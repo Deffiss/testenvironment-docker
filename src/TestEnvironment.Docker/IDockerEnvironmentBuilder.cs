@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Docker.DotNet;
 using Microsoft.Extensions.Logging;
+using TestEnvironment.Docker.ContainerOperations;
+using TestEnvironment.Docker.ImageOperations;
 
 namespace TestEnvironment.Docker
 {
@@ -23,6 +25,13 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IDockerClient, ILogger?, Container> containerFactory)
             where TParams : ContainerParameters;
+
+        IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IContainerApi, IImageApi, ILogger?, Container> containerFactory)
+            where TParams : ContainerParameters;
+
+        IDockerEnvironmentBuilder WithContainerApi(Func<IDockerClient, ILogger?, IContainerApi> containerApiFactory);
+
+        IDockerEnvironmentBuilder WithImageApi(Func<IDockerClient, ILogger?, IImageApi> imageApiFactory);
 
         IDockerEnvironment Build();
     }

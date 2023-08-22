@@ -182,6 +182,47 @@ namespace TestEnvironment.Docker.Tests
         }
 
         [Fact]
+        public async Task AddMongoContainerWithCustomApi_WhenContainerIsUp_ShouldHaveCustomVar()
+        {
+            // Arrange
+            const string key = "hello";
+            const string val = "world";
+            const string containerName = "my-mongo-cust";
+
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+                .WithContainerApi((api, l) => new CustomContainerApi(key, val, api, l))
+#if WSL2
+                .UseWsl2()
+#endif
+#if DEBUG
+                .AddMongoContainer(p => p with
+                {
+                    Name = containerName,
+                    Reusable = true
+                })
+#else
+                .AddMongoContainer(p => p with
+                {
+                    Name = "my-mongo"
+                })
+#endif
+                .Build();
+
+            // Act
+            await environment.UpAsync();
+
+            // Assert
+            var mongo = environment.GetContainer<MongoContainer>(containerName);
+            var varValue = await mongo.ExecAsync(new[] { $"printenv {key}" });
+            Assert.EndsWith(val, varValue);
+        }
+
+        [Fact]
         public async Task AddMariaDbContainer_WhenContainerIsUp_ShouldPrintMariaDbVersion()
         {
             // Arrange

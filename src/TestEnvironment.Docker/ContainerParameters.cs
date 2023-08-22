@@ -19,6 +19,8 @@ namespace TestEnvironment.Docker
 
         public IList<ushort>? ExposedPorts { get; init; }
 
+        public IList<string>? Binds { get; init; }
+
         public IContainerInitializer? ContainerInitializer { get; init; }
 
         public IContainerWaiter? ContainerWaiter { get; init; }
