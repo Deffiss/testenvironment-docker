@@ -26,6 +26,9 @@ namespace TestEnvironment.Docker
         IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IDockerClient, ILogger?, Container> containerFactory)
             where TParams : ContainerParameters;
 
+        IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IContainerApi, IImageApi, ILogger?, Container> containerFactory)
+            where TParams : ContainerParameters;
+
         IDockerEnvironmentBuilder WithContainerApi(Func<IDockerClient, ILogger?, IContainerApi> containerApiFactory);
 
         IDockerEnvironmentBuilder WithImageApi(Func<IDockerClient, ILogger?, IImageApi> imageApiFactory);

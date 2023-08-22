@@ -218,7 +218,7 @@ namespace TestEnvironment.Docker.Tests
 
             // Assert
             var mongo = environment.GetContainer<MongoContainer>(containerName);
-            var varValue = await mongo.ExecAsync(new[] { $"echo ${key}" });
+            var varValue = await mongo.ExecAsync(new[] { $"printenv {key}" });
             Assert.EndsWith(val, varValue);
         }
 

@@ -14,7 +14,7 @@ namespace TestEnvironment.Docker
 {
     public class DockerEnvironmentBuilder : IDockerEnvironmentBuilder
     {
-        private readonly Dictionary<ContainerParameters, Func<Container>> _containerFactories = new();
+        private readonly Dictionary<ContainerParameters, Func<IContainerApi, IImageApi, Container>> _containerFactories = new();
         private IDictionary<string, string> _environmentVariables = new Dictionary<string, string>();
         private bool _isWsl2 = false;
         private bool _isDockerInDocker = false;
@@ -90,7 +90,7 @@ namespace TestEnvironment.Docker
         public IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IDockerClient, ILogger?, Container> containerFactory)
             where TParams : ContainerParameters
         {
-            _containerFactories.Add(containerParameters, () =>
+            _containerFactories.Add(containerParameters, (containerApi, imageApi) =>
             {
                 var envParameters = containerParameters with
                 {
@@ -100,6 +100,23 @@ namespace TestEnvironment.Docker
                 };
 
                 return containerFactory(envParameters, DockerClient, Logger);
+            });
+            return this;
+        }
+
+        public IDockerEnvironmentBuilder AddContainer<TParams>(TParams containerParameters, Func<TParams, IContainerApi, IImageApi, ILogger?, Container> containerFactory)
+            where TParams : ContainerParameters
+        {
+            _containerFactories.Add(containerParameters, (containerApi, imageApi) =>
+            {
+                var envParameters = containerParameters with
+                {
+                    Name = GetContainerName(_environmentName, containerParameters.Name),
+                    EnvironmentVariables = _environmentVariables.MergeDictionaries(containerParameters.EnvironmentVariables),
+                    IsDockerInDocker = _isDockerInDocker,
+                };
+
+                return containerFactory(envParameters, containerApi, imageApi, Logger);
             });
             return this;
         }
@@ -120,13 +137,13 @@ namespace TestEnvironment.Docker
 
         public IDockerEnvironment Build()
         {
-            var containers = _containerFactories.Values.Select(cf => cf()).ToArray();
-
             var containerApi = _containerApiFactory?.Invoke(DockerClient, Logger) ?? new ContainerApi(DockerClient, Logger);
 
             var imageApi = _imageApiFactory?.Invoke(DockerClient, Logger) ?? new ImageApi(DockerClient, Logger);
 
             var dockerInitializer = _isWsl2 ? new DockerInWs2Initializer(DockerClient, Logger) : null;
+
+            var containers = _containerFactories.Values.Select(cf => cf(containerApi, imageApi)).ToArray();
 
             return new DockerEnvironment(_environmentName, containers, imageApi, containerApi, dockerInitializer, Logger);
         }
