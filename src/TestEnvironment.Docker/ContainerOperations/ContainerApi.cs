@@ -153,7 +153,8 @@ namespace TestEnvironment.Docker.ContainerOperations
                 Hostname = name,
                 HostConfig = new HostConfig
                 {
-                    PublishAllPorts = ports == null
+                    PublishAllPorts = ports == null,
+                    Binds = containerParameters.Binds
                 }
             };
 
