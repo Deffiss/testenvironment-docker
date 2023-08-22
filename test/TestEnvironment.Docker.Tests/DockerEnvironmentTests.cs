@@ -647,7 +647,7 @@ namespace TestEnvironment.Docker.Tests
         {
             var mongoClient = new MongoClient(mongo.GetConnectionString());
             var clusterDescription = mongoClient.Cluster.Description;
-            _testOutput.WriteLine($"Mongo version: {clusterDescription.Servers.First().Version}");
+            _testOutput.WriteLine($"Mongo state: {clusterDescription.Servers.First().State}");
         }
 
         private async Task PrintMongoReplicaSetConfiguration(MongoSingleReplicaSetContainer mongo)
