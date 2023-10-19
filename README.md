@@ -102,6 +102,8 @@ await using var environment =  new DockerEnvironmentBuilder()
 
 And that's it!
 
+Official instruction regarding Docker remote access are [here](https://docs.docker.com/config/daemon/remote-access/).
+
 ### Podman support
 
 As a container engine you can use [Podman](https://podman.io/) instead of docker. It works the same and even has the same api.
