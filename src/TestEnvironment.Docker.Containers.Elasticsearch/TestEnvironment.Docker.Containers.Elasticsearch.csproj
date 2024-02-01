@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <AssemblyName>TestEnvironment.Docker.Containers.Elasticsearch</AssemblyName>
-    <RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
-    <Version>2.1.5</Version>
-    <PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
-    <Nullable>enable</Nullable>
-    <Authors>Aliaksei Harshkalep</Authors>
-    <Description>Add Elasticsearch container specific functionality.</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>docker tests elasticsearch container</PackageTags>
-    <PackageReleaseNotes>Update to net5.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;net6.0;net8.0</TargetFrameworks>
+		<AssemblyName>TestEnvironment.Docker.Containers.Elasticsearch</AssemblyName>
+		<RootNamespace>TestEnvironment.Docker.Containers.Elasticsearch</RootNamespace>
+		<Version>2.1.7</Version>
+		<PackageId>TestEnvironment.Docker.Containers.Elasticsearch</PackageId>
+		<Nullable>enable</Nullable>
+		<Authors>Aliaksei Harshkalep</Authors>
+		<Description>Add Elasticsearch container specific functionality.</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>docker tests elasticsearch container</PackageTags>
+		<PackageReleaseNotes>Update to net8.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NEST" Version="7.12.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="NEST" Version="7.17.5" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+	</ItemGroup>
 
 </Project>

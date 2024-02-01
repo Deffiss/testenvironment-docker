@@ -20,6 +20,7 @@ namespace TestEnvironment.Docker.ContainerOperations
         {
         }
 
+        [Obsolete(DiagnosticId = "SYSLIB0050")]
         protected ContainerOperationException(
           SerializationInfo info,
           StreamingContext context)

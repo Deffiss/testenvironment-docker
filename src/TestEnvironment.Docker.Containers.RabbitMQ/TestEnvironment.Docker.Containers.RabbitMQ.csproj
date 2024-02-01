@@ -1,25 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <AssemblyName>TestEnvironment.Docker.Containers.RabbitMQ</AssemblyName>
-    <RootNamespace>TestEnvironment.Docker.Containers.RabbitMQ</RootNamespace>
-    <Version>2.1.5</Version>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <PackageId>TestEnvironment.Docker.Containers.RabbitMQ</PackageId>
-    <Authors>ZaoralJ</Authors>
-    <Description>Add RabbitMQ container specific functionality.</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>docker tests rabbitmq container</PackageTags>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;net6.0;net8.0</TargetFrameworks>
+		<AssemblyName>TestEnvironment.Docker.Containers.RabbitMQ</AssemblyName>
+		<RootNamespace>TestEnvironment.Docker.Containers.RabbitMQ</RootNamespace>
+		<Version>2.1.6</Version>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>TestEnvironment.Docker.Containers.RabbitMQ</PackageId>
+		<Authors>ZaoralJ</Authors>
+		<Description>Add RabbitMQ container specific functionality.</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>docker tests rabbitmq container</PackageTags>
+		<PackageReleaseNotes>Update to net8.0.</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj"></ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj"></ProjectReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+	</ItemGroup>
 
 </Project>

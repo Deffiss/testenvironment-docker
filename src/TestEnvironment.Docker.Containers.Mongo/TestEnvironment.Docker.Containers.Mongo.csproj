@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <AssemblyName>TestEnvironment.Docker.Containers.Mongo</AssemblyName>
-    <RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
-    <Version>2.1.6</Version>
-    <PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
-    <Nullable>enable</Nullable>
-    <Authors>Uladzimir Lashkevich, Aliaksei Harshkalep, vhatsura</Authors>
-    <Description>Add MongoDB container specific functionality.</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>docker tests mongo mongodb container</PackageTags>
-    <PackageReleaseNotes>Update to net5.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;net6.0;net8.0</TargetFrameworks>
+		<AssemblyName>TestEnvironment.Docker.Containers.Mongo</AssemblyName>
+		<RootNamespace>TestEnvironment.Docker.Containers.Mongo</RootNamespace>
+		<Version>2.1.7</Version>
+		<PackageId>TestEnvironment.Docker.Containers.Mongo</PackageId>
+		<Nullable>enable</Nullable>
+		<Authors>Uladzimir Lashkevich, Aliaksei Harshkalep, vhatsura</Authors>
+		<Description>Add MongoDB container specific functionality.</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>docker tests mongo mongodb container</PackageTags>
+		<PackageReleaseNotes>Update to net8.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MongoDB.Driver" Version="2.23.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+	</ItemGroup>
 
 </Project>

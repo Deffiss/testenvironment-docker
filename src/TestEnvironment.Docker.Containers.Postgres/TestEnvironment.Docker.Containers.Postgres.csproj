@@ -1,29 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <AssemblyName>TestEnvironment.Docker.Containers.Postgres</AssemblyName>
-    <RootNamespace>TestEnvironment.Docker.Containers.Postgres</RootNamespace>
-    <Version>2.1.6</Version>
-    <PackageId>TestEnvironment.Docker.Containers.Postgres</PackageId>
-    <Nullable>enable</Nullable>
-    <Authors>Kiryl Kiryanchykau</Authors>
-    <Description>Add Postgres container specific functionality.</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>docker tests postgres container</PackageTags>
-    <PackageReleaseNotes>Update to net5.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;net6.0;net8.0</TargetFrameworks>
+		<AssemblyName>TestEnvironment.Docker.Containers.Postgres</AssemblyName>
+		<RootNamespace>TestEnvironment.Docker.Containers.Postgres</RootNamespace>
+		<Version>2.1.7</Version>
+		<PackageId>TestEnvironment.Docker.Containers.Postgres</PackageId>
+		<Nullable>enable</Nullable>
+		<Authors>Kiryl Kiryanchykau</Authors>
+		<Description>Add Postgres container specific functionality.</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>docker tests postgres container</PackageTags>
+		<PackageReleaseNotes>Update to net8.0. For netstandard2.0, please use 1.x.x version of the package.</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Npgsql" Version="5.0.0" />
-  </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+		<PackageReference Include="Npgsql" Version="5.0.0" />
+	</ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Npgsql" Version="6.0.0" />
-  </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+		<PackageReference Include="Npgsql" Version="6.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+		<PackageReference Include="Npgsql" Version="8.0.0" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\TestEnvironment.Docker\TestEnvironment.Docker.csproj" />
+	</ItemGroup>
 
 </Project>
