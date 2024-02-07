@@ -18,6 +18,7 @@ namespace TestEnvironment.Docker.Containers.Kafka
                 [9092] = 9092,
                 [2181] = 2181,
             },
+            Tag = "2.6.0",
             ContainerCleaner = new KafkaContainerCleaner(),
             ContainerWaiter = new KafkaContainerWaiter()
         };
