@@ -104,10 +104,13 @@ And that's it!
 
 Official instruction regarding Docker remote access are [here](https://docs.docker.com/config/daemon/remote-access/).
 
-### Podman support
+#### Option 3 - Podman support
 
 As a container engine you can use [Podman](https://podman.io/) instead of docker. It works the same and even has the same api.
 To install podman on Windows and use it follow this [instruction](https://gist.github.com/Guddiny/893555b398e86fc9c33bbeee41ff154a) (Super easy).
+
+#### Option 4 - Rancher Desktop
+Yet another containerization alternative is [Rancher Desktop](https://rancherdesktop.io/).
 
 ### Troubleshooting
 
