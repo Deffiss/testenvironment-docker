@@ -28,6 +28,6 @@ namespace TestEnvironment.Docker.Containers.Mssql
             _parameters = containerParameters;
 
         public string GetConnectionString() =>
-            $"Data Source={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())}, {(IsDockerInDocker ? 1433 : Ports![1433])}; UID=sa; pwd={_parameters.SAPassword};";
+            $"Data Source={(IsDockerInDocker ? IPAddress : IP.Loopback.ToString())}, {(IsDockerInDocker ? 1433 : Ports![1433])}; UID=sa; pwd={_parameters.SAPassword};TrustServerCertificate=True";
     }
 }

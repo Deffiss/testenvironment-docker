@@ -17,6 +17,8 @@ namespace TestEnvironment.Docker
 
         IDockerEnvironmentBuilder UseWsl2(int port = 2375);
 
+        IDockerEnvironmentBuilder SetCustomNetwork(string networkName);
+
         IDockerEnvironmentBuilder SetEnvironmentVariables(IDictionary<string, string> environmentVariables);
 
         IDockerEnvironmentBuilder AddContainer(Func<ContainerParameters, ContainerParameters> paramsBuilder);

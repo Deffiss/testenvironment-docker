@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +9,7 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using FluentFTP;
 using MailKit.Net.Smtp;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -178,6 +178,44 @@ namespace TestEnvironment.Docker.Tests
 
             // Assert
             var mssql = environment.GetContainer<MssqlContainer>("my-mssql");
+            await PrintMssqlVersion(mssql);
+        }
+
+        [Fact]
+        public async Task AddMsSqlContainerInNetwork_WhenContainerIsUp_ShouldPrintMsSqlVersion()
+        {
+            // Arrange
+#if DEBUG
+            var environment = new DockerEnvironmentBuilder(_logger)
+#else
+            await using var environment = new DockerEnvironmentBuilder(_logger)
+#endif
+                .SetName("test-env")
+                .SetCustomNetwork("test-network")
+#if WSL2
+                .UseWsl2()
+#endif
+#if DEBUG
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssqlnet",
+                    SAPassword = "HelloK11tt_0",
+                    Reusable = true,
+                })
+#else
+                .AddMssqlContainer(p => p with
+                {
+                    Name = "my-mssqlnet",
+                    SAPassword = "HelloK11tt_0",
+                })
+#endif
+                .Build();
+
+            // Act
+            await environment.UpAsync();
+
+            // Assert
+            var mssql = environment.GetContainer<MssqlContainer>("my-mssqlnet");
             await PrintMssqlVersion(mssql);
         }
 
