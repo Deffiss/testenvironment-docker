@@ -19,6 +19,7 @@ namespace TestEnvironment.Docker
         private bool _isWsl2 = false;
         private bool _isDockerInDocker = false;
         private string _environmentName = Guid.NewGuid().ToString().Substring(0, 10);
+        private string? _networkName;
 
         public IDockerClient DockerClient { get; private set; }
 
@@ -65,6 +66,12 @@ namespace TestEnvironment.Docker
             return this;
         }
 
+        public IDockerEnvironmentBuilder SetCustomNetwork(string networkName)
+        {
+            _networkName = networkName;
+            return this;
+        }
+
         public IDockerEnvironmentBuilder SetEnvironmentVariables(IDictionary<string, string> environmentVariables)
         {
             _environmentVariables = environmentVariables;
@@ -95,6 +102,7 @@ namespace TestEnvironment.Docker
                     Name = GetContainerName(_environmentName, containerParameters.Name),
                     EnvironmentVariables = _environmentVariables.MergeDictionaries(containerParameters.EnvironmentVariables),
                     IsDockerInDocker = _isDockerInDocker,
+                    NetworkName = _networkName
                 };
 
                 return containerFactory(envParameters, DockerClient, Logger);

@@ -113,6 +113,31 @@ namespace TestEnvironment.Docker.ContainerOperations
 
             var containerInstance = await _dockerClient.Containers.CreateContainerAsync(createParams, cancellationToken);
 
+            // Check the network for container and attach to specified network if needed
+            if (!string.IsNullOrEmpty(containerParameters.NetworkName))
+            {
+                var network = await _dockerClient.Networks
+                    .ListNetworksAsync(
+                        new NetworksListParameters
+                        {
+                            Filters = new Dictionary<string, IDictionary<string, bool>> { { "name", new Dictionary<string, bool> { { containerParameters.NetworkName, true } } } }
+                        },
+                        cancellationToken);
+
+                string networkId;
+                if (network == null || !network.Any())
+                {
+                    var createdNetwork = await _dockerClient.Networks.CreateNetworkAsync(new NetworksCreateParameters { Name = containerParameters.NetworkName }, cancellationToken);
+                    networkId = createdNetwork.ID;
+                }
+                else
+                {
+                    networkId = network.First().ID;
+                }
+
+                await _dockerClient.Networks.ConnectNetworkAsync(networkId, new NetworkConnectParameters { Container = containerInstance.ID }, cancellationToken);
+            }
+
             // Run container
             await _dockerClient.Containers.StartContainerAsync(containerInstance.ID, new ContainerStartParameters(), cancellationToken);
 

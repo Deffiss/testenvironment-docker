@@ -12,6 +12,8 @@ namespace TestEnvironment.Docker
 
         public IDictionary<ushort, ushort>? Ports { get; init; }
 
+        public string? NetworkName { get; init; }
+
         public bool Reusable { get; init; } = false;
 
         public bool IsDockerInDocker { get; init; } = false;
